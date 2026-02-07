@@ -29,12 +29,10 @@ class MusicAssistantClient:
         base_url: str,
         api_key: str,
         verify_ssl: bool = True,
-        timeout_seconds: int = 30,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.api_key = api_key
         self.verify_ssl = verify_ssl
-        self.timeout_seconds = timeout_seconds
 
     def _ssl_context(self) -> ssl.SSLContext | None:
         if self.verify_ssl:
