@@ -57,6 +57,21 @@
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "justMyCode": true
+    },
+    {
+      "name": "Covers: Generate Only",
+      "type": "python",
+      "request": "launch",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "program": "${workspaceFolder}/main.py",
+      "args": [
+        "-c",
+        "${workspaceFolder}/config/non_techno_playlist_de.yaml",
+        "--generate-covers-only"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
     }
   ]
 }

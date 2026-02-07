@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title desc">
+  <title id="title">Swift Radio Playlist Generator</title>
+  <desc id="desc">Pipeline overview banner</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b132b"/>
+      <stop offset="100%" stop-color="#1c2541"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#3a506b"/>
+      <stop offset="100%" stop-color="#5bc0be"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="640" fill="url(#bg)"/>
+  <rect x="60" y="70" width="1160" height="500" rx="24" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.18)"/>
+  <text x="100" y="165" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="700">Swift Radio Playlist Generator</text>
+  <text x="100" y="220" fill="#d8e1e8" font-family="Arial, Helvetica, sans-serif" font-size="30">Music Assistant + OpenAI + Rule-based AI Radio Sections</text>
+
+  <g font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#ffffff">
+    <rect x="100" y="300" width="200" height="70" rx="12" fill="url(#card)"/>
+    <text x="140" y="345">Connect</text>
+
+    <rect x="330" y="300" width="200" height="70" rx="12" fill="url(#card)"/>
+    <text x="365" y="345">Gather</text>
+
+    <rect x="560" y="300" width="200" height="70" rx="12" fill="url(#card)"/>
+    <text x="585" y="345">Generate</text>
+
+    <rect x="790" y="300" width="200" height="70" rx="12" fill="url(#card)"/>
+    <text x="855" y="345">TTS</text>
+
+    <rect x="1020" y="300" width="160" height="70" rx="12" fill="url(#card)"/>
+    <text x="1050" y="345">Publish</text>
+  </g>
+
+  <g stroke="#d8e1e8" stroke-width="4" fill="none" stroke-linecap="round">
+    <path d="M300 335 H328"/>
+    <path d="M530 335 H558"/>
+    <path d="M760 335 H788"/>
+    <path d="M990 335 H1018"/>
+  </g>
+</svg>

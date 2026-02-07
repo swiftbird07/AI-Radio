@@ -256,6 +256,13 @@ def build_multi_section_id(section_ids: list[str]) -> str:
     return f"multi_{'_'.join(labels)}"
 
 
+def resolve_section_name(section: dict[str, Any], fallback_id: str) -> str:
+    name = str(section.get("name", "")).strip()
+    if name:
+        return name
+    return fallback_id.replace("_", " ")
+
+
 def main() -> None:
     args = parse_args()
     config = load_config(args.config)
@@ -579,6 +586,7 @@ def main() -> None:
             {
                 "order": index,
                 "section_id": section_id,
+                "section_name": resolve_section_name(section, section_id),
                 "when": slot.when,
                 "insert_at_index": slot.at_index,
                 "prompt": prompt,
@@ -648,6 +656,10 @@ def main() -> None:
                 {
                 "order": min(int(entry["order"]) for entry in entries),
                 "section_id": build_multi_section_id(section_names),
+                "section_name": resolve_section_name(
+                    meta_section,
+                    build_multi_section_id(section_names),
+                ),
                 "when": str(entries[0]["when"]),
                 "insert_at_index": int(entries[0]["insert_at_index"]),
                 "prompt": meta_prompt,

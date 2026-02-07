@@ -1,46 +1,124 @@
+# =============================================================================
+# Swift Radio Playlist Generator - Sample Configuration
+# =============================================================================
+# Purpose:
+# - This file is a complete, public reference config.
+# - Copy it to `config/local_config.yaml` and adjust values for your setup.
+#
+# Runtime behavior:
+# - `${ENV_VAR}` placeholders are resolved from `.env` in repository root.
+# - Pipeline artifacts are written to `.tmp/`.
+# - Generated section files are written to `general.sections_path_local`.
+# =============================================================================
+
 version: 1
 
+# Global replacement map for custom placeholders.
+# Example:
+# placeholder_values:
+#   "<station_claim>": "Music first. Chaos second."
 placeholder_values: {}
 
 general:
+  # Public show/format name.
+  # Used in target playlist naming.
   name: Example Radio Mix
+
+  # IANA timezone for timestamp placeholders and local date suffix.
   timezone: Europe/Berlin
+
+  # Location used by WEATHER and NEWS context providers.
   location:
     city: Berlin
     country: Germany
+
+  # System instruction baseline for all AI text generations.
+  # Keep it stable and broad. Per-section behavior belongs in section prompts.
   instructions: >
     On-air radio host style with energetic, concise, spoken-word phrasing.
     Tone stays playful, clear, and listener-friendly.
     Metadata cleanup rule: ignore placeholder values like unknown or n/a.
     Ignore track numbers at title start (01, 02, 1., 07 -), keep only real title text.
+
+  # LLM model used in step 3 for section text generation.
   model: gpt-4o-mini
+
+  # Optional temperature for text generation style variance.
+  # Lower = more stable, higher = more creative.
+  temperature: 0.7
+
+  # Max output tokens per LLM generation call.
   max_tokens: 900
+
+  # Optional deterministic seed for section planning/generation flow.
+  # Remove this key to use non-deterministic PRNG behavior.
+  seed: 42
+
+  # Fallback voice selector if TTS.config.voice is not set.
+  # Valid values depend on OpenAI TTS voice support.
   voice_style: ballad
+
+  # Local folder where step 4 writes generated TXT + MP3 section files.
+  # Absolute or relative path.
   sections_path_local: "./output/sections/"
 
+  # Local folder where section cover image files are read from/written to.
+  # Used by step_generate_covers.py and step4_tts_sections.py.
+  covers_path: "./covers/"
+
 providers:
+  # ---------------------------------------------------------------------------
+  # LLM provider (required)
+  # ---------------------------------------------------------------------------
   - type: LLM
     config:
       provider_name: OpenAI
       api_key: ${OPENAI_API_KEY}
+
+      # Optional billing-capable key for step 5 cost query (/organization/costs).
       admin_api_key: ${OPENAI_ADMIN_KEY}
 
+      # Optional image generation settings used by step_generate_covers.py.
+      image_model: gpt-image-1
+      image_size: "1024x1024"
+
+  # ---------------------------------------------------------------------------
+  # TTS provider (required)
+  # ---------------------------------------------------------------------------
   - type: TTS
     config:
       provider_name: OpenAI
       api_key: ${OPENAI_API_KEY}
       model: gpt-4o-mini-tts
+
+      # Explicit voice for OpenAI TTS.
+      # Examples (model-dependent): alloy, ash, ballad, coral, echo,
+      # fable, nova, onyx, sage, shimmer, verse, marin, cedar.
       voice: ballad
+
+      # Optional prosody/style instruction string for speech synthesis.
       instructions: >
         Radio-host delivery, warm tone, clean articulation, short natural pauses.
 
+  # ---------------------------------------------------------------------------
+  # NEWS provider (optional)
+  # Required only if section prompts use news placeholders:
+  # - <news_headlines_local>
+  # - <news_headlines_national>
+  # - <news_headlines_international>
+  # ---------------------------------------------------------------------------
   - type: NEWS
     config:
       provider_name: OpenAI
       api_key: ${OPENAI_API_KEY}
+
+      # Fallback model list used for web-search-based responses.
       model:
         - gpt-4o-mini
         - gpt-4.1-mini
+
+      # Prompt templates are required in config (no hardcoded defaults).
+      # Supported variables: {city}, {country}
       local_prompt: >
         Give exactly 5 short current local news headlines for {city}, {country}.
         No intro, no numbering, one headline per line. NO SPORT NEWS.
@@ -54,30 +132,76 @@ providers:
         No intro, no numbering, one headline per line. NO SPORT NEWS.
         Include at least one positive news item if available.
 
+  # ---------------------------------------------------------------------------
+  # WEATHER provider (optional)
+  # Required only if section prompts use weather placeholders:
+  # - <weather_hourly>
+  # - <weather_daily>
+  # ---------------------------------------------------------------------------
   - type: WEATHER
     config:
       provider_name: open-meteo
       timeout_seconds: 20
 
+  # ---------------------------------------------------------------------------
+  # MUSIC provider (required)
+  # ---------------------------------------------------------------------------
   - type: MUSIC
     config:
       provider_name: MusicAssistant
       base_url: https://music-assistant.local/
       verify_ssl: true
       api_key: ${MUSIC_ASSISTANT_API_KEY}
+
+      # Source playlist in Music Assistant (input playlist).
       playlist_id: 1
+
+      # Optional source limiter in step 2:
+      # randomly select tracks until accumulated duration exceeds this value (minutes).
+      # Set to 0 to disable and use all source tracks.
       max_duration: 60
+
+      # Provider where source playlist is stored.
       provider_instance_id_or_domain: library
+
+      # Provider where generated section MP3s are indexed.
+      # `sections_provider_instance` is preferred if both are set.
       sections_provider_instance: filesystem_local--instance-id
       sections_provider_domain: filesystem_local
+
+      # Wait after pre-TTS sync trigger (step 4).
       pre_tts_sync_wait_seconds: 5
+
+      # Wait after post-TTS sync trigger (step 5).
       post_tts_sync_wait_seconds: 5
+
+      # Polling window while waiting for generated section files
+      # to appear as indexed MA tracks.
       sections_rescan_timeout_seconds: 180
       sections_rescan_poll_seconds: 5
 
 sections:
+  # ---------------------------------------------------------------------------
+  # Section definition rules
+  # ---------------------------------------------------------------------------
+  # id:
+  #   Internal identifier used in section_order.
+  # name:
+  #   Human-readable name used for MP3 title metadata.
+  # type:
+  #   - ai_text: normal generated section
+  #   - ai_meta: used to merge multiple sections in same between-song slot
+  # cover_image:
+  #   Filename under general.covers_path. Optional.
+  # prompt:
+  #   Text prompt with placeholders.
+  # constraints.max_chars:
+  #   Soft target length; small overflow is allowed to avoid hard cut-offs.
+
   - id: Song_Introduction_Start
+    name: Song Introduction Start
     type: ai_text
+    cover_image: song_introduction_start.png
     prompt: >
       First track: <next_songinfo>.
       Open the show, set station vibe, and introduce the segment.
@@ -86,7 +210,9 @@ sections:
       max_chars: 650
 
   - id: Song_Introduction_Middle
+    name: Song Introduction Middle
     type: ai_text
+    cover_image: song_introduction_middle.png
     prompt: >
       Brief, engaging intro for <next_songinfo>.
       Keep it conversational and compact.
@@ -94,7 +220,9 @@ sections:
       max_chars: 650
 
   - id: Song_Introduction_End
+    name: Song Introduction End
     type: ai_text
+    cover_image: song_introduction_end.png
     prompt: >
       Last track: <next_songinfo>.
       Leave a memorable close.
@@ -102,7 +230,9 @@ sections:
       max_chars: 650
 
   - id: Song_Transition
+    name: Song Transition
     type: ai_text
+    cover_image: song_transition.png
     prompt: >
       Transition from <prev_songinfo> to <next_songinfo>.
       Keep flow natural and connected.
@@ -110,7 +240,9 @@ sections:
       max_chars: 600
 
   - id: Song_FunFacts_Context
+    name: Song Fun Facts
     type: ai_text
+    cover_image: song_funfacts_context.png
     prompt: >
       Add a short context or fun fact around <prev_songinfo> or <next_songinfo>.
       Keep it smart and listener-friendly.
@@ -118,7 +250,9 @@ sections:
       max_chars: 650
 
   - id: Song_Random_Funny_Life_Bit
+    name: Random Funny Life Bit
     type: ai_text
+    cover_image: song_random_funny_life_bit.png
     prompt: >
       Mention <prev_songinfo> and <next_songinfo> once each, then switch into a short
       humorous personal-style monologue. No hate speech. No explicit violence.
@@ -126,7 +260,9 @@ sections:
       max_chars: 650
 
   - id: Weather_Short
+    name: Weather Short
     type: ai_text
+    cover_image: weather_short.png
     prompt: >
       Short weather update from <weather_hourly> with time <timestamp>.
       Spoken style, natural wording.
@@ -134,28 +270,36 @@ sections:
       max_chars: 500
 
   - id: News_Headlines_Local
+    name: Local News
     type: ai_text
+    cover_image: news_headlines_local.png
     prompt: >
       Local headlines from <news_headlines_local>.
     constraints:
       max_chars: 1000
 
   - id: News_Headlines_National
+    name: National News
     type: ai_text
+    cover_image: news_headlines_national.png
     prompt: >
       National headlines from <news_headlines_national>.
     constraints:
       max_chars: 1500
 
   - id: News_Headlines_International
+    name: International News
     type: ai_text
+    cover_image: news_headlines_international.png
     prompt: >
       International headlines from <news_headlines_international>.
     constraints:
       max_chars: 1500
 
   - id: Between_Songs_Smoother
+    name: Between Songs Mix
     type: ai_meta
+    cover_image: between_songs_smoother.png
     prompt: >
       Merge multiple snippets between <prev_songinfo> and <next_songinfo> into one coherent
       spoken segment. Keep transitions smooth and avoid repetition.
@@ -163,12 +307,15 @@ sections:
       <section_drafts>
 
 section_order:
+  # start_of_playlist: before first track
   - when: start_of_playlist
     flow:
       - MUST: Song_Introduction_Start
 
+  # between_songs: between each adjacent source track pair
   - when: between_songs
     flow:
+      # Exactly one alternative is selected.
       - ALTERNATIVE:
           pick: one
           choices:
@@ -180,6 +327,9 @@ section_order:
               weight: 30
             - section: Song_Random_Funny_Life_Bit
               weight: 15
+
+      # OPTIONAL blocks are evaluated independently.
+      # They can stack and may trigger ai_meta merging for same slot.
       - OPTIONAL:
           section: Weather_Short
           chance: 0.2
@@ -189,6 +339,7 @@ section_order:
             require_placeholders_present:
               - "<weather_hourly>"
               - "<timestamp>"
+
       - OPTIONAL:
           section: News_Headlines_Local
           chance: 0.1
@@ -197,6 +348,7 @@ section_order:
             max_per_60min: 1
             require_placeholders_present:
               - "<news_headlines_local>"
+
       - OPTIONAL:
           section: News_Headlines_National
           chance: 0.1
@@ -205,6 +357,7 @@ section_order:
             max_per_60min: 1
             require_placeholders_present:
               - "<news_headlines_national>"
+
       - OPTIONAL:
           section: News_Headlines_International
           chance: 0.1
@@ -214,9 +367,11 @@ section_order:
             require_placeholders_present:
               - "<news_headlines_international>"
 
+  # end_of_playlist: after last track
   - when: end_of_playlist
     flow:
       - MUST: Song_Introduction_End
 
 validation:
+  # true: fail early on invalid/unknown section references
   strict: true

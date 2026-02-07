@@ -1,28 +1,75 @@
 # Swift Radio Playlist Generator
 
-Automated pipeline for Music Assistant playlists with AI-generated moderator segments, TTS rendering, and playlist publishing.
+![Swift Radio Overview](.github/assets/overview.svg)
 
-## What This Project Does
+Build a fully automated AI radio playlist for Music Assistant.
 
-- Connects to Music Assistant and reads a source playlist.
-- Optionally limits source selection by total duration (`max_duration`) with random sampling.
-- Generates section scripts from rule-based placement (`start`, `between_songs`, `end`).
-- Fetches optional weather (Open-Meteo) and news (OpenAI web search) context.
-- Merges multi-section between-song blocks through a meta prompt (`ai_meta`) into one final spoken segment.
-- Generates MP3 files via OpenAI TTS.
-- Re-syncs Music Assistant, creates a fresh target playlist, and inserts songs + generated section tracks.
+This project takes a source playlist, injects AI-generated moderator sections (intros, transitions, weather, news, fun bits), converts them to speech, and publishes a fresh target playlist in Music Assistant.
 
-## Repository Layout
+## Features
 
-- `main.py`: orchestrates step execution.
-- `step1_connect.py` ... `step5_update_playlist.py`: pipeline steps.
-- `lib/`: shared runtime modules.
-- `config/sample_config.yaml`: public reference configuration.
-- `.tmp/`: runtime artifacts (generated automatically, ignored by Git).
+- 5-step pipeline with clear boundaries and debug output
+- Music Assistant integration via `music-assistant-client` SDK
+- Rule-based section scheduling (`MUST`, `ALTERNATIVE`, `OPTIONAL` + guards)
+- Optional weather context (Open-Meteo)
+- Optional news context with OpenAI web search
+- OpenAI TTS generation for all sections
+- Optional cover image generation per section (OpenAI Images)
+- ID3 metadata writing for generated MP3 files
+  - human-readable title from `sections[*].name`
+  - artist set to `Swift Radio`
+  - cover artwork embedding when configured
+- Auto-create target playlist with date + run id
+- OpenAI cost check mode in step 5 (`--only-oai-check`)
+
+## How It Works
+
+1. `step1_connect.py`
+Connect to Music Assistant and verify access.
+
+2. `step2_gather_playlist.py`
+Load source playlist + tracks (optional random subset by `max_duration`).
+
+3. `step3_generate_sections.py`
+Evaluate `section_order`, resolve placeholders, fetch optional context, generate section text.
+
+4. `step4_tts_sections.py`
+Convert text to MP3, set metadata, embed covers.
+
+5. `step5_update_playlist.py`
+Sync section provider, create target playlist, add tracks + generated sections.
+
+`main.py` orchestrates all steps.
+
+## Architecture
+
+```mermaid
+flowchart LR
+  A[Config YAML + .env] --> B[Step 1 Connect]
+  B --> C[Step 2 Gather Playlist]
+  C --> D[Step 3 Generate Sections]
+  D --> E[Step 4 TTS + ID3 + Covers]
+  E --> F[Step 5 Sync + Publish Playlist]
+```
+
+## Project Structure
+
+- `main.py`: pipeline orchestrator
+- `step1_connect.py` ... `step5_update_playlist.py`: pipeline steps
+- `step_generate_covers.py`: one-shot section cover generation
+- `lib/`: shared modules (`ma_client`, providers, helpers)
+- `config/sample_config.yaml`: fully documented reference config
+- `.tmp/`: runtime artifacts (ignored by git)
+
+## Requirements
+
+- Python 3.12+
+- A Music Assistant instance with API access
+- OpenAI API key for LLM/TTS (and optional images/news search)
 
 ## Setup
 
-1. Create a Python virtual environment and install dependencies:
+1. Create and activate virtual environment
 
 ```bash
 python3 -m venv .venv
@@ -30,21 +77,28 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-2. Create `.env` in repository root:
+2. Create `.env` in repository root
 
 ```bash
 OPENAI_API_KEY=...
-OPENAI_ADMIN_KEY=...            # optional, only for billing summary in step 5
+OPENAI_ADMIN_KEY=...            # optional (cost endpoint)
 MUSIC_ASSISTANT_API_KEY=...
 ```
 
-3. Copy the sample config and adjust values:
+3. Create local config
 
 ```bash
 cp config/sample_config.yaml config/local_config.yaml
 ```
 
-## Run
+4. Edit `config/local_config.yaml`
+
+- set Music Assistant `base_url`
+- set source `playlist_id`
+- set local `sections_path_local`
+- set provider ids/domains for your MA setup
+
+## Usage
 
 Run full pipeline:
 
@@ -58,38 +112,51 @@ Run from a specific step:
 python3 main.py -c config/local_config.yaml --from-step 3
 ```
 
-Runtime state and intermediate JSON files are written to `.tmp/`.
+Generate covers only:
 
-## Configuration Notes
+```bash
+python3 main.py -c config/local_config.yaml --generate-covers-only
+```
 
-Public baseline: `config/sample_config.yaml`.
+Step 5 billing check only:
 
-Required providers:
+```bash
+python3 step5_update_playlist.py -c config/local_config.yaml --only-oai-check
+```
 
-- `LLM` (OpenAI)
-- `TTS` (OpenAI)
-- `MUSIC` (Music Assistant)
+## Configuration Guide
 
-Optional providers:
+All options are documented in `config/sample_config.yaml`.
 
-- `NEWS` (OpenAI web search)
-- `WEATHER` (Open-Meteo)
+Important groups:
 
-Key `MUSIC` options:
+- `general`: naming, timezone, host style prompt, output paths
+- `providers`: credentials + provider-specific behavior
+- `sections`: generated content blocks (`ai_text`) and optional merger (`ai_meta`)
+- `section_order`: placement rules and guard constraints
 
-- `playlist_id`
-- `provider_instance_id_or_domain`
-- `sections_provider_instance` / `sections_provider_domain`
-- `max_duration` (minutes, `0` disables duration cap)
-- `pre_tts_sync_wait_seconds`
-- `post_tts_sync_wait_seconds`
-- `sections_rescan_timeout_seconds`
-- `sections_rescan_poll_seconds`
+## Covers and Metadata
 
-Target playlist naming:
+Per section, you can define:
+
+- `name`: human-readable metadata title base
+- `cover_image`: image filename located in `general.covers_path`
+
+For merged multi-section outputs (`multi_*`), the system falls back to the `ai_meta` section cover/name when available.
+
+## Output Naming
+
+Target playlist:
 
 - `Swift Radio: <general.name> (<weekday>. <dd.mm.>) [<run_id>]`
 
-Generated section naming:
+Generated section track metadata:
 
-- `<section_id> [<run_id>]`
+- title: `<sections[*].name> [<run_id>]`
+- artist: `Swift Radio`
+
+## Notes
+
+- `.env` is loaded automatically from repository root.
+- Runtime artifacts are written to `.tmp/`.
+- If a section cover is missing, MP3 generation still succeeds.

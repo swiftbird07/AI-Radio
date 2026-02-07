@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import json
 import urllib.parse
 import urllib.error
@@ -226,3 +227,50 @@ class OpenAIProvider:
         if not audio:
             raise OpenAIProviderError("No audio bytes returned from TTS.")
         return audio
+
+    def generate_image_png(
+        self,
+        prompt: str,
+        model: str = "gpt-image-1",
+        size: str = "1024x1024",
+    ) -> bytes:
+        payload = {
+            "model": model,
+            "prompt": prompt,
+            "size": size,
+        }
+        raw = self._post_json("/images/generations", payload)
+        data = json.loads(raw.decode("utf-8"))
+        images = data.get("data") or []
+        if not isinstance(images, list) or not images:
+            raise OpenAIProviderError("No image returned from image generation.")
+        b64_data = images[0].get("b64_json")
+        if isinstance(b64_data, str) and b64_data.strip():
+            try:
+                return base64.b64decode(b64_data)
+            except Exception as exc:
+                raise OpenAIProviderError("Failed to decode image payload.") from exc
+
+        image_url = images[0].get("url")
+        if isinstance(image_url, str) and image_url.strip():
+            request = urllib.request.Request(
+                url=image_url.strip(),
+                method="GET",
+                headers={"Authorization": f"Bearer {self.api_key}"},
+            )
+            try:
+                with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
+                    image_bytes = response.read()
+            except urllib.error.HTTPError as exc:
+                details = exc.read().decode("utf-8", errors="replace")
+                raise OpenAIProviderError(
+                    f"HTTP {exc.code} for {image_url}: {details or exc.reason}"
+                ) from exc
+            except urllib.error.URLError as exc:
+                raise OpenAIProviderError(
+                    f"Network error for {image_url}: {exc.reason}"
+                ) from exc
+            if image_bytes:
+                return image_bytes
+
+        raise OpenAIProviderError("Image generation returned neither b64_json nor url.")

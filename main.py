@@ -31,6 +31,11 @@ def parse_args() -> argparse.Namespace:
         choices=[1, 2, 3, 4, 5],
         help="Run pipeline from this step.",
     )
+    parser.add_argument(
+        "--generate-covers-only",
+        action="store_true",
+        help="Generate section cover images only and exit.",
+    )
     return parser.parse_args()
 
 
@@ -43,6 +48,16 @@ def run_step(script: str, config: str, workdir: str, output_dir: str | None = No
 
 def main() -> None:
     args = parse_args()
+    if args.generate_covers_only:
+        script = "step_generate_covers.py"
+        script_path = Path(script)
+        if not script_path.exists():
+            raise FileNotFoundError(f"Missing script: {script}")
+        print(f"running: {script}")
+        run_step(script, args.config, args.workdir, output_dir=args.output_dir)
+        print("cover generation complete")
+        return
+
     steps = [
         ("step1_connect.py", False),
         ("step2_gather_playlist.py", False),
@@ -68,4 +83,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
