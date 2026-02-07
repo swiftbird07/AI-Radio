@@ -101,12 +101,20 @@ def main() -> None:
     api_key = str(music_config["api_key"])
     verify_ssl = bool(music_config.get("verify_ssl", True))
     playlist_id = str(step1["playlist_id"])
+    playlist_provider = str(
+        music_config.get("provider_instance_id_or_domain")
+        or music_config.get("playlist_provider")
+        or "library"
+    )
 
     client = MusicAssistantClient(base_url, api_key, verify_ssl=verify_ssl)
+    print(f"[step2] Fetching playlist data for playlist_id={playlist_id}")
 
     info_candidates = [
         commands.get("playlist_info"),
         "music/playlists/get",
+        "music/playlists/playlist",
+        "music/playlists/get_item",
         "music/playlists/get_playlist",
         "playlists/get",
         "playlist/get",
@@ -114,24 +122,50 @@ def main() -> None:
     tracks_candidates = [
         commands.get("playlist_tracks"),
         "music/playlists/tracks",
+        "music/playlists/playlist_tracks",
+        "music/playlists/get_playlist_items",
+        "music/playlists/items",
         "music/playlists/get_tracks",
         "music/playlists/get_playlist_tracks",
         "playlists/tracks",
         "playlist/tracks",
     ]
-    id_args = [{"playlist_id": playlist_id}, {"item_id": playlist_id}, {"id": playlist_id}]
+    id_args = [
+        {"playlist_id": playlist_id},
+        {"item_id": playlist_id},
+        {"id": playlist_id},
+        {"playlist_id": playlist_id, "provider_instance_id_or_domain": playlist_provider},
+        {"item_id": playlist_id, "provider_instance_id_or_domain": playlist_provider},
+        {"id": playlist_id, "provider_instance_id_or_domain": playlist_provider},
+        {"playlist_id": playlist_id, "provider_instance": playlist_provider},
+        {"item_id": playlist_id, "provider_instance": playlist_provider},
+    ]
 
     info_command = ""
     info_args: dict[str, Any] = {}
     playlist_info: Any = {"item_id": playlist_id}
     try:
-        info_command, info_args, playlist_info = client.try_commands(info_candidates, id_args)
+        info_command, info_args, playlist_info = client.try_commands(
+            info_candidates,
+            id_args,
+            verbose=True,
+            label="step2-info",
+        )
     except Exception:
         pass
 
-    tracks_command, tracks_args, raw_tracks = client.try_commands(tracks_candidates, id_args)
+    tracks_command, tracks_args, raw_tracks = client.try_commands(
+        tracks_candidates,
+        id_args,
+        verbose=True,
+        label="step2-tracks",
+    )
     tracks_list = extract_tracks(raw_tracks)
     tracks = [normalize_track(item, idx) for idx, item in enumerate(tracks_list)]
+    print(
+        f"[step2] tracks command={tracks_command} args={tracks_args} "
+        f"tracks_count={len(tracks)}"
+    )
 
     output = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -153,4 +187,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

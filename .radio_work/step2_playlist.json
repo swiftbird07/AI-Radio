@@ -1,0 +1,564 @@
+{
+  "generated_at": "2026-02-07T13:22:12.768154+00:00",
+  "playlist_id": "7",
+  "playlist": {
+    "item_id": "7",
+    "provider": "library",
+    "name": "Test",
+    "version": "",
+    "sort_name": "test",
+    "uri": "library://playlist/7",
+    "external_ids": [],
+    "is_playable": true,
+    "translation_key": null,
+    "media_type": "playlist",
+    "provider_mappings": [
+      {
+        "item_id": "Umhy7T6a",
+        "provider_domain": "builtin",
+        "provider_instance": "builtin--3TL8soje",
+        "available": true,
+        "in_library": true,
+        "is_unique": null,
+        "audio_format": {
+          "content_type": "?",
+          "codec_type": "?",
+          "sample_rate": 44100,
+          "bit_depth": 16,
+          "channels": 2,
+          "output_format_str": "?",
+          "bit_rate": 0
+        },
+        "url": null,
+        "details": null
+      }
+    ],
+    "metadata": {
+      "description": null,
+      "review": null,
+      "explicit": null,
+      "images": null,
+      "grouping": null,
+      "genres": [],
+      "mood": null,
+      "style": null,
+      "copyright": null,
+      "lyrics": null,
+      "lrc_lyrics": null,
+      "label": null,
+      "links": null,
+      "performers": null,
+      "preview": null,
+      "popularity": null,
+      "release_date": null,
+      "languages": null,
+      "chapters": null,
+      "last_refresh": 1770468271
+    },
+    "favorite": false,
+    "position": null,
+    "owner": "Music Assistant",
+    "is_editable": true
+  },
+  "tracks_count": 4,
+  "tracks": [
+    {
+      "index": 0,
+      "item_id": "3167",
+      "provider": "library",
+      "name": "Afterlife",
+      "artist": "Illenium",
+      "duration": 364,
+      "songinfo": "Illenium - Afterlife",
+      "raw": {
+        "item_id": "3167",
+        "provider": "library",
+        "name": "Afterlife",
+        "version": "",
+        "sort_name": "afterlife",
+        "uri": "library://track/3167",
+        "external_ids": [],
+        "is_playable": true,
+        "translation_key": null,
+        "media_type": "track",
+        "provider_mappings": [
+          {
+            "item_id": "Kein Techno/Afterlife (feat. Echos).mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 110
+            },
+            "url": null,
+            "details": "1767737453"
+          }
+        ],
+        "metadata": {
+          "description": "https://www.youtube.com/watch?v=m-6ePeGqTbY",
+          "review": null,
+          "explicit": null,
+          "images": [
+            {
+              "type": "thumb",
+              "path": "Kein Techno/Afterlife (feat. Echos).mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Kein Techno/Afterlife (feat. Echos).mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            }
+          ],
+          "grouping": null,
+          "genres": [],
+          "mood": null,
+          "style": null,
+          "copyright": null,
+          "lyrics": null,
+          "lrc_lyrics": "After we're gone, who will breathe the earth we lost?\nWe leave nothing but our thoughts\nAnd memories beneath the dust\nSo when this body fails to mend\nAnd all my demons, they come crashing in\nWill I start to begin or will I fade away with them?\nAnd in the afterlife, tell me we'll be fine\nIn the afterlife, tell me we'll be fine\nAnd in the afterlife, tell me we'll be fine\nIn the afterlife\nAnd in the afterlife, tell me we'll be fine\nIn the afterlife, tell me we'll be fine\nAnd in the afterlife, tell me we'll be fine\nIn the afterlife\nIn the afterlife\nSo when this body fails to mend\nAnd all the demons, they come crashing in\nWill we start to begin or will we fade away with them?\nAnd in the afterlife, tell me we'll be fine\nIn the afterlife, tell me we'll be fine\nAnd in the afterlife, tell me we'll be fine\nIn the afterlife\nAnd in the afterlife, tell me we'll be fine\nIn the afterlife, tell me we'll be fine\nAnd in the afterlife, tell me we'll be fine\nAnd in the afterlife",
+          "label": null,
+          "links": null,
+          "performers": null,
+          "preview": null,
+          "popularity": null,
+          "release_date": null,
+          "languages": null,
+          "chapters": null,
+          "last_refresh": 1769967093
+        },
+        "favorite": false,
+        "position": 1,
+        "duration": 364,
+        "artists": [
+          {
+            "item_id": "1727",
+            "provider": "library",
+            "name": "Illenium",
+            "version": "",
+            "sort_name": "illenium",
+            "uri": "library://artist/1727",
+            "external_ids": [],
+            "is_playable": true,
+            "translation_key": null,
+            "media_type": "artist",
+            "available": true,
+            "image": null
+          }
+        ],
+        "last_played": 1769969200,
+        "album": {
+          "item_id": "1680",
+          "provider": "library",
+          "name": "Ashes",
+          "version": "",
+          "sort_name": "ashes",
+          "uri": "library://album/1680",
+          "external_ids": [],
+          "is_playable": true,
+          "translation_key": null,
+          "media_type": "album",
+          "available": true,
+          "image": null
+        },
+        "disc_number": 0,
+        "track_number": 0
+      }
+    },
+    {
+      "index": 1,
+      "item_id": "1101",
+      "provider": "library",
+      "name": "02 The Power is mine",
+      "artist": "[unknown]",
+      "duration": 204,
+      "songinfo": "[unknown] - 02 The Power is mine",
+      "raw": {
+        "item_id": "1101",
+        "provider": "library",
+        "name": "02 The Power is mine",
+        "version": "",
+        "sort_name": "02 the power is mine",
+        "uri": "library://track/1101",
+        "external_ids": [],
+        "is_playable": true,
+        "translation_key": null,
+        "media_type": "track",
+        "provider_mappings": [
+          {
+            "item_id": "Gabber/Virus 02/CD1/02 The Power is mine.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 44100,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 192
+            },
+            "url": null,
+            "details": "1767737448"
+          }
+        ],
+        "metadata": {
+          "description": null,
+          "review": null,
+          "explicit": null,
+          "images": null,
+          "grouping": null,
+          "genres": [
+            "Blues"
+          ],
+          "mood": null,
+          "style": null,
+          "copyright": null,
+          "lyrics": null,
+          "lrc_lyrics": null,
+          "label": null,
+          "links": null,
+          "performers": null,
+          "preview": null,
+          "popularity": null,
+          "release_date": null,
+          "languages": null,
+          "chapters": null,
+          "last_refresh": 1769967185
+        },
+        "favorite": false,
+        "position": 2,
+        "duration": 204,
+        "artists": [
+          {
+            "item_id": "2",
+            "provider": "library",
+            "name": "[unknown]",
+            "version": "",
+            "sort_name": "unknown]",
+            "uri": "library://artist/2",
+            "external_ids": [],
+            "is_playable": true,
+            "translation_key": null,
+            "media_type": "artist",
+            "available": true,
+            "image": null
+          }
+        ],
+        "last_played": 1769970029,
+        "album": null,
+        "disc_number": 0,
+        "track_number": 0
+      }
+    },
+    {
+      "index": 2,
+      "item_id": "3041",
+      "provider": "library",
+      "name": "Schreien!",
+      "artist": "Paula Carolina, Marti Fischer, Paula Carolina, Nikolaus Winkelhausen, Paula Carolina, Nikolaus Winkelhausen, Marius Fietz, Johann Seifert",
+      "duration": 165,
+      "songinfo": "Paula Carolina, Marti Fischer, Paula Carolina, Nikolaus Winkelhausen, Paula Carolina, Nikolaus Winkelhausen, Marius Fietz, Johann Seifert - Schreien!",
+      "raw": {
+        "item_id": "3041",
+        "provider": "library",
+        "name": "Schreien!",
+        "version": "Turbo Remix",
+        "sort_name": "schreien!",
+        "uri": "library://track/3041",
+        "external_ids": [],
+        "is_playable": true,
+        "translation_key": null,
+        "media_type": "track",
+        "provider_mappings": [
+          {
+            "item_id": "Techno & Harder Styles/Schreien! (Turbo Remix).mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 129
+            },
+            "url": null,
+            "details": "1767737582"
+          }
+        ],
+        "metadata": {
+          "description": "https://www.youtube.com/watch?v=EM8my7_ApbA",
+          "review": null,
+          "explicit": null,
+          "images": [
+            {
+              "type": "thumb",
+              "path": "Techno and Harder Styles/Schreien! (Turbo Remix).mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Techno and Harder Styles/Schreien! (Turbo Remix).mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Techno & Harder Styles/Schreien! (Turbo Remix).mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            }
+          ],
+          "grouping": null,
+          "genres": [],
+          "mood": null,
+          "style": null,
+          "copyright": null,
+          "lyrics": null,
+          "lrc_lyrics": null,
+          "label": null,
+          "links": null,
+          "performers": null,
+          "preview": null,
+          "popularity": null,
+          "release_date": null,
+          "languages": null,
+          "chapters": null,
+          "last_refresh": 1769968950
+        },
+        "favorite": false,
+        "position": 3,
+        "duration": 165,
+        "artists": [
+          {
+            "item_id": "965",
+            "provider": "library",
+            "name": "Paula Carolina, Marti Fischer, Paula Carolina, Nikolaus Winkelhausen, Paula Carolina, Nikolaus Winkelhausen, Marius Fietz, Johann Seifert",
+            "version": "",
+            "sort_name": "paula carolina, marti fischer, paula carolina, nikolaus winkelhausen, paula carolina, nikolaus winkelhausen, marius fietz, johann seifert",
+            "uri": "library://artist/965",
+            "external_ids": [],
+            "is_playable": true,
+            "translation_key": null,
+            "media_type": "artist",
+            "available": true,
+            "image": null
+          }
+        ],
+        "last_played": 0,
+        "album": {
+          "item_id": "824",
+          "provider": "library",
+          "name": "Schreien!",
+          "version": "",
+          "sort_name": "schreien!",
+          "uri": "library://album/824",
+          "external_ids": [],
+          "is_playable": true,
+          "translation_key": null,
+          "media_type": "album",
+          "available": true,
+          "image": null
+        },
+        "disc_number": 0,
+        "track_number": 0
+      }
+    },
+    {
+      "index": 3,
+      "item_id": "1537",
+      "provider": "library",
+      "name": "Always",
+      "artist": "Panama, Jarrah Lanes, Jarrah Lanes, Jarrah Lanes",
+      "duration": 91,
+      "songinfo": "Panama, Jarrah Lanes, Jarrah Lanes, Jarrah Lanes - Always",
+      "raw": {
+        "item_id": "1537",
+        "provider": "library",
+        "name": "Always",
+        "version": "",
+        "sort_name": "always",
+        "uri": "library://track/1537",
+        "external_ids": [],
+        "is_playable": true,
+        "translation_key": null,
+        "media_type": "track",
+        "provider_mappings": [
+          {
+            "item_id": "Music/Media.localized/Music/Panama, Jarrah Lanes, Jarrah Lanes, Jarrah Lanes/One Day/Always.m4a",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "m4a",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "m4a",
+              "bit_rate": 529
+            },
+            "url": null,
+            "details": "1767737554"
+          },
+          {
+            "item_id": "Techno and Harder Styles/Always.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 177
+            },
+            "url": null,
+            "details": "1767737584"
+          },
+          {
+            "item_id": "Techno & Harder Styles/Always.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 177
+            },
+            "url": null,
+            "details": "1767737580"
+          }
+        ],
+        "metadata": {
+          "description": "https://www.youtube.com/watch?v=CR7UN7sxWoY",
+          "review": null,
+          "explicit": null,
+          "images": [
+            {
+              "type": "thumb",
+              "path": "Techno and Harder Styles/Always.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Techno and Harder Styles/Always.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Techno & Harder Styles/Always.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Music/Media.localized/Music/Panama, Jarrah Lanes, Jarrah Lanes, Jarrah Lanes/One Day/Always.m4a",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            }
+          ],
+          "grouping": null,
+          "genres": [
+            "Techno"
+          ],
+          "mood": null,
+          "style": null,
+          "copyright": null,
+          "lyrics": null,
+          "lrc_lyrics": null,
+          "label": null,
+          "links": null,
+          "performers": null,
+          "preview": null,
+          "popularity": null,
+          "release_date": null,
+          "languages": null,
+          "chapters": null,
+          "last_refresh": 1770468454
+        },
+        "favorite": false,
+        "position": 4,
+        "duration": 91,
+        "artists": [
+          {
+            "item_id": "718",
+            "provider": "library",
+            "name": "Panama, Jarrah Lanes, Jarrah Lanes, Jarrah Lanes",
+            "version": "",
+            "sort_name": "panama, jarrah lanes, jarrah lanes, jarrah lanes",
+            "uri": "library://artist/718",
+            "external_ids": [],
+            "is_playable": true,
+            "translation_key": null,
+            "media_type": "artist",
+            "available": true,
+            "image": null
+          }
+        ],
+        "last_played": 0,
+        "album": {
+          "item_id": "518",
+          "provider": "library",
+          "name": "One Day",
+          "version": "",
+          "sort_name": "one day",
+          "uri": "library://album/518",
+          "external_ids": [],
+          "is_playable": true,
+          "translation_key": null,
+          "media_type": "album",
+          "available": true,
+          "image": null
+        },
+        "disc_number": 0,
+        "track_number": 0
+      }
+    }
+  ],
+  "commands_used": {
+    "playlist_info_command": "music/playlists/get",
+    "playlist_info_args": {
+      "item_id": "7",
+      "provider_instance_id_or_domain": "library"
+    },
+    "playlist_tracks_command": "music/playlists/playlist_tracks",
+    "playlist_tracks_args": {
+      "item_id": "7",
+      "provider_instance_id_or_domain": "library"
+    }
+  }
+}

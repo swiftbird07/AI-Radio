@@ -65,8 +65,11 @@ def main() -> None:
         raise ValueError("MUSIC provider config is missing 'playlist_id'.")
 
     client = MusicAssistantClient(base_url, api_key, verify_ssl=verify_ssl)
+    print(f"[step1] connecting base_url={base_url} verify_ssl={verify_ssl}")
     players = client.call_command("players/all", {})
+    print(f"[step1] players found={len(players) if isinstance(players, list) else 0}")
     command_catalog = discover_commands(client)
+    print(f"[step1] discovered commands={len(command_catalog)}")
 
     output = {
         "connected_at": datetime.now(timezone.utc).isoformat(),
@@ -84,4 +87,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

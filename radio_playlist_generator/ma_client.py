@@ -87,19 +87,33 @@ class MusicAssistantClient:
         self,
         commands: list[str],
         args_variants: list[dict[str, Any]],
+        verbose: bool = False,
+        label: str = "",
     ) -> tuple[str, dict[str, Any], Any]:
         attempts: list[CommandAttempt] = []
-        for command in [c for c in commands if c]:
+        filtered_commands = [c for c in commands if c]
+        if verbose:
+            prefix = f"[{label}] " if label else ""
+            print(
+                f"{prefix}Trying {len(filtered_commands)} commands with {len(args_variants)} arg variants..."
+            )
+        for command in filtered_commands:
             for args in args_variants:
                 try:
+                    if verbose:
+                        prefix = f"[{label}] " if label else ""
+                        print(f"{prefix}-> command={command} args={args}")
                     result = self.call_command(command, args)
+                    if verbose:
+                        prefix = f"[{label}] " if label else ""
+                        print(f"{prefix}OK command={command}")
                     return command, args, result
                 except MusicAssistantError as exc:
+                    if verbose:
+                        prefix = f"[{label}] " if label else ""
+                        print(f"{prefix}FAILED command={command}: {exc}")
                     attempts.append(
                         CommandAttempt(command=command, args=args, error=str(exc))
                     )
-        errors = "\n".join(
-            f"- {a.command} args={a.args}: {a.error}" for a in attempts[-12:]
-        )
+        errors = "\n".join(f"- {a.command} args={a.args}: {a.error}" for a in attempts)
         raise MusicAssistantError(f"No command variant succeeded.\n{errors}")
-

@@ -1,0 +1,43 @@
+{
+  "sections_dir": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno",
+  "audio_items_count": 5,
+  "tts_model": "gpt-4o-mini-tts",
+  "tts_voice": "alloy",
+  "audio_items": [
+    {
+      "order": 0,
+      "section_id": "Song_Introduction_Start",
+      "insert_at_index": 0,
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/000_song_introduction_start.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/000_song_introduction_start.mp3"
+    },
+    {
+      "order": 1,
+      "section_id": "Song_Introduction_Middle",
+      "insert_at_index": 1,
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/001_song_introduction_middle.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/001_song_introduction_middle.mp3"
+    },
+    {
+      "order": 2,
+      "section_id": "Song_Transition",
+      "insert_at_index": 2,
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/002_song_transition.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/002_song_transition.mp3"
+    },
+    {
+      "order": 3,
+      "section_id": "Song_Introduction_Middle",
+      "insert_at_index": 3,
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/003_song_introduction_middle.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/003_song_introduction_middle.mp3"
+    },
+    {
+      "order": 4,
+      "section_id": "Song_Introduction_End",
+      "insert_at_index": 4,
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/004_song_introduction_end.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/004_song_introduction_end.mp3"
+    }
+  ]
+}

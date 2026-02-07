@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import random
+import re
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -156,6 +157,29 @@ def apply_placeholders(prompt: str, values: dict[str, str]) -> str:
     return text
 
 
+def soft_limit_text(text: str, max_chars: int, tolerance_ratio: float = 0.15) -> str:
+    if max_chars <= 0:
+        return text.strip()
+    slack = max(30, int(max_chars * tolerance_ratio))
+    hard_limit = max_chars + slack
+    cleaned = text.strip()
+    if len(cleaned) <= hard_limit:
+        return cleaned
+
+    candidate = cleaned[:hard_limit].rstrip()
+    sentence_ends = [m.end() for m in re.finditer(r"[.!?](?:\s|$)", candidate)]
+    if sentence_ends:
+        after_target = [pos for pos in sentence_ends if pos >= max_chars]
+        if after_target:
+            return candidate[: after_target[0]].strip()
+        return candidate[: sentence_ends[-1]].strip()
+
+    last_space = candidate.rfind(" ")
+    if last_space > 0:
+        return candidate[:last_space].rstrip()
+    return candidate
+
+
 def validate_config_references(config: dict[str, Any], section_ids: set[str]) -> None:
     validation = config.get("validation", {})
     strict = bool(validation.get("strict", False))
@@ -202,6 +226,7 @@ def main() -> None:
 
     if not tracks:
         raise ValueError("Step 2 produced no tracks; cannot build sections.")
+    print(f"[step3] Loaded {len(tracks)} tracks from step2.")
 
     llm_config = get_provider_config(config, "LLM")
     provider_name = str(llm_config.get("provider_name", "")).lower()
@@ -223,8 +248,10 @@ def main() -> None:
     sections = config.get("sections", [])
     section_by_id = {str(section["id"]): section for section in sections if "id" in section}
     validate_config_references(config, set(section_by_id.keys()))
+    print(f"[step3] Config has {len(section_by_id)} sections.")
 
     slots = build_slots(tracks)
+    print(f"[step3] Built {len(slots)} insertion slots.")
     rules = config.get("section_order", [])
     history: dict[str, list[tuple[int, float]]] = {}
     selected_sections: list[dict[str, Any]] = []
@@ -297,6 +324,17 @@ def main() -> None:
 
     llm = OpenAIProvider(api_key=api_key)
     output_items: list[dict[str, Any]] = []
+    print(f"[step3] Planned {len(selected_sections)} sections from rule evaluation.")
+
+    print("[step3] Section -> song order:")
+    for index, selected in enumerate(selected_sections):
+        slot: Slot = selected["slot"]
+        prev_song = tracks[slot.prev_index]["songinfo"] if slot.prev_index is not None else "-"
+        next_song = tracks[slot.next_index]["songinfo"] if slot.next_index is not None else "-"
+        print(
+            f"  #{index:03d} section={selected['section_id']} when={slot.when} "
+            f"insert_at={slot.at_index} prev='{prev_song}' next='{next_song}'"
+        )
 
     for index, selected in enumerate(selected_sections):
         section_id = selected["section_id"]
@@ -312,7 +350,16 @@ def main() -> None:
         prompt = apply_placeholders(prompt_template, placeholder_values)
         max_chars = int((section.get("constraints") or {}).get("max_chars", 0))
         if max_chars > 0:
-            prompt = f"{prompt}\n\nKeep output <= {max_chars} characters."
+            prompt = (
+                f"{prompt}\n\nTarget length: around {max_chars} characters. "
+                f"It may exceed by up to 15% if needed to finish naturally. "
+                "Never stop mid-sentence."
+            )
+
+        print(
+            f"[step3] Generating #{index:03d} section={section_id} "
+            f"insert_at={slot.at_index} max_chars={max_chars or 'n/a'}"
+        )
 
         text = llm.generate_text(
             model=model,
@@ -321,8 +368,13 @@ def main() -> None:
             temperature=temperature,
             max_tokens=max_tokens,
         )
+        original_len = len(text)
         if max_chars > 0:
-            text = text[:max_chars].strip()
+            text = soft_limit_text(text, max_chars=max_chars, tolerance_ratio=0.15)
+        print(
+            f"[step3] Generated #{index:03d} chars_before={original_len} "
+            f"chars_after={len(text)}"
+        )
 
         history.setdefault(section_id, []).append(
             (
@@ -355,4 +407,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

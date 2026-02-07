@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import json
+import urllib.parse
 import urllib.error
 import urllib.request
+from typing import Any
 
 
 class OpenAIProviderError(RuntimeError):
@@ -49,6 +51,61 @@ class OpenAIProvider:
         except urllib.error.URLError as exc:
             raise OpenAIProviderError(f"Network error for {url}: {exc.reason}") from exc
 
+    def _get_json(self, path: str, query: dict[str, Any] | None = None) -> dict[str, Any]:
+        base_url = f"{self.base_url}{path}"
+        if query:
+            query_string = urllib.parse.urlencode(query)
+            url = f"{base_url}?{query_string}"
+        else:
+            url = base_url
+        request = urllib.request.Request(
+            url=url,
+            method="GET",
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Accept": "application/json",
+            },
+        )
+        try:
+            with urllib.request.urlopen(request, timeout=self.timeout_seconds) as response:
+                raw = response.read().decode("utf-8")
+        except urllib.error.HTTPError as exc:
+            details = exc.read().decode("utf-8", errors="replace")
+            raise OpenAIProviderError(
+                f"HTTP {exc.code} for {url}: {details or exc.reason}"
+            ) from exc
+        except urllib.error.URLError as exc:
+            raise OpenAIProviderError(f"Network error for {url}: {exc.reason}") from exc
+        try:
+            return json.loads(raw) if raw else {}
+        except json.JSONDecodeError as exc:
+            raise OpenAIProviderError(f"Invalid JSON from {url}") from exc
+
+    @staticmethod
+    def _sum_cost_usd(payload: Any) -> float:
+        total = 0.0
+        if isinstance(payload, dict):
+            amount = payload.get("amount")
+            if isinstance(amount, dict):
+                value = amount.get("value")
+                currency = str(amount.get("currency", "usd")).lower()
+                if isinstance(value, (int, float)) and currency == "usd":
+                    total += float(value)
+            for value in payload.values():
+                total += OpenAIProvider._sum_cost_usd(value)
+        elif isinstance(payload, list):
+            for item in payload:
+                total += OpenAIProvider._sum_cost_usd(item)
+        return total
+
+    def get_costs_total_usd(self, start_time: int, end_time: int) -> tuple[float, dict[str, Any]]:
+        data = self._get_json(
+            "/organization/costs",
+            query={"start_time": start_time, "end_time": end_time},
+        )
+        total = self._sum_cost_usd(data)
+        return total, data
+
     def generate_text(
         self,
         model: str,
@@ -94,4 +151,3 @@ class OpenAIProvider:
         if not audio:
             raise OpenAIProviderError("No audio bytes returned from TTS.")
         return audio
-

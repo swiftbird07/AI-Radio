@@ -1,0 +1,47 @@
+{
+  "generated_sections_count": 5,
+  "seed": 42,
+  "model": "gpt-4",
+  "sections": [
+    {
+      "order": 0,
+      "section_id": "Song_Introduction_Start",
+      "when": "start_of_playlist",
+      "insert_at_index": 0,
+      "prompt": "This is the first song of the playlist, Illenium - Afterlife. Introduce the song and the artist in a way that captures the listeners' attention and sets the tone for the rest of the playlist.\n\nTarget length: around 650 characters. It may exceed by up to 15% if needed to finish naturally. Never stop mid-sentence.",
+      "text": "Ladies and gentlemen, you're tuned into Swift Radio, your ultimate non-techno music station. Brace yourselves as we venture into a sonic journey, kicking off with a track that beautifully intertwines melody and emotion. Get ready for 'Afterlife' by Illenium. Now, if you're new to Illenium, let me tell you, this artist is a master at crafting musical experiences that tug at the heartstrings. His soulful creations are a perfect fusion of atmospheric soundscapes and poignant lyrics. 'Afterlife' is no exception. It serves as an aural delight that not only pleases the ears but also stirs the soul. So sit back, relax, and let Illenium's 'Afterlife' take you on an unforgettable musical ride."
+    },
+    {
+      "order": 1,
+      "section_id": "Song_Introduction_Middle",
+      "when": "between_songs",
+      "insert_at_index": 1,
+      "prompt": "Introduce the next song, [unknown] - 02 The Power is mine, in a short and engaging way. Include information about the artist and the song, and make it sound interesting for the listeners.\n\nTarget length: around 650 characters. It may exceed by up to 15% if needed to finish naturally. Never stop mid-sentence.",
+      "text": "Alright, listeners, brace yourselves as we are about to dive into the mystical soundscapes of the enigmatic artist, known only as [unknown]. This individual, or should we say entity, shrouded in secrecy, has been stirring up the music scene with their distinctive and innovative style. Never bound by genres, [unknown] keeps you guessing, and that's part of their charm.\n\nComing up next is their track, \"02 The Power is Mine.\" This tune is a fearless exploration of sonic boundaries, seamlessly blending a medley of musical influences. It's a song that empowers, inspires, and dares us to claim our own power. So, whether it's your first time listening or your hundredth, prepare to be audibly enchanted."
+    },
+    {
+      "order": 2,
+      "section_id": "Song_Transition",
+      "when": "between_songs",
+      "insert_at_index": 2,
+      "prompt": "Create a smooth transition between the previous song, [unknown] - 02 The Power is mine, and the next song, Paula Carolina, Marti Fischer, Paula Carolina, Nikolaus Winkelhausen, Paula Carolina, Nikolaus Winkelhausen, Marius Fietz, Johann Seifert - Schreien!. Mention the artists and the songs in a way that connects them and keeps the listeners engaged.\n\nTarget length: around 600 characters. It may exceed by up to 15% if needed to finish naturally. Never stop mid-sentence.",
+      "text": "Well, that was an electrifying ride with [unknown] and their power anthem '02 The Power is Mine'. You could almost feel the energy pulsating through the airwaves, couldn't you, folks? Now, we're about to switch gears and traverse to a different soundscape. Get ready for an international ensemble of talent, featuring Paula Carolina, Marti Fischer, Nikolaus Winkelhausen, Marius Fietz, and Johann Seifert. They've come together to craft an emotional rollercoaster titled 'Schreien!'. From the power within us to the cries that echo our emotions, music truly is a universal language, isn't it? So, brace yourselves for this sonic journey, right here on Swift Radio."
+    },
+    {
+      "order": 3,
+      "section_id": "Song_Introduction_Middle",
+      "when": "between_songs",
+      "insert_at_index": 3,
+      "prompt": "Introduce the next song, Panama, Jarrah Lanes, Jarrah Lanes, Jarrah Lanes - Always, in a short and engaging way. Include information about the artist and the song, and make it sound interesting for the listeners.\n\nTarget length: around 650 characters. It may exceed by up to 15% if needed to finish naturally. Never stop mid-sentence.",
+      "text": "Ladies and gentlemen, you're tuned into Swift Radio, the home of non-techno tunes that always keep your spirits high. Coming up next, we've got a real treat for your ears. It's a song that will take you on a journey, a song that encapsulates the essence of indie-folk music.\n\nGet ready for 'Always' by Jarrah Lanes. This Australian band, named after the beautiful Jarrah tree-lined lanes in Western Australia, is known for their poetic lyrics and unique melodies. 'Always' is a standout track from their debut album, 'Panama', and it's a song that talks about everlasting love and hope, a theme many of us can resonate with."
+    },
+    {
+      "order": 4,
+      "section_id": "Song_Introduction_End",
+      "when": "end_of_playlist",
+      "insert_at_index": 4,
+      "prompt": "This is the last song of the playlist, . Introduce the song and the artist in a way that leaves a lasting impression on the listeners and encourages them to listen to more music on Swift Radio.\n\nTarget length: around 650 characters. It may exceed by up to 15% if needed to finish naturally. Never stop mid-sentence.",
+      "text": "Well, folks, we've reached the final melody of today's playlist on Swift Radio. We're wrapping things up with a track that's sure to linger in your ears and hearts long after it's over. From an artist who needs absolutely no introduction, a virtuoso who's been enchanting us with their music for years - a true maestro of the non-techno genre. \n\nThis song is their latest masterpiece, a symphony of rhythm and emotion, that will transport you to a different world. As the last notes fade away, remember that here at Swift Radio, we're your constant companion, your gateway to the world of soul-stirring music. We are here every day, every hour, serving you the finest tunes from the world over."
+    }
+  ]
+}

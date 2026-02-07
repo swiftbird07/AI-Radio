@@ -18,13 +18,15 @@ general:
   temperature: 0.7
   max_tokens: 900
   # Where the generated sections should be stored (relative to the output directory)
-  sections_path: ./sections 
+  sections_path_local: '/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/'
+  sections_path_remote: '/copyparty-music/Swift Radio/Non-Techno/' # optional: if different from local path, e.g. from Music Assistant's perspective
 
 providers:
   - type: LLM
     config:
       provider_name: OpenAI
       api_key: ${OPENAI_API_KEY}
+      admin_api_key: ${OPENAI_ADMIN_KEY} # optional: if you want to know how much the run has cost you. Needs Usage:Read permissions.
   - type: TTS
     config:
       provider_name: OpenAI
@@ -35,7 +37,12 @@ providers:
       base_url: https://ma.nas.home/
       verify_ssl: false
       api_key: ${MUSIC_ASSISTANT_API_KEY}
-      playlist_id: 12345678-90ab-cdef-1234-567890abcdef
+      playlist_id: 7
+      provider_instance_id_or_domain: library
+      sections_provider_domain: filesystem_local
+      commands:
+        playlist_tracks: music/playlists/playlist_tracks
+        playlist_add: music/playlists/add_playlist_tracks
 
 available_placeholders:
     - <prev_songinfo>

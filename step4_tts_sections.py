@@ -55,6 +55,7 @@ def main() -> None:
     sections = step3.get("sections", [])
     if not sections:
         raise ValueError("Step 3 produced no sections to convert.")
+    print(f"[step4] sections to convert={len(sections)}")
 
     tts_config = get_provider_config(config, "TTS")
     provider_name = str(tts_config.get("provider_name", "")).lower()
@@ -69,12 +70,17 @@ def main() -> None:
     tts_model = str(tts_config.get("model", "gpt-4o-mini-tts"))
     tts_voice = resolve_voice(general, tts_config)
 
-    sections_path = str(general.get("sections_path", "./sections"))
+    sections_path = str(
+        general.get("sections_path_local")
+        or general.get("sections_path")
+        or "./sections"
+    )
     output_base = Path(args.output_dir).resolve()
     if Path(sections_path).is_absolute():
         sections_dir = ensure_dir(Path(sections_path))
     else:
         sections_dir = ensure_dir(output_base / sections_path)
+    print(f"[step4] output dir={sections_dir}")
 
     tts = OpenAIProvider(api_key=api_key)
     output_items = []
@@ -87,6 +93,10 @@ def main() -> None:
         file_stem = f"{index:03d}_{slugify(section_id)}"
         text_file = sections_dir / f"{file_stem}.txt"
         audio_file = sections_dir / f"{file_stem}.mp3"
+        print(
+            f"[step4] tts #{index:03d} section={section_id} "
+            f"insert_at={section.get('insert_at_index')} text_len={len(section_text)}"
+        )
         text_file.write_text(section_text + "\n", encoding="utf-8")
 
         audio_bytes = tts.text_to_speech(
@@ -96,6 +106,7 @@ def main() -> None:
             response_format="mp3",
         )
         audio_file.write_bytes(audio_bytes)
+        print(f"[step4] wrote {audio_file}")
 
         output_items.append(
             {
@@ -121,4 +132,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

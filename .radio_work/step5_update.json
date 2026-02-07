@@ -1,0 +1,157 @@
+{
+  "source_playlist_id": "7",
+  "target_playlist_id": "13",
+  "target_playlist_name": "Swift Radio: Non Techno Playlist",
+  "items_added": 9,
+  "results": [
+    {
+      "kind": "section",
+      "name": "Song_Introduction_Start",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/000_song_introduction_start.mp3",
+      "audio_uri": "filesystem_local://track/Swift Radio/Non-Techno/000_song_introduction_start.mp3",
+      "insert_at_index": 0,
+      "command_used": "music/playlists/add_playlist_tracks",
+      "args_used": {
+        "db_playlist_id": "13",
+        "uris": [
+          "filesystem_local://track/Swift Radio/Non-Techno/000_song_introduction_start.mp3"
+        ],
+        "position": 0,
+        "provider_instance_id_or_domain": "library"
+      }
+    },
+    {
+      "kind": "track",
+      "name": "Illenium - Afterlife",
+      "audio_file": null,
+      "audio_uri": "library://track/3167",
+      "insert_at_index": 1,
+      "command_used": "music/playlists/add_playlist_tracks",
+      "args_used": {
+        "db_playlist_id": "13",
+        "uris": [
+          "library://track/3167"
+        ],
+        "position": 1,
+        "provider_instance_id_or_domain": "library"
+      }
+    },
+    {
+      "kind": "section",
+      "name": "Song_Introduction_Middle",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/001_song_introduction_middle.mp3",
+      "audio_uri": "filesystem_local://track/Swift Radio/Non-Techno/001_song_introduction_middle.mp3",
+      "insert_at_index": 2,
+      "command_used": "music/playlists/add_playlist_tracks",
+      "args_used": {
+        "db_playlist_id": "13",
+        "uris": [
+          "filesystem_local://track/Swift Radio/Non-Techno/001_song_introduction_middle.mp3"
+        ],
+        "position": 2,
+        "provider_instance_id_or_domain": "library"
+      }
+    },
+    {
+      "kind": "track",
+      "name": "[unknown] - 02 The Power is mine",
+      "audio_file": null,
+      "audio_uri": "library://track/1101",
+      "insert_at_index": 3,
+      "command_used": "music/playlists/add_playlist_tracks",
+      "args_used": {
+        "db_playlist_id": "13",
+        "uris": [
+          "library://track/1101"
+        ],
+        "position": 3,
+        "provider_instance_id_or_domain": "library"
+      }
+    },
+    {
+      "kind": "section",
+      "name": "Song_Transition",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/002_song_transition.mp3",
+      "audio_uri": "filesystem_local://track/Swift Radio/Non-Techno/002_song_transition.mp3",
+      "insert_at_index": 4,
+      "command_used": "music/playlists/add_playlist_tracks",
+      "args_used": {
+        "db_playlist_id": "13",
+        "uris": [
+          "filesystem_local://track/Swift Radio/Non-Techno/002_song_transition.mp3"
+        ],
+        "position": 4,
+        "provider_instance_id_or_domain": "library"
+      }
+    },
+    {
+      "kind": "track",
+      "name": "Paula Carolina, Marti Fischer, Paula Carolina, Nikolaus Winkelhausen, Paula Carolina, Nikolaus Winkelhausen, Marius Fietz, Johann Seifert - Schreien!",
+      "audio_file": null,
+      "audio_uri": "library://track/3041",
+      "insert_at_index": 5,
+      "command_used": "music/playlists/add_playlist_tracks",
+      "args_used": {
+        "db_playlist_id": "13",
+        "uris": [
+          "library://track/3041"
+        ],
+        "position": 5,
+        "provider_instance_id_or_domain": "library"
+      }
+    },
+    {
+      "kind": "section",
+      "name": "Song_Introduction_Middle",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/003_song_introduction_middle.mp3",
+      "audio_uri": "filesystem_local://track/Swift Radio/Non-Techno/003_song_introduction_middle.mp3",
+      "insert_at_index": 6,
+      "command_used": "music/playlists/add_playlist_tracks",
+      "args_used": {
+        "db_playlist_id": "13",
+        "uris": [
+          "filesystem_local://track/Swift Radio/Non-Techno/003_song_introduction_middle.mp3"
+        ],
+        "position": 6,
+        "provider_instance_id_or_domain": "library"
+      }
+    },
+    {
+      "kind": "track",
+      "name": "Panama, Jarrah Lanes, Jarrah Lanes, Jarrah Lanes - Always",
+      "audio_file": null,
+      "audio_uri": "library://track/1537",
+      "insert_at_index": 7,
+      "command_used": "music/playlists/add_playlist_tracks",
+      "args_used": {
+        "db_playlist_id": "13",
+        "uris": [
+          "library://track/1537"
+        ],
+        "position": 7,
+        "provider_instance_id_or_domain": "library"
+      }
+    },
+    {
+      "kind": "section",
+      "name": "Song_Introduction_End",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/004_song_introduction_end.mp3",
+      "audio_uri": "filesystem_local://track/Swift Radio/Non-Techno/004_song_introduction_end.mp3",
+      "insert_at_index": 8,
+      "command_used": "music/playlists/add_playlist_tracks",
+      "args_used": {
+        "db_playlist_id": "13",
+        "uris": [
+          "filesystem_local://track/Swift Radio/Non-Techno/004_song_introduction_end.mp3"
+        ],
+        "position": 8,
+        "provider_instance_id_or_domain": "library"
+      }
+    }
+  ],
+  "openai_costs": {
+    "start_time": 1770422400,
+    "end_time": 1770508800,
+    "total_usd": 0.0
+  }
+}
