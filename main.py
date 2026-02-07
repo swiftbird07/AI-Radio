@@ -15,7 +15,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-w",
         "--workdir",
-        default=".radio_work",
+        default=".tmp",
         help="Path to pipeline work directory.",
     )
     parser.add_argument(

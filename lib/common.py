@@ -80,7 +80,7 @@ def get_provider_config(config: dict[str, Any], provider_type: str) -> dict[str,
 
 
 def resolve_workdir(path: str | None) -> Path:
-    return ensure_dir(path or ".radio_work")
+    return ensure_dir(path or ".tmp")
 
 
 def slugify(value: str) -> str:

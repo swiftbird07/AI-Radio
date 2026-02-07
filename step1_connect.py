@@ -4,14 +4,14 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, timezone
 
-from radio_playlist_generator.common import (
+from lib.common import (
     get_or_create_run_id,
     get_provider_config,
     load_config,
     resolve_workdir,
     write_json,
 )
-from radio_playlist_generator.ma_client import MusicAssistantClient
+from lib.ma_client import MusicAssistantClient
 
 
 def parse_args() -> argparse.Namespace:
@@ -20,7 +20,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-w",
         "--workdir",
-        default=".radio_work",
+        default=".tmp",
         help="Path to pipeline work directory.",
     )
     return parser.parse_args()

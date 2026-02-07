@@ -6,7 +6,7 @@ import re
 import time
 from pathlib import Path
 
-from radio_playlist_generator.common import (
+from lib.common import (
     ensure_dir,
     get_or_create_run_id,
     get_provider_config,
@@ -16,12 +16,12 @@ from radio_playlist_generator.common import (
     slugify,
     write_json,
 )
-from radio_playlist_generator.ma_client import (
+from lib.ma_client import (
     MusicAssistantClient,
     MusicAssistantError,
     MusicAssistantProviderUnavailableError,
 )
-from radio_playlist_generator.openai_provider import OpenAIProvider
+from lib.openai_provider import OpenAIProvider
 
 
 def parse_args() -> argparse.Namespace:
@@ -32,7 +32,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-w",
         "--workdir",
-        default=".radio_work",
+        default=".tmp",
         help="Path to pipeline work directory.",
     )
     parser.add_argument(

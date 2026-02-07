@@ -2,114 +2,57 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "KEIN TECHNO Python: Main Pipeline ",
+      "name": "Pipeline: Sample Config",
       "type": "python",
       "request": "launch",
       "python": "${workspaceFolder}/.venv/bin/python",
       "program": "${workspaceFolder}/main.py",
       "args": [
         "-c",
-        "${workspaceFolder}/non_techno_playlist_de.yaml"
+        "${workspaceFolder}/config/sample_config.yaml"
       ],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "justMyCode": true
     },
     {
-      "name": "HARD TECHNO Python: Main Pipeline (techno config)",
+      "name": "Pipeline: Local Config",
       "type": "python",
       "request": "launch",
       "python": "${workspaceFolder}/.venv/bin/python",
       "program": "${workspaceFolder}/main.py",
       "args": [
         "-c",
-        "${workspaceFolder}/techno_playlist.yml"
+        "${workspaceFolder}/config/non_techno_playlist_de.yaml"
       ],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "justMyCode": true
     },
     {
-      "name": "Python: Step 1 Connect",
-      "type": "python",
-      "request": "launch",
-      "python": "${workspaceFolder}/.venv/bin/python",
-      "program": "${workspaceFolder}/step1_connect.py",
-      "args": [
-        "-c",
-        "${workspaceFolder}/non_techno_playlist.yml"
-      ],
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "justMyCode": true
-    },
-    {
-      "name": "Python: Step 2 Gather Playlist",
-      "type": "python",
-      "request": "launch",
-      "python": "${workspaceFolder}/.venv/bin/python",
-      "program": "${workspaceFolder}/step2_gather_playlist.py",
-      "args": [
-        "-c",
-        "${workspaceFolder}/non_techno_playlist.yml"
-      ],
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "justMyCode": true
-    },
-    {
-      "name": "Python: Step 3 Generate Sections",
-      "type": "python",
-      "request": "launch",
-      "python": "${workspaceFolder}/.venv/bin/python",
-      "program": "${workspaceFolder}/step3_generate_sections.py",
-      "args": [
-        "-c",
-        "${workspaceFolder}/non_techno_playlist.yml"
-      ],
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "justMyCode": true
-    },
-    {
-      "name": "Python: Step 4 TTS Sections",
-      "type": "python",
-      "request": "launch",
-      "python": "${workspaceFolder}/.venv/bin/python",
-      "program": "${workspaceFolder}/step4_tts_sections.py",
-      "args": [
-        "-c",
-        "${workspaceFolder}/non_techno_playlist.yml"
-      ],
-      "cwd": "${workspaceFolder}",
-      "console": "integratedTerminal",
-      "justMyCode": true
-    },
-    {
-      "name": "Python: Step 5 Update Playlist",
+      "name": "Step 5: Local Config",
       "type": "python",
       "request": "launch",
       "python": "${workspaceFolder}/.venv/bin/python",
       "program": "${workspaceFolder}/step5_update_playlist.py",
       "args": [
         "-c",
-        "${workspaceFolder}/non_techno_playlist.yml"
+        "${workspaceFolder}/config/non_techno_playlist_de.yaml"
       ],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",
       "justMyCode": true
     },
     {
-      "name": "Python: Main From Step 5",
+      "name": "Step 5: OAI Check Only",
       "type": "python",
       "request": "launch",
       "python": "${workspaceFolder}/.venv/bin/python",
-      "program": "${workspaceFolder}/main.py",
+      "program": "${workspaceFolder}/step5_update_playlist.py",
       "args": [
         "-c",
-        "${workspaceFolder}/non_techno_playlist.yml",
-        "--from-step",
-        "5"
+        "${workspaceFolder}/config/non_techno_playlist_de.yaml",
+        "--only-oai-check"
       ],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",

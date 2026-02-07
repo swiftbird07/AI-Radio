@@ -1,55 +1,68 @@
-# Music Assistant AI Radio Playlist Generator
+# Swift Radio Playlist Generator
 
-Python pipeline to create radio-style moderator segments, convert them to TTS, and build a fresh Music Assistant playlist with inserted audio sections.
+Automated pipeline for Music Assistant playlists with AI-generated moderator segments, TTS rendering, and playlist publishing.
 
-## Pipeline
+## What This Project Does
 
-1. `step1_connect.py`  
-   Connect to Music Assistant and validate core config.
-2. `step2_gather_playlist.py`  
-   Load source playlist tracks. Supports random duration-limited subset via `MUSIC.config.max_duration`.
-3. `step3_generate_sections.py`  
-   Build section plan from rules, fetch optional weather/news context, generate text, and merge multi-section between-song slots through `ai_meta`.
-4. `step4_tts_sections.py`  
-   Clean old generated section MP3s (`NNN_*.mp3`), trigger MA sync, wait, then generate new MP3 files via OpenAI TTS.
-5. `step5_update_playlist.py`  
-   Trigger sync and wait, delete existing target playlist with same name, create a new dated playlist name, and add source tracks + section tracks.
+- Connects to Music Assistant and reads a source playlist.
+- Optionally limits source selection by total duration (`max_duration`) with random sampling.
+- Generates section scripts from rule-based placement (`start`, `between_songs`, `end`).
+- Fetches optional weather (Open-Meteo) and news (OpenAI web search) context.
+- Merges multi-section between-song blocks through a meta prompt (`ai_meta`) into one final spoken segment.
+- Generates MP3 files via OpenAI TTS.
+- Re-syncs Music Assistant, creates a fresh target playlist, and inserts songs + generated section tracks.
+
+## Repository Layout
+
+- `main.py`: orchestrates step execution.
+- `step1_connect.py` ... `step5_update_playlist.py`: pipeline steps.
+- `lib/`: shared runtime modules.
+- `config/sample_config.yaml`: public reference configuration.
+- `.tmp/`: runtime artifacts (generated automatically, ignored by Git).
+
+## Setup
+
+1. Create a Python virtual environment and install dependencies:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+2. Create `.env` in repository root:
+
+```bash
+OPENAI_API_KEY=...
+OPENAI_ADMIN_KEY=...            # optional, only for billing summary in step 5
+MUSIC_ASSISTANT_API_KEY=...
+```
+
+3. Copy the sample config and adjust values:
+
+```bash
+cp config/sample_config.yaml config/local_config.yaml
+```
 
 ## Run
 
-Run all steps:
+Run full pipeline:
 
 ```bash
-python3 main.py -c non_techno_playlist_de.yaml
+python3 main.py -c config/local_config.yaml
 ```
 
 Run from a specific step:
 
 ```bash
-python3 main.py -c non_techno_playlist_de.yaml --from-step 3
+python3 main.py -c config/local_config.yaml --from-step 3
 ```
 
-Workdir defaults to `.radio_work`.
+Runtime state and intermediate JSON files are written to `.tmp/`.
 
-## Requirements
+## Configuration Notes
 
-Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-Create `.env` in project root (loaded automatically with `python-dotenv`):
-
-- `OPENAI_API_KEY`
-- `OPENAI_ADMIN_KEY` (optional, for billing summary)
-- `MUSIC_ASSISTANT_API_KEY`
-
-## Config
-
-Main sample config in this repo:
-
-- `non_techno_playlist_de.yaml`
+Public baseline: `config/sample_config.yaml`.
 
 Required providers:
 
@@ -62,25 +75,21 @@ Optional providers:
 - `NEWS` (OpenAI web search)
 - `WEATHER` (Open-Meteo)
 
-Important `MUSIC` options:
+Key `MUSIC` options:
 
-- `playlist_id`: source playlist
+- `playlist_id`
 - `provider_instance_id_or_domain`
 - `sections_provider_instance` / `sections_provider_domain`
-- `max_duration`: random subset threshold in minutes (0 disables)
-- `max_duration_seed`: deterministic random seed (optional)
+- `max_duration` (minutes, `0` disables duration cap)
 - `pre_tts_sync_wait_seconds`
 - `post_tts_sync_wait_seconds`
 - `sections_rescan_timeout_seconds`
 - `sections_rescan_poll_seconds`
 
-Important naming behavior:
+Target playlist naming:
 
-- Target playlist name format is:
-  `Swift Radio: <general.name> (<weekday>. <dd.mm.>)`
+- `Swift Radio: <general.name> (<weekday>. <dd.mm.>) [<run_id>]`
 
-## Notes
+Generated section naming:
 
-- Music Assistant integration is SDK-only via `music-assistant-client`.
-- For multi-section `between_songs` slots, step 3 creates one merged meta section (`multi_*`) so step 4 generates one TTS item for that gap.
-- Section text limits are soft limits (up to ~15% overflow to avoid hard sentence cuts).
+- `<section_id> [<run_id>]`

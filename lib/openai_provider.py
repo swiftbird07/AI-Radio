@@ -82,15 +82,29 @@ class OpenAIProvider:
             raise OpenAIProviderError(f"Invalid JSON from {url}") from exc
 
     @staticmethod
+    def _as_float(value: Any) -> float | None:
+        if isinstance(value, (int, float)):
+            return float(value)
+        if isinstance(value, str):
+            text = value.strip()
+            if not text:
+                return None
+            try:
+                return float(text)
+            except ValueError:
+                return None
+        return None
+
+    @staticmethod
     def _sum_cost_usd(payload: Any) -> float:
         total = 0.0
         if isinstance(payload, dict):
             amount = payload.get("amount")
             if isinstance(amount, dict):
-                value = amount.get("value")
+                value = OpenAIProvider._as_float(amount.get("value"))
                 currency = str(amount.get("currency", "usd")).lower()
-                if isinstance(value, (int, float)) and currency == "usd":
-                    total += float(value)
+                if value is not None and currency == "usd":
+                    total += value
             for value in payload.values():
                 total += OpenAIProvider._sum_cost_usd(value)
         elif isinstance(payload, list):

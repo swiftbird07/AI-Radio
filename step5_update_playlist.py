@@ -7,7 +7,7 @@ from pathlib import Path
 import time as sleep_time
 from zoneinfo import ZoneInfo
 
-from radio_playlist_generator.common import (
+from lib.common import (
     get_or_create_run_id,
     get_provider_config,
     load_config,
@@ -15,12 +15,12 @@ from radio_playlist_generator.common import (
     resolve_workdir,
     write_json,
 )
-from radio_playlist_generator.ma_client import (
+from lib.ma_client import (
     MusicAssistantClient,
     MusicAssistantError,
     MusicAssistantProviderUnavailableError,
 )
-from radio_playlist_generator.openai_provider import OpenAIProvider, OpenAIProviderError
+from lib.openai_provider import OpenAIProvider, OpenAIProviderError
 
 
 def parse_args() -> argparse.Namespace:
@@ -31,8 +31,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-w",
         "--workdir",
-        default=".radio_work",
+        default=".tmp",
         help="Path to pipeline work directory.",
+    )
+    parser.add_argument(
+        "--only-oai-check",
+        action="store_true",
+        help="Run only OpenAI cost lookup and skip playlist update logic.",
     )
     return parser.parse_args()
 
@@ -147,12 +152,74 @@ def wait_for_section_indexed(
     return False
 
 
+def add_openai_costs_to_output(
+    output: dict,
+    config: dict,
+    step1: dict,
+) -> None:
+    llm_config = get_provider_config(config, "LLM")
+    tts_config = get_provider_config(config, "TTS")
+    llm_provider = str(llm_config.get("provider_name", "")).lower()
+    tts_provider = str(tts_config.get("provider_name", "")).lower()
+    if llm_provider != "openai" and tts_provider != "openai":
+        return
+
+    openai_key = str(
+        llm_config.get("admin_api_key")
+        or llm_config.get("api_key")
+        or tts_config.get("api_key")
+        or ""
+    ).strip()
+    started_at_iso = str(step1.get("connected_at", ""))
+    if not openai_key or not started_at_iso:
+        return
+
+    try:
+        started_at = datetime.fromisoformat(started_at_iso.replace("Z", "+00:00"))
+    except ValueError:
+        started_at = datetime.now(timezone.utc)
+    now_utc = datetime.now(timezone.utc)
+    start_day = datetime.combine(started_at.date(), time.min, tzinfo=timezone.utc)
+    end_day = datetime.combine((now_utc + timedelta(days=1)).date(), time.min, tzinfo=timezone.utc)
+    start_ts = int(start_day.timestamp())
+    end_ts = int(end_day.timestamp())
+    print(
+        f"[step5] querying OpenAI costs start={start_day.isoformat()} end={end_day.isoformat()}"
+    )
+    try:
+        openai = OpenAIProvider(api_key=openai_key)
+        total_usd, _ = openai.get_costs_total_usd(start_time=start_ts, end_time=end_ts)
+        output["openai_costs"] = {
+            "start_time": start_ts,
+            "end_time": end_ts,
+            "total_usd": round(total_usd, 6),
+        }
+        print(f"[step5] OpenAI billed cost today: ${total_usd:.6f} USD")
+    except OpenAIProviderError as exc:
+        output["openai_costs"] = {"error": str(exc)}
+        print(f"[step5] OpenAI costs lookup failed: {exc}")
+
+
 def main() -> None:
     args = parse_args()
     config = load_config(args.config)
     workdir = resolve_workdir(args.workdir)
     run_id = get_or_create_run_id(workdir)
     step1 = read_json(workdir / "step1_connection.json")
+
+    if args.only_oai_check:
+        output = {
+            "mode": "only_oai_check",
+            "run_id": run_id,
+        }
+        add_openai_costs_to_output(output=output, config=config, step1=step1)
+        output_path = workdir / "step5_update.json"
+        if output_path.exists():
+            output_path.unlink()
+        write_json(output_path, output)
+        print(f"step5 ok -> {output_path}")
+        return
+
     step2 = read_json(workdir / "step2_playlist.json")
     step4 = read_json(workdir / "step4_audio.json")
 
@@ -349,43 +416,7 @@ def main() -> None:
         "results": results,
     }
 
-    llm_config = get_provider_config(config, "LLM")
-    tts_config = get_provider_config(config, "TTS")
-    llm_provider = str(llm_config.get("provider_name", "")).lower()
-    tts_provider = str(tts_config.get("provider_name", "")).lower()
-    if llm_provider == "openai" or tts_provider == "openai":
-        openai_key = str(
-            llm_config.get("admin_api_key")
-            or llm_config.get("api_key")
-            or tts_config.get("api_key")
-            or ""
-        ).strip()
-        started_at_iso = str(step1.get("connected_at", ""))
-        if openai_key and started_at_iso:
-            try:
-                started_at = datetime.fromisoformat(started_at_iso.replace("Z", "+00:00"))
-            except ValueError:
-                started_at = datetime.now(timezone.utc)
-            now_utc = datetime.now(timezone.utc)
-            start_day = datetime.combine(started_at.date(), time.min, tzinfo=timezone.utc)
-            end_day = datetime.combine((now_utc + timedelta(days=1)).date(), time.min, tzinfo=timezone.utc)
-            start_ts = int(start_day.timestamp())
-            end_ts = int(end_day.timestamp())
-            print(
-                f"[step5] querying OpenAI costs start={start_day.isoformat()} end={end_day.isoformat()}"
-            )
-            try:
-                openai = OpenAIProvider(api_key=openai_key)
-                total_usd, _ = openai.get_costs_total_usd(start_time=start_ts, end_time=end_ts)
-                output["openai_costs"] = {
-                    "start_time": start_ts,
-                    "end_time": end_ts,
-                    "total_usd": round(total_usd, 6),
-                }
-                print(f"[step5] OpenAI billed cost in run window: ${total_usd:.6f} USD")
-            except OpenAIProviderError as exc:
-                output["openai_costs"] = {"error": str(exc)}
-                print(f"[step5] OpenAI costs lookup failed: {exc}")
+    add_openai_costs_to_output(output=output, config=config, step1=step1)
 
     output_path = workdir / "step5_update.json"
     if output_path.exists():

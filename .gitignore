@@ -14,7 +14,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
@@ -182,3 +181,13 @@ cython_debug/
 
 # Macos Artifacts
 .DS_Store
+
+# Runtime artifacts
+.tmp/
+.radio_work/
+.pycache_local/
+
+# Configs: keep only public sample
+config/*
+!config/
+!config/sample_config.yaml

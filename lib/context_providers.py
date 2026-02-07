@@ -7,7 +7,7 @@ import urllib.request
 from dataclasses import dataclass
 from typing import Any
 
-from radio_playlist_generator.openai_provider import OpenAIProvider, OpenAIProviderError
+from lib.openai_provider import OpenAIProvider, OpenAIProviderError
 
 
 class ContextProviderError(RuntimeError):
@@ -130,24 +130,27 @@ class OpenAINewsProvider:
     def get_news_headlines(
         self,
         location: Location,
-        model: str | list[str] = "gpt-4.1",
+        model: str | list[str],
+        local_prompt_template: str,
+        national_prompt_template: str,
+        international_prompt_template: str,
     ) -> tuple[str, str, str]:
         model_candidates = [model] if isinstance(model, str) else [m for m in model if isinstance(m, str)]
         if not model_candidates:
-            model_candidates = ["gpt-4.1"]
+            raise ContextProviderError("NEWS model list is empty.")
 
-        local_prompt = (
-            f"Give exactly 5 short current local news headlines for {location.city}, {location.country}. "
-            "No intro, no numbering, one headline per line. NO SPORT NEWS. Include at least one positive news item if available."
-        )
-        national_prompt = (
-            f"Give exactly 5 short current national news headlines for {location.country}. "
-            "No intro, no numbering, one headline per line. NO SPORT NEWS. Include at least one positive news item if available."
-        )
-        international_prompt = (
-            "Give exactly 5 short current international world news headlines. "
-            "No intro, no numbering, one headline per line. NO SPORT NEWS. Include at least one positive news item if available."
-        )
+        def render_prompt(template: str) -> str:
+            raw = template.strip()
+            if not raw:
+                raise ContextProviderError("NEWS prompt template is empty.")
+            try:
+                return raw.format(city=location.city, country=location.country)
+            except Exception:
+                return raw
+
+        local_prompt = render_prompt(local_prompt_template)
+        national_prompt = render_prompt(national_prompt_template)
+        international_prompt = render_prompt(international_prompt_template)
         last_error: OpenAIProviderError | None = None
         for candidate in model_candidates:
             try:

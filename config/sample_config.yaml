@@ -3,26 +3,20 @@ version: 1
 placeholder_values: {}
 
 general:
-  name: Neben der Spur
+  name: Example Radio Mix
   timezone: Europe/Berlin
   location:
-    city: Bochum
+    city: Berlin
     country: Germany
   instructions: >
-    Du bist der feste On-Air-Host von Swift Radio – Sektion 'Neben der Spur' diese Sendung ist nur für Martin.
-    Du sprichst ihn immer mit „du“ an. Direkt, vertraut, ohne Distanz.
-    Stil: GTA-Radio. Intelligent-chaotisch. Leicht wahnsinnig. Meta-bewusst.
-    Songs aus allen Genres, ohne Logik, ohne Rechtfertigung.
-    Du denkst laut, unterbrichst dich, lässt Dinge stehen, kommentierst dich selbst.
-    Humor: trocken, absurd, kontrollierter Kontrollverlust. Kein Klamauk.
-    Sprache: kurze Sätze. Abbrüche. Unerwartete Bilder. Pausen wirken lassen.
-    Metadaten-Regel: Platzhalter wie unknown, n/a etc. ignorieren.
-    Tracknummern am Anfang immer ignorieren, nur echten Titel nennen.
+    On-air radio host style with energetic, concise, spoken-word phrasing.
+    Tone stays playful, clear, and listener-friendly.
+    Metadata cleanup rule: ignore placeholder values like unknown or n/a.
+    Ignore track numbers at title start (01, 02, 1., 07 -), keep only real title text.
   model: gpt-4o-mini
   max_tokens: 900
-  seed: 42
-  voice_style: excited
-  sections_path_local: "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/"
+  voice_style: ballad
+  sections_path_local: "./output/sections/"
 
 providers:
   - type: LLM
@@ -38,8 +32,7 @@ providers:
       model: gpt-4o-mini-tts
       voice: ballad
       instructions: >
-        Deutscher Radio-Host. Warm, natürlich, leicht überdreht.
-        Gute Betonung, kurze Pausen, nicht hetzen.
+        Radio-host delivery, warm tone, clean articulation, short natural pauses.
 
   - type: NEWS
     config:
@@ -48,6 +41,18 @@ providers:
       model:
         - gpt-4o-mini
         - gpt-4.1-mini
+      local_prompt: >
+        Give exactly 5 short current local news headlines for {city}, {country}.
+        No intro, no numbering, one headline per line. NO SPORT NEWS.
+        Include at least one positive news item if available.
+      national_prompt: >
+        Give exactly 5 short current national news headlines for {country}.
+        No intro, no numbering, one headline per line. NO SPORT NEWS.
+        Include at least one positive news item if available.
+      international_prompt: >
+        Give exactly 5 short current international world news headlines.
+        No intro, no numbering, one headline per line. NO SPORT NEWS.
+        Include at least one positive news item if available.
 
   - type: WEATHER
     config:
@@ -57,13 +62,13 @@ providers:
   - type: MUSIC
     config:
       provider_name: MusicAssistant
-      base_url: https://ma.nas.home/
-      verify_ssl: false
+      base_url: https://music-assistant.local/
+      verify_ssl: true
       api_key: ${MUSIC_ASSISTANT_API_KEY}
-      playlist_id: 34
+      playlist_id: 1
       max_duration: 60
       provider_instance_id_or_domain: library
-      sections_provider_instance: filesystem_local--MhvbAKbD
+      sections_provider_instance: filesystem_local--instance-id
       sections_provider_domain: filesystem_local
       pre_tts_sync_wait_seconds: 5
       post_tts_sync_wait_seconds: 5
@@ -74,109 +79,88 @@ sections:
   - id: Song_Introduction_Start
     type: ai_text
     prompt: >
-      Erster Song der Playlist: <next_songinfo>.
-      Mach neugierig. Setz den Vibe. Da jetzt deine Sendestrecke beginnt 
-      kannst du nochmal den Sender und Sendestrecke vorstellen (Swift Radio, Neben der Spur (random Songs)).
-      Basierend auf Uhrzeit <timestamp> und Wetter: '<weather_hourly>' kannst du auch kurz das Tagesgefühl beschreiben 
-      (z.B. "guter Start in den sonnigen Tag").
+      First track: <next_songinfo>.
+      Open the show, set station vibe, and introduce the segment.
+      Use local time <timestamp> and weather mood from <weather_hourly> if available.
     constraints:
       max_chars: 650
 
   - id: Song_Introduction_Middle
     type: ai_text
     prompt: >
-      Kurze, unterhaltsame Vorstellung von <next_songinfo>.
-      Persönlich. Unvorhersehbar.
+      Brief, engaging intro for <next_songinfo>.
+      Keep it conversational and compact.
     constraints:
       max_chars: 650
 
   - id: Song_Introduction_End
     type: ai_text
     prompt: >
-      Letzter Song: <next_songinfo>.
-      Lass etwas hängenbleiben. Komm nicht sauber raus.
+      Last track: <next_songinfo>.
+      Leave a memorable close.
     constraints:
       max_chars: 650
 
   - id: Song_Transition
     type: ai_text
     prompt: >
-      Übergang von <prev_songinfo> zu <next_songinfo>.
-      Verbunden, aber leicht daneben.
+      Transition from <prev_songinfo> to <next_songinfo>.
+      Keep flow natural and connected.
     constraints:
       max_chars: 600
 
   - id: Song_FunFacts_Context
     type: ai_text
     prompt: >
-      Kurzer Kontext oder absurder Fakt zu <prev_songinfo> oder <next_songinfo>.
-      Clever, schräg, nicht erklärend.
+      Add a short context or fun fact around <prev_songinfo> or <next_songinfo>.
+      Keep it smart and listener-friendly.
     constraints:
       max_chars: 650
 
   - id: Song_Random_Funny_Life_Bit
     type: ai_text
     prompt: >
-      Erwähne <prev_songinfo> und <next_songinfo> je einmal.
-      Dann kurzer persönlicher Gedankenaussetzer.
-      Dunkler Humor erlaubt. Kein Hass. Keine explizite Gewalt.
+      Mention <prev_songinfo> and <next_songinfo> once each, then switch into a short
+      humorous personal-style monologue. No hate speech. No explicit violence.
     constraints:
       max_chars: 650
 
   - id: Weather_Short
     type: ai_text
     prompt: >
-      Kurzes Radio-Wetter für die nächsten Stunden aus <weather_hourly>.
-      Uhrzeit <timestamp>. Keine Zahlen, nur Gefühl.
+      Short weather update from <weather_hourly> with time <timestamp>.
+      Spoken style, natural wording.
     constraints:
       max_chars: 500
 
   - id: News_Headlines_Local
     type: ai_text
     prompt: >
-      Wichtigste lokale Schlagzeilen aus <news_headlines_local>.
+      Local headlines from <news_headlines_local>.
     constraints:
       max_chars: 1000
 
   - id: News_Headlines_National
     type: ai_text
     prompt: >
-      Wichtigste nationale Schlagzeilen aus <news_headlines_national>.
+      National headlines from <news_headlines_national>.
     constraints:
       max_chars: 1500
 
   - id: News_Headlines_International
     type: ai_text
     prompt: >
-      Wichtigste internationale Schlagzeilen aus <news_headlines_international>.
+      International headlines from <news_headlines_international>.
     constraints:
       max_chars: 1500
 
   - id: Between_Songs_Smoother
     type: ai_meta
     prompt: >
-      Füge mehrere Snippets zwischen <prev_songinfo> und <next_songinfo> zusammen.
-      GTA-Radio-Stil: meta, chaotisch, aber hörbar.
-      WICHTIG: Den nächsten Song (<next_songinfo>) erst ganz am Ende ankündigen.
-      Nie vorher. Keine Ausnahmen.
-      Wiederholungen vermeiden, Flow behalten.
+      Merge multiple snippets between <prev_songinfo> and <next_songinfo> into one coherent
+      spoken segment. Keep transitions smooth and avoid repetition.
       Input:
       <section_drafts>
-
-  - id: Werbung_Random_90s
-    type: ai_text
-    prompt: >
-      Erfinde eine kurze Fake-Werbung im GTA-Radio-Stil.
-      Thema: irgendetwas Randomes aus den 90ern
-      (z.B. Telefonkarten, Videotheken, Tamagotchis, Faxgeräte,
-      Fitness-VHS, Klingelton-Werbung, Billig-Cola, Baumarkt-Radios).
-      Überdreht, absurd, leicht satirisch.
-      Denke dir Markennamen und Preise aus (keine echten).
-      Am Ende ein kurzer, trockener Abbruch oder Twist.
-      Werbung ist (wie in echt) durch eine an- und abkündigung klar erkennbar, z.B. "Und jetzt: Werbung!" ... 
-      "Das war die Werbung, zurück zum nächsten Song...."
-    constraints:
-      max_chars: 400
 
 section_order:
   - when: start_of_playlist
@@ -189,15 +173,13 @@ section_order:
           pick: one
           choices:
             - section: Song_Transition
-              weight: 25
+              weight: 30
             - section: Song_Introduction_Middle
-              weight: 20
+              weight: 25
             - section: Song_FunFacts_Context
-              weight: 35
+              weight: 30
             - section: Song_Random_Funny_Life_Bit
               weight: 15
-            - section: Werbung_Random_90s
-              weight: 5
       - OPTIONAL:
           section: Weather_Short
           chance: 0.2

@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Any
 from zoneinfo import ZoneInfo
 
-from radio_playlist_generator.common import (
+from lib.common import (
     get_provider_config,
     load_config,
     read_json,
@@ -17,13 +17,13 @@ from radio_playlist_generator.common import (
     slugify,
     write_json,
 )
-from radio_playlist_generator.context_providers import (
+from lib.context_providers import (
     ContextProviderError,
     Location,
     OpenAINewsProvider,
     OpenMeteoProvider,
 )
-from radio_playlist_generator.openai_provider import OpenAIProvider
+from lib.openai_provider import OpenAIProvider
 
 
 @dataclass
@@ -44,7 +44,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "-w",
         "--workdir",
-        default=".radio_work",
+        default=".tmp",
         help="Path to pipeline work directory.",
     )
     return parser.parse_args()
@@ -346,21 +346,39 @@ def main() -> None:
             try:
                 news_provider_config = get_provider_config(config, "NEWS")
             except ValueError:
-                news_provider_config = llm_config
+                raise ValueError("NEWS provider config is required when news placeholders are used.")
             news_provider_name = str(news_provider_config.get("provider_name", "")).lower()
             if news_provider_name == "openai":
                 news_api_key = str(news_provider_config.get("api_key") or llm_config.get("api_key") or "").strip()
-                raw_news_model = news_provider_config.get("model", "gpt-4.1")
+                raw_news_model = news_provider_config.get("model")
+                if raw_news_model is None:
+                    raise ValueError("NEWS provider config is missing 'model'.")
                 if isinstance(raw_news_model, list):
                     news_model: str | list[str] = [str(item).strip() for item in raw_news_model if str(item).strip()]
                 else:
-                    news_model = str(raw_news_model).strip() or "gpt-4.1"
+                    news_model = str(raw_news_model).strip()
+                if not news_model:
+                    raise ValueError("NEWS provider config 'model' must not be empty.")
+                local_prompt_template = str(news_provider_config.get("local_prompt", "")).strip()
+                national_prompt_template = str(news_provider_config.get("national_prompt", "")).strip()
+                international_prompt_template = str(
+                    news_provider_config.get("international_prompt", "")
+                ).strip()
+                if not local_prompt_template:
+                    raise ValueError("NEWS provider config is missing 'local_prompt'.")
+                if not national_prompt_template:
+                    raise ValueError("NEWS provider config is missing 'national_prompt'.")
+                if not international_prompt_template:
+                    raise ValueError("NEWS provider config is missing 'international_prompt'.")
                 if news_api_key:
                     try:
                         news_provider = OpenAINewsProvider(OpenAIProvider(api_key=news_api_key))
                         local_news, national_news, international_news = news_provider.get_news_headlines(
                             location=location,
                             model=news_model,
+                            local_prompt_template=local_prompt_template,
+                            national_prompt_template=national_prompt_template,
+                            international_prompt_template=international_prompt_template,
                         )
                         runtime_values["<news_headlines_local>"] = local_news
                         runtime_values["<news_headlines_national>"] = national_news
