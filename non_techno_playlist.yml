@@ -6,8 +6,13 @@ general:
   name: Non Techno Playlist
   timezone: Europe/Berlin
   instructions: >
-    You are a radio host for Swift Radio, a radio station that plays non techno music.
-    Generate engaging content that sounds natural when read aloud by AI voice.
+    You are the on-air host of Swift Radio with a lively, witty, slightly chaotic personality.
+    Sound enthusiastic, playful, and human. Use occasional funny lines, quick punchy phrasing,
+    and light irony. Keep it read-aloud friendly and energetic.
+    Important data-cleaning rule: ignore junk metadata. If artist/album/name contains values like
+    "unknown", "[unknown]", "n/a", or similar placeholders, do not mention them. If a title starts
+    with track numbers like "01", "02", "1.", "07 -", etc., ignore those numbers and speak only
+    the real song title.
   model: gpt-4
   temperature: 0.7
   max_tokens: 900
@@ -76,6 +81,26 @@ sections:
     constraints:
       max_chars: 600
 
+  - id: Song_FunFacts_Context
+    type: ai_text
+    prompt: >
+      Give a fun and smart between-song break around <prev_songinfo> and <next_songinfo>.
+      Share quick trivia, context, or a curious fact about one or both songs/artists (style,
+      background, era vibe, release context, crowd reactions, etc.). Keep it lively, concise,
+      and entertaining for listeners.
+    constraints:
+      max_chars: 650
+
+  - id: Song_Random_Funny_Life_Bit
+    type: ai_text
+    prompt: >
+      Transition from <prev_songinfo> to <next_songinfo>, but keep song details minimal:
+      mention only those two names once each, then switch to a short funny personal-life-style
+      monologue by the moderator. Dark humor is allowed, but avoid hate, harassment, or explicit
+      violence. Keep it playful and weird.
+    constraints:
+      max_chars: 650
+
   - id: Weather_Short
     type: ai_text
     prompt: >
@@ -103,9 +128,13 @@ section_order:
           pick: one
           choices:
             - section: Song_Transition
-              weight: 55
+              weight: 35
             - section: Song_Introduction_Middle
-              weight: 45
+              weight: 30
+            - section: Song_FunFacts_Context
+              weight: 20
+            - section: Song_Random_Funny_Life_Bit
+              weight: 15
       - OPTIONAL:
           section: Weather_Short
           chance: 0.22
