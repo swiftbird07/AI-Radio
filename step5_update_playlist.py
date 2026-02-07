@@ -8,6 +8,7 @@ import time as sleep_time
 from zoneinfo import ZoneInfo
 
 from radio_playlist_generator.common import (
+    get_or_create_run_id,
     get_provider_config,
     load_config,
     read_json,
@@ -150,6 +151,7 @@ def main() -> None:
     args = parse_args()
     config = load_config(args.config)
     workdir = resolve_workdir(args.workdir)
+    run_id = get_or_create_run_id(workdir)
     step1 = read_json(workdir / "step1_connection.json")
     step2 = read_json(workdir / "step2_playlist.json")
     step4 = read_json(workdir / "step4_audio.json")
@@ -225,7 +227,7 @@ def main() -> None:
     except Exception:
         now_local = datetime.now()
     date_suffix = f"{now_local.strftime('%a')}. {now_local.strftime('%d.%m.')}"
-    target_playlist_name = f"Swift Radio: {playlist_label} ({date_suffix})"
+    target_playlist_name = f"Swift Radio: {playlist_label} ({date_suffix}) [{run_id}]"
 
     deleted_existing_playlists: list[str] = []
     try:

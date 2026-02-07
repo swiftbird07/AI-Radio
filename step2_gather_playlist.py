@@ -92,14 +92,13 @@ def format_mmss(total_seconds: float) -> str:
 def select_tracks_by_max_duration(
     tracks: list[dict],
     max_duration_minutes: float,
-    seed: int,
 ) -> tuple[list[dict], float]:
     if max_duration_minutes <= 0 or not tracks:
         total_minutes = sum(track_duration_seconds(track) for track in tracks) / 60.0
         return tracks, total_minutes
 
     indices = list(range(len(tracks)))
-    rng = random.Random(seed)
+    rng = random.Random()
     rng.shuffle(indices)
 
     chosen_indices: list[int] = []
@@ -146,11 +145,9 @@ def main() -> None:
     tracks_list = client.get_playlist_tracks(playlist_id, playlist_provider, page=0)
     tracks_all = [normalize_track(item, idx) for idx, item in enumerate(tracks_list)]
     max_duration_minutes = float(music_config.get("max_duration", 0) or 0)
-    selection_seed = int(music_config.get("max_duration_seed", config.get("general", {}).get("seed", 42)))
     tracks, selected_minutes = select_tracks_by_max_duration(
         tracks=tracks_all,
         max_duration_minutes=max_duration_minutes,
-        seed=selection_seed,
     )
     print(
         f"[step2] tracks_count={len(tracks)} "
@@ -176,7 +173,6 @@ def main() -> None:
         "tracks_count": len(tracks),
         "max_duration_minutes": max_duration_minutes,
         "selected_duration_minutes": round(selected_minutes, 2),
-        "max_duration_seed": selection_seed,
         "tracks": tracks,
     }
     output_path = workdir / "step2_playlist.json"

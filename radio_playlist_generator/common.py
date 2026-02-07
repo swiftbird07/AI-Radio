@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 import os
 import re
+import secrets
+import string
 from pathlib import Path
 from typing import Any
 
@@ -85,3 +87,20 @@ def slugify(value: str) -> str:
     value = value.strip().lower()
     value = re.sub(r"[^a-z0-9]+", "_", value)
     return value.strip("_") or "section"
+
+
+def _new_run_id(length: int = 4) -> str:
+    alphabet = string.ascii_letters + string.digits
+    return "".join(secrets.choice(alphabet) for _ in range(length))
+
+
+def get_or_create_run_id(workdir: str | Path, force_new: bool = False) -> str:
+    wd = ensure_dir(workdir)
+    run_id_file = wd / "run_id.txt"
+    if not force_new and run_id_file.exists():
+        current = run_id_file.read_text(encoding="utf-8").strip()
+        if re.fullmatch(r"[A-Za-z0-9]{4}", current or ""):
+            return current
+    run_id = _new_run_id()
+    run_id_file.write_text(run_id + "\n", encoding="utf-8")
+    return run_id

@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Main Pipeline",
+      "name": "KEIN TECHNO Python: Main Pipeline ",
       "type": "python",
       "request": "launch",
       "python": "${workspaceFolder}/.venv/bin/python",
@@ -10,6 +10,20 @@
       "args": [
         "-c",
         "${workspaceFolder}/non_techno_playlist_de.yaml"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "HARD TECHNO Python: Main Pipeline (techno config)",
+      "type": "python",
+      "request": "launch",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "program": "${workspaceFolder}/main.py",
+      "args": [
+        "-c",
+        "${workspaceFolder}/techno_playlist.yml"
       ],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",

@@ -8,6 +8,7 @@ from pathlib import Path
 
 from radio_playlist_generator.common import (
     ensure_dir,
+    get_or_create_run_id,
     get_provider_config,
     load_config,
     read_json,
@@ -71,6 +72,7 @@ def main() -> None:
     args = parse_args()
     config = load_config(args.config)
     workdir = resolve_workdir(args.workdir)
+    run_id = get_or_create_run_id(workdir)
     step3 = read_json(workdir / "step3_sections.json")
 
     sections = step3.get("sections", [])
@@ -172,7 +174,8 @@ def main() -> None:
     tts = OpenAIProvider(api_key=api_key)
     output_items = []
     for index, section in enumerate(sections):
-        section_id = str(section.get("section_id", "section"))
+        section_id_base = str(section.get("section_id", "section"))
+        section_id = f"{section_id_base} [{run_id}]"
         section_text = str(section.get("text", "")).strip()
         if not section_text:
             continue

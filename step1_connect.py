@@ -5,6 +5,7 @@ import argparse
 from datetime import datetime, timezone
 
 from radio_playlist_generator.common import (
+    get_or_create_run_id,
     get_provider_config,
     load_config,
     resolve_workdir,
@@ -29,6 +30,7 @@ def main() -> None:
     args = parse_args()
     config = load_config(args.config)
     workdir = resolve_workdir(args.workdir)
+    run_id = get_or_create_run_id(workdir, force_new=True)
 
     music_config = get_provider_config(config, "MUSIC")
     base_url = str(music_config.get("base_url", "")).rstrip("/")
@@ -50,6 +52,7 @@ def main() -> None:
 
     output = {
         "connected_at": datetime.now(timezone.utc).isoformat(),
+        "run_id": run_id,
         "base_url": base_url,
         "verify_ssl": verify_ssl,
         "playlist_id": playlist_id,
