@@ -9,7 +9,7 @@
       "program": "${workspaceFolder}/main.py",
       "args": [
         "-c",
-        "${workspaceFolder}/non_techno_playlist.yml"
+        "${workspaceFolder}/non_techno_playlist_de.yaml"
       ],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",

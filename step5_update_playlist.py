@@ -4,6 +4,8 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
+import time as sleep_time
+from zoneinfo import ZoneInfo
 
 from radio_playlist_generator.common import (
     get_provider_config,
@@ -196,6 +198,9 @@ def main() -> None:
             sections_provider_filter = None
         except MusicAssistantError as exc:
             print(f"[step5] sync trigger failed: {exc}")
+        post_tts_sync_wait_seconds = max(5, int(music_config.get("post_tts_sync_wait_seconds", 5)))
+        print(f"[step5] waiting {post_tts_sync_wait_seconds}s after sync trigger")
+        sleep_time.sleep(post_tts_sync_wait_seconds)
         indexed = wait_for_section_indexed(
             client=client,
             sample_audio_file=str(audio_items[0]["audio_file"]),
@@ -214,7 +219,50 @@ def main() -> None:
         or (source_playlist.get("name") if isinstance(source_playlist, dict) else "")
         or "Generated"
     ).strip()
-    target_playlist_name = f"Swift Radio: {playlist_label}"
+    tz_name = str(config.get("general", {}).get("timezone", "UTC"))
+    try:
+        now_local = datetime.now(ZoneInfo(tz_name))
+    except Exception:
+        now_local = datetime.now()
+    date_suffix = f"{now_local.strftime('%a')}. {now_local.strftime('%d.%m.')}"
+    target_playlist_name = f"Swift Radio: {playlist_label} ({date_suffix})"
+
+    deleted_existing_playlists: list[str] = []
+    try:
+        existing_playlists = client.get_library_playlists(
+            search=target_playlist_name,
+            limit=200,
+            provider=playlist_provider,
+        )
+    except MusicAssistantProviderUnavailableError:
+        print(
+            f"[step5] playlist provider '{playlist_provider}' unavailable for playlist lookup; "
+            "retrying without provider filter"
+        )
+        existing_playlists = client.get_library_playlists(
+            search=target_playlist_name,
+            limit=200,
+            provider=None,
+        )
+    except MusicAssistantError as exc:
+        print(f"[step5] playlist lookup failed: {exc}")
+        existing_playlists = []
+
+    for playlist in existing_playlists:
+        existing_name = str(playlist.get("name", "")).strip()
+        existing_id = str(playlist.get("item_id") or playlist.get("id") or "").strip()
+        if existing_name != target_playlist_name or not existing_id:
+            continue
+        if existing_id == source_playlist_id:
+            print(f"[step5] skip delete source playlist id={existing_id}")
+            continue
+        try:
+            client.remove_playlist(existing_id)
+            deleted_existing_playlists.append(existing_id)
+            print(f"[step5] deleted existing playlist name={target_playlist_name} id={existing_id}")
+        except MusicAssistantError as exc:
+            print(f"[step5] failed to delete existing playlist id={existing_id}: {exc}")
+
     try:
         created = client.create_playlist(
             target_playlist_name,
@@ -294,6 +342,7 @@ def main() -> None:
         "source_playlist_id": source_playlist_id,
         "target_playlist_id": target_playlist_id,
         "target_playlist_name": target_playlist_name,
+        "deleted_existing_playlist_ids": deleted_existing_playlists,
         "items_added": len(results),
         "results": results,
     }

@@ -1,21 +1,21 @@
 {
-  "generated_at": "2026-02-07T14:27:42.763319+00:00",
-  "playlist_id": "7",
+  "generated_at": "2026-02-07T16:43:29.714209+00:00",
+  "playlist_id": "34",
   "playlist_provider": "library",
   "playlist": {
-    "item_id": "7",
+    "item_id": "34",
     "provider": "library",
-    "name": "Test",
+    "name": "Kein Techno",
     "version": "",
-    "sort_name": "test",
-    "uri": "library://playlist/7",
+    "sort_name": "kein techno",
+    "uri": "library://playlist/34",
     "external_ids": [],
     "is_playable": true,
     "translation_key": null,
     "media_type": "playlist",
     "provider_mappings": [
       {
-        "item_id": "Umhy7T6a",
+        "item_id": "eGFXhWCg",
         "provider_domain": "builtin",
         "provider_instance": "builtin--3TL8soje",
         "available": true,
@@ -40,7 +40,7 @@
       "explicit": null,
       "images": null,
       "grouping": null,
-      "genres": [],
+      "genres": null,
       "mood": null,
       "style": null,
       "copyright": null,
@@ -54,7 +54,7 @@
       "release_date": null,
       "languages": null,
       "chapters": null,
-      "last_refresh": 1770468271
+      "last_refresh": null
     },
     "favorite": false,
     "position": null,
@@ -62,30 +62,34 @@
     "owner": "Music Assistant",
     "is_editable": true
   },
-  "tracks_count": 4,
+  "source_tracks_count": 500,
+  "tracks_count": 14,
+  "max_duration_minutes": 60.0,
+  "selected_duration_minutes": 63.47,
+  "max_duration_seed": 42,
   "tracks": [
     {
       "index": 0,
-      "item_id": "3167",
+      "item_id": "2225",
       "provider": "library",
-      "name": "Afterlife",
-      "artist": "Illenium",
-      "duration": 364,
-      "songinfo": "Illenium - Afterlife",
+      "name": "Angel in Blue Jeans",
+      "artist": "Train",
+      "duration": 206,
+      "songinfo": "Train - Angel in Blue Jeans",
       "raw": {
-        "item_id": "3167",
+        "item_id": "2225",
         "provider": "library",
-        "name": "Afterlife",
+        "name": "Angel in Blue Jeans",
         "version": "",
-        "sort_name": "afterlife",
-        "uri": "library://track/3167",
+        "sort_name": "angel in blue jeans",
+        "uri": "library://track/2225",
         "external_ids": [],
         "is_playable": true,
         "translation_key": null,
         "media_type": "track",
         "provider_mappings": [
           {
-            "item_id": "Kein Techno/Afterlife (feat. Echos).mp3",
+            "item_id": "Kein Techno/Angel in Blue Jeans.mp3",
             "provider_domain": "filesystem_local",
             "provider_instance": "filesystem_local--MhvbAKbD",
             "available": true,
@@ -98,135 +102,172 @@
               "bit_depth": 16,
               "channels": 2,
               "output_format_str": "mp3",
-              "bit_rate": 110
+              "bit_rate": 113
+            },
+            "url": null,
+            "details": "1767737458"
+          },
+          {
+            "item_id": "Casual Musik/Angel in Blue Jeans.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 113
+            },
+            "url": null,
+            "details": "1767737416"
+          }
+        ],
+        "metadata": {
+          "description": "https://www.youtube.com/watch?v=wZNmrBJnl-E",
+          "review": null,
+          "explicit": null,
+          "images": [
+            {
+              "type": "thumb",
+              "path": "Casual Musik/Angel in Blue Jeans.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Casual Musik/Angel in Blue Jeans.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Kein Techno/Angel in Blue Jeans.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            }
+          ],
+          "grouping": null,
+          "genres": [],
+          "mood": null,
+          "style": null,
+          "copyright": null,
+          "lyrics": null,
+          "lrc_lyrics": null,
+          "label": null,
+          "links": null,
+          "performers": null,
+          "preview": null,
+          "popularity": null,
+          "release_date": null,
+          "languages": null,
+          "chapters": null,
+          "last_refresh": null
+        },
+        "favorite": false,
+        "position": 46,
+        "date_added": null,
+        "duration": 206,
+        "artists": [
+          {
+            "item_id": "1159",
+            "provider": "library",
+            "name": "Train",
+            "version": "",
+            "sort_name": "train",
+            "uri": "library://artist/1159",
+            "external_ids": [],
+            "is_playable": true,
+            "translation_key": null,
+            "media_type": "artist",
+            "available": true,
+            "image": null
+          }
+        ],
+        "last_played": 0,
+        "album": {
+          "item_id": "1105",
+          "provider": "library",
+          "name": "Bulletproof Picasso",
+          "version": "",
+          "sort_name": "bulletproof picasso",
+          "uri": "library://album/1105",
+          "external_ids": [],
+          "is_playable": true,
+          "translation_key": null,
+          "media_type": "album",
+          "available": true,
+          "image": null
+        },
+        "disc_number": 0,
+        "track_number": 0
+      },
+      "source_index": 45
+    },
+    {
+      "index": 1,
+      "item_id": "3262",
+      "provider": "library",
+      "name": "Applaus",
+      "artist": "K.I.Z",
+      "duration": 219,
+      "songinfo": "K.I.Z - Applaus",
+      "raw": {
+        "item_id": "3262",
+        "provider": "library",
+        "name": "Applaus",
+        "version": "",
+        "sort_name": "applaus",
+        "uri": "library://track/3262",
+        "external_ids": [],
+        "is_playable": true,
+        "translation_key": null,
+        "media_type": "track",
+        "provider_mappings": [
+          {
+            "item_id": "Kein Techno/Applaus.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 114
             },
             "url": null,
             "details": "1767737453"
           }
         ],
         "metadata": {
-          "description": "https://www.youtube.com/watch?v=m-6ePeGqTbY",
+          "description": "https://www.youtube.com/watch?v=lJ0VyG2eWow",
           "review": null,
           "explicit": null,
           "images": [
             {
               "type": "thumb",
-              "path": "Kein Techno/Afterlife (feat. Echos).mp3",
+              "path": "Kein Techno/Applaus.mp3",
               "provider": "filesystem_local--MhvbAKbD",
               "remotely_accessible": false
             },
             {
               "type": "thumb",
-              "path": "Kein Techno/Afterlife (feat. Echos).mp3",
+              "path": "Kein Techno/Applaus.mp3",
               "provider": "filesystem_local--MhvbAKbD",
               "remotely_accessible": false
             }
           ],
           "grouping": null,
           "genres": [],
-          "mood": null,
-          "style": null,
-          "copyright": null,
-          "lyrics": null,
-          "lrc_lyrics": "After we're gone, who will breathe the earth we lost?\nWe leave nothing but our thoughts\nAnd memories beneath the dust\nSo when this body fails to mend\nAnd all my demons, they come crashing in\nWill I start to begin or will I fade away with them?\nAnd in the afterlife, tell me we'll be fine\nIn the afterlife, tell me we'll be fine\nAnd in the afterlife, tell me we'll be fine\nIn the afterlife\nAnd in the afterlife, tell me we'll be fine\nIn the afterlife, tell me we'll be fine\nAnd in the afterlife, tell me we'll be fine\nIn the afterlife\nIn the afterlife\nSo when this body fails to mend\nAnd all the demons, they come crashing in\nWill we start to begin or will we fade away with them?\nAnd in the afterlife, tell me we'll be fine\nIn the afterlife, tell me we'll be fine\nAnd in the afterlife, tell me we'll be fine\nIn the afterlife\nAnd in the afterlife, tell me we'll be fine\nIn the afterlife, tell me we'll be fine\nAnd in the afterlife, tell me we'll be fine\nAnd in the afterlife",
-          "label": null,
-          "links": null,
-          "performers": null,
-          "preview": null,
-          "popularity": null,
-          "release_date": null,
-          "languages": null,
-          "chapters": null,
-          "last_refresh": 1769967093
-        },
-        "favorite": false,
-        "position": 1,
-        "date_added": null,
-        "duration": 364,
-        "artists": [
-          {
-            "item_id": "1727",
-            "provider": "library",
-            "name": "Illenium",
-            "version": "",
-            "sort_name": "illenium",
-            "uri": "library://artist/1727",
-            "external_ids": [],
-            "is_playable": true,
-            "translation_key": null,
-            "media_type": "artist",
-            "available": true,
-            "image": null
-          }
-        ],
-        "last_played": 1770473492,
-        "album": {
-          "item_id": "1680",
-          "provider": "library",
-          "name": "Ashes",
-          "version": "",
-          "sort_name": "ashes",
-          "uri": "library://album/1680",
-          "external_ids": [],
-          "is_playable": true,
-          "translation_key": null,
-          "media_type": "album",
-          "available": true,
-          "image": null
-        },
-        "disc_number": 0,
-        "track_number": 0
-      }
-    },
-    {
-      "index": 1,
-      "item_id": "1101",
-      "provider": "library",
-      "name": "02 The Power is mine",
-      "artist": "[unknown]",
-      "duration": 204,
-      "songinfo": "[unknown] - 02 The Power is mine",
-      "raw": {
-        "item_id": "1101",
-        "provider": "library",
-        "name": "02 The Power is mine",
-        "version": "",
-        "sort_name": "02 the power is mine",
-        "uri": "library://track/1101",
-        "external_ids": [],
-        "is_playable": true,
-        "translation_key": null,
-        "media_type": "track",
-        "provider_mappings": [
-          {
-            "item_id": "Gabber/Virus 02/CD1/02 The Power is mine.mp3",
-            "provider_domain": "filesystem_local",
-            "provider_instance": "filesystem_local--MhvbAKbD",
-            "available": true,
-            "in_library": true,
-            "is_unique": null,
-            "audio_format": {
-              "content_type": "mp3",
-              "codec_type": "?",
-              "sample_rate": 44100,
-              "bit_depth": 16,
-              "channels": 2,
-              "output_format_str": "mp3",
-              "bit_rate": 192
-            },
-            "url": null,
-            "details": "1767737448"
-          }
-        ],
-        "metadata": {
-          "description": null,
-          "review": null,
-          "explicit": null,
-          "images": null,
-          "grouping": null,
-          "genres": [
-            "Blues"
-          ],
           "mood": null,
           "style": null,
           "copyright": null,
@@ -240,20 +281,1186 @@
           "release_date": null,
           "languages": null,
           "chapters": null,
-          "last_refresh": 1769967185
+          "last_refresh": null
         },
         "favorite": false,
-        "position": 2,
+        "position": 54,
+        "date_added": null,
+        "duration": 219,
+        "artists": [
+          {
+            "item_id": "1718",
+            "provider": "library",
+            "name": "K.I.Z",
+            "version": "",
+            "sort_name": "k.i.z",
+            "uri": "library://artist/1718",
+            "external_ids": [],
+            "is_playable": true,
+            "translation_key": null,
+            "media_type": "artist",
+            "available": true,
+            "image": null
+          }
+        ],
+        "last_played": 0,
+        "album": {
+          "item_id": "1742",
+          "provider": "library",
+          "name": "Applaus",
+          "version": "",
+          "sort_name": "applaus",
+          "uri": "library://album/1742",
+          "external_ids": [],
+          "is_playable": true,
+          "translation_key": null,
+          "media_type": "album",
+          "available": true,
+          "image": null
+        },
+        "disc_number": 0,
+        "track_number": 0
+      },
+      "source_index": 53
+    },
+    {
+      "index": 2,
+      "item_id": "2569",
+      "provider": "library",
+      "name": "Bad Moon Rising",
+      "artist": "Creedence Clearwater Revival",
+      "duration": 141,
+      "songinfo": "Creedence Clearwater Revival - Bad Moon Rising",
+      "raw": {
+        "item_id": "2569",
+        "provider": "library",
+        "name": "Bad Moon Rising",
+        "version": "",
+        "sort_name": "bad moon rising",
+        "uri": "library://track/2569",
+        "external_ids": [],
+        "is_playable": true,
+        "translation_key": null,
+        "media_type": "track",
+        "provider_mappings": [
+          {
+            "item_id": "Kein Techno/Bad Moon Rising.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 168
+            },
+            "url": null,
+            "details": "1767737454"
+          },
+          {
+            "item_id": "Casual Musik/Bad Moon Rising.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 168
+            },
+            "url": null,
+            "details": "1767737416"
+          }
+        ],
+        "metadata": {
+          "description": "https://www.youtube.com/watch?v=SuRCxakQt-c",
+          "review": null,
+          "explicit": null,
+          "images": [
+            {
+              "type": "thumb",
+              "path": "Casual Musik/Bad Moon Rising.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Casual Musik/Bad Moon Rising.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Kein Techno/Bad Moon Rising.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            }
+          ],
+          "grouping": null,
+          "genres": [],
+          "mood": null,
+          "style": null,
+          "copyright": null,
+          "lyrics": null,
+          "lrc_lyrics": null,
+          "label": null,
+          "links": null,
+          "performers": null,
+          "preview": null,
+          "popularity": null,
+          "release_date": null,
+          "languages": null,
+          "chapters": null,
+          "last_refresh": null
+        },
+        "favorite": false,
+        "position": 73,
+        "date_added": null,
+        "duration": 141,
+        "artists": [
+          {
+            "item_id": "1422",
+            "provider": "library",
+            "name": "Creedence Clearwater Revival",
+            "version": "",
+            "sort_name": "creedence clearwater revival",
+            "uri": "library://artist/1422",
+            "external_ids": [],
+            "is_playable": true,
+            "translation_key": null,
+            "media_type": "artist",
+            "available": true,
+            "image": null
+          }
+        ],
+        "last_played": 0,
+        "album": {
+          "item_id": "1393",
+          "provider": "library",
+          "name": "Green River",
+          "version": "",
+          "sort_name": "green river",
+          "uri": "library://album/1393",
+          "external_ids": [],
+          "is_playable": true,
+          "translation_key": null,
+          "media_type": "album",
+          "available": true,
+          "image": null
+        },
+        "disc_number": 0,
+        "track_number": 0
+      },
+      "source_index": 72
+    },
+    {
+      "index": 3,
+      "item_id": "3273",
+      "provider": "library",
+      "name": "Baller los",
+      "artist": "Mero, Josh Petruccio, Timur Turkay, Enes Meral, Gökhan Güler, Josh Petruccio",
+      "duration": 160,
+      "songinfo": "Mero, Josh Petruccio, Timur Turkay, Enes Meral, Gökhan Güler, Josh Petruccio - Baller los",
+      "raw": {
+        "item_id": "3273",
+        "provider": "library",
+        "name": "Baller los",
+        "version": "",
+        "sort_name": "baller los",
+        "uri": "library://track/3273",
+        "external_ids": [],
+        "is_playable": true,
+        "translation_key": null,
+        "media_type": "track",
+        "provider_mappings": [
+          {
+            "item_id": "Kein Techno/Baller los.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 138
+            },
+            "url": null,
+            "details": "1767737454"
+          }
+        ],
+        "metadata": {
+          "description": "https://www.youtube.com/watch?v=aQ2eOwDLxJo",
+          "review": null,
+          "explicit": null,
+          "images": [
+            {
+              "type": "thumb",
+              "path": "Kein Techno/Baller los.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Kein Techno/Baller los.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            }
+          ],
+          "grouping": null,
+          "genres": [],
+          "mood": null,
+          "style": null,
+          "copyright": null,
+          "lyrics": null,
+          "lrc_lyrics": null,
+          "label": null,
+          "links": null,
+          "performers": null,
+          "preview": null,
+          "popularity": null,
+          "release_date": null,
+          "languages": null,
+          "chapters": null,
+          "last_refresh": null
+        },
+        "favorite": false,
+        "position": 75,
+        "date_added": null,
+        "duration": 160,
+        "artists": [
+          {
+            "item_id": "1777",
+            "provider": "library",
+            "name": "Mero, Josh Petruccio, Timur Turkay, Enes Meral, Gökhan Güler, Josh Petruccio",
+            "version": "",
+            "sort_name": "mero, josh petruccio, timur turkay, enes meral, goekhan gueler, josh petruccio",
+            "uri": "library://artist/1777",
+            "external_ids": [],
+            "is_playable": true,
+            "translation_key": null,
+            "media_type": "artist",
+            "available": true,
+            "image": null
+          }
+        ],
+        "last_played": 0,
+        "album": {
+          "item_id": "1750",
+          "provider": "library",
+          "name": "YA HERO YA MERO",
+          "version": "",
+          "sort_name": "ya hero ya mero",
+          "uri": "library://album/1750",
+          "external_ids": [],
+          "is_playable": true,
+          "translation_key": null,
+          "media_type": "album",
+          "available": true,
+          "image": null
+        },
+        "disc_number": 0,
+        "track_number": 0
+      },
+      "source_index": 74
+    },
+    {
+      "index": 4,
+      "item_id": "2334",
+      "provider": "library",
+      "name": "Beethoven: Piano Concerto No. 1 in C Major, Op. 15 - I. Allegro con brio",
+      "artist": "Rudolf Buchbinder, Berliner Philharmoniker, Christian Thielemann",
+      "duration": 943,
+      "songinfo": "Rudolf Buchbinder, Berliner Philharmoniker, Christian Thielemann - Beethoven: Piano Concerto No. 1 in C Major, Op. 15 - I. Allegro con brio",
+      "raw": {
+        "item_id": "2334",
+        "provider": "library",
+        "name": "Beethoven: Piano Concerto No. 1 in C Major, Op. 15 - I. Allegro con brio",
+        "version": "Live at Berliner Philharmonie, Berlin / 2016",
+        "sort_name": "beethoven: piano concerto no. 1 in c major, op. 15 - i. allegro con brio",
+        "uri": "library://track/2334",
+        "external_ids": [],
+        "is_playable": true,
+        "translation_key": null,
+        "media_type": "track",
+        "provider_mappings": [
+          {
+            "item_id": "Kein Techno/Beethoven： Piano Concerto No. 1 in C Major, Op. 15 - I. Allegro con brio (Live at Berliner Philharmonie, Berlin ⧸ 2016).mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 99
+            },
+            "url": null,
+            "details": "1767737454"
+          },
+          {
+            "item_id": "Casual Musik/Beethoven： Piano Concerto No. 1 in C Major, Op. 15 - I. Allegro con brio (Live at Berliner Philharmonie, Berlin ⧸ 2016).mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 99
+            },
+            "url": null,
+            "details": "1767737416"
+          }
+        ],
+        "metadata": {
+          "description": "https://www.youtube.com/watch?v=W2nTVnkKaLw",
+          "review": null,
+          "explicit": null,
+          "images": [
+            {
+              "type": "thumb",
+              "path": "Casual Musik/Beethoven： Piano Concerto No. 1 in C Major, Op. 15 - I. Allegro con brio (Live at Berliner Philharmonie, Berlin ⧸ 2016).mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Casual Musik/Beethoven： Piano Concerto No. 1 in C Major, Op. 15 - I. Allegro con brio (Live at Berliner Philharmonie, Berlin ⧸ 2016).mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Kein Techno/Beethoven： Piano Concerto No. 1 in C Major, Op. 15 - I. Allegro con brio (Live at Berliner Philharmonie, Berlin ⧸ 2016).mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            }
+          ],
+          "grouping": null,
+          "genres": [],
+          "mood": null,
+          "style": null,
+          "copyright": null,
+          "lyrics": null,
+          "lrc_lyrics": null,
+          "label": null,
+          "links": null,
+          "performers": null,
+          "preview": null,
+          "popularity": null,
+          "release_date": null,
+          "languages": null,
+          "chapters": null,
+          "last_refresh": null
+        },
+        "favorite": false,
+        "position": 93,
+        "date_added": null,
+        "duration": 943,
+        "artists": [
+          {
+            "item_id": "1300",
+            "provider": "library",
+            "name": "Rudolf Buchbinder, Berliner Philharmoniker, Christian Thielemann",
+            "version": "",
+            "sort_name": "rudolf buchbinder, berliner philharmoniker, christian thielemann",
+            "uri": "library://artist/1300",
+            "external_ids": [],
+            "is_playable": true,
+            "translation_key": null,
+            "media_type": "artist",
+            "available": true,
+            "image": null
+          }
+        ],
+        "last_played": 0,
+        "album": {
+          "item_id": "1204",
+          "provider": "library",
+          "name": "Beethoven: Piano Concerto No. 1, Op. 15; 6 Piano Variations in F Major, Op. 34",
+          "version": "",
+          "sort_name": "beethoven: piano concerto no. 1, op. 15; 6 piano variations in f major, op. 34",
+          "uri": "library://album/1204",
+          "external_ids": [],
+          "is_playable": true,
+          "translation_key": null,
+          "media_type": "album",
+          "available": true,
+          "image": null
+        },
+        "disc_number": 0,
+        "track_number": 0
+      },
+      "source_index": 92
+    },
+    {
+      "index": 5,
+      "item_id": "2485",
+      "provider": "library",
+      "name": "Cry of the Brave",
+      "artist": "DragonForce",
+      "duration": 345,
+      "songinfo": "DragonForce - Cry of the Brave",
+      "raw": {
+        "item_id": "2485",
+        "provider": "library",
+        "name": "Cry of the Brave",
+        "version": "",
+        "sort_name": "cry of the brave",
+        "uri": "library://track/2485",
+        "external_ids": [],
+        "is_playable": true,
+        "translation_key": null,
+        "media_type": "track",
+        "provider_mappings": [
+          {
+            "item_id": "Casual Musik/Cry of the Brave.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 117
+            },
+            "url": null,
+            "details": "1767737416"
+          },
+          {
+            "item_id": "Kein Techno/Cry of the Brave.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 117
+            },
+            "url": null,
+            "details": "1767737455"
+          }
+        ],
+        "metadata": {
+          "description": "https://www.youtube.com/watch?v=dTkhrtUUzQ4",
+          "review": null,
+          "explicit": null,
+          "images": [
+            {
+              "type": "thumb",
+              "path": "Casual Musik/My Spirit Will Go On.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Casual Musik/My Spirit Will Go On.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Casual Musik/Cry of the Brave.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Kein Techno/Cry of the Brave.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            }
+          ],
+          "grouping": null,
+          "genres": [],
+          "mood": null,
+          "style": null,
+          "copyright": null,
+          "lyrics": null,
+          "lrc_lyrics": null,
+          "label": null,
+          "links": null,
+          "performers": null,
+          "preview": null,
+          "popularity": null,
+          "release_date": null,
+          "languages": null,
+          "chapters": null,
+          "last_refresh": null
+        },
+        "favorite": false,
+        "position": 157,
+        "date_added": null,
+        "duration": 345,
+        "artists": [
+          {
+            "item_id": "1138",
+            "provider": "library",
+            "name": "DragonForce",
+            "version": "",
+            "sort_name": "dragonforce",
+            "uri": "library://artist/1138",
+            "external_ids": [],
+            "is_playable": true,
+            "translation_key": null,
+            "media_type": "artist",
+            "available": true,
+            "image": null
+          }
+        ],
+        "last_played": 0,
+        "album": {
+          "item_id": "1018",
+          "provider": "library",
+          "name": "Sonic Firestorm",
+          "version": "",
+          "sort_name": "sonic firestorm",
+          "uri": "library://album/1018",
+          "external_ids": [],
+          "is_playable": true,
+          "translation_key": null,
+          "media_type": "album",
+          "available": true,
+          "image": null
+        },
+        "disc_number": 0,
+        "track_number": 0
+      },
+      "source_index": 156
+    },
+    {
+      "index": 6,
+      "item_id": "3133",
+      "provider": "library",
+      "name": "Danger Zone",
+      "artist": "Cherlene, Kenny Loggins",
+      "duration": 221,
+      "songinfo": "Cherlene, Kenny Loggins - Danger Zone",
+      "raw": {
+        "item_id": "3133",
+        "provider": "library",
+        "name": "Danger Zone",
+        "version": "",
+        "sort_name": "danger zone",
+        "uri": "library://track/3133",
+        "external_ids": [],
+        "is_playable": true,
+        "translation_key": null,
+        "media_type": "track",
+        "provider_mappings": [
+          {
+            "item_id": "Kein Techno/Danger Zone.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 112
+            },
+            "url": null,
+            "details": "1767737454"
+          }
+        ],
+        "metadata": {
+          "description": "https://www.youtube.com/watch?v=Vd3LlVbW1aE",
+          "review": null,
+          "explicit": null,
+          "images": [
+            {
+              "type": "thumb",
+              "path": "Kein Techno/Danger Zone.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Kein Techno/Danger Zone.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            }
+          ],
+          "grouping": null,
+          "genres": [],
+          "mood": null,
+          "style": null,
+          "copyright": null,
+          "lyrics": null,
+          "lrc_lyrics": null,
+          "label": null,
+          "links": null,
+          "performers": null,
+          "preview": null,
+          "popularity": null,
+          "release_date": null,
+          "languages": null,
+          "chapters": null,
+          "last_refresh": null
+        },
+        "favorite": false,
+        "position": 165,
+        "date_added": null,
+        "duration": 221,
+        "artists": [
+          {
+            "item_id": "1711",
+            "provider": "library",
+            "name": "Cherlene, Kenny Loggins",
+            "version": "",
+            "sort_name": "cherlene, kenny loggins",
+            "uri": "library://artist/1711",
+            "external_ids": [],
+            "is_playable": true,
+            "translation_key": null,
+            "media_type": "artist",
+            "available": true,
+            "image": null
+          }
+        ],
+        "last_played": 0,
+        "album": {
+          "item_id": "1658",
+          "provider": "library",
+          "name": "Archer: Cherlene",
+          "version": "",
+          "sort_name": "archer: cherlene",
+          "uri": "library://album/1658",
+          "external_ids": [],
+          "is_playable": true,
+          "translation_key": null,
+          "media_type": "album",
+          "available": true,
+          "image": null
+        },
+        "disc_number": 0,
+        "track_number": 0
+      },
+      "source_index": 164
+    },
+    {
+      "index": 7,
+      "item_id": "2532",
+      "provider": "library",
+      "name": "Don’t Tell Me You Love Me",
+      "artist": "Night Ranger",
+      "duration": 316,
+      "songinfo": "Night Ranger - Don’t Tell Me You Love Me",
+      "raw": {
+        "item_id": "2532",
+        "provider": "library",
+        "name": "Don’t Tell Me You Love Me",
+        "version": "",
+        "sort_name": "don’t tell me you love me",
+        "uri": "library://track/2532",
+        "external_ids": [],
+        "is_playable": true,
+        "translation_key": null,
+        "media_type": "track",
+        "provider_mappings": [
+          {
+            "item_id": "Casual Musik/Don’t Tell Me You Love Me.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 111
+            },
+            "url": null,
+            "details": "1767737416"
+          },
+          {
+            "item_id": "Kein Techno/Don’t Tell Me You Love Me.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 111
+            },
+            "url": null,
+            "details": "1767737458"
+          }
+        ],
+        "metadata": {
+          "description": "https://www.youtube.com/watch?v=d37bWiLnIm8",
+          "review": null,
+          "explicit": null,
+          "images": [
+            {
+              "type": "thumb",
+              "path": "Casual Musik/Don’t Tell Me You Love Me.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Casual Musik/Don’t Tell Me You Love Me.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Kein Techno/Don’t Tell Me You Love Me.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            }
+          ],
+          "grouping": null,
+          "genres": [],
+          "mood": null,
+          "style": null,
+          "copyright": null,
+          "lyrics": null,
+          "lrc_lyrics": null,
+          "label": null,
+          "links": null,
+          "performers": null,
+          "preview": null,
+          "popularity": null,
+          "release_date": null,
+          "languages": null,
+          "chapters": null,
+          "last_refresh": null
+        },
+        "favorite": false,
+        "position": 210,
+        "date_added": null,
+        "duration": 316,
+        "artists": [
+          {
+            "item_id": "1428",
+            "provider": "library",
+            "name": "Night Ranger",
+            "version": "",
+            "sort_name": "night ranger",
+            "uri": "library://artist/1428",
+            "external_ids": [],
+            "is_playable": true,
+            "translation_key": null,
+            "media_type": "artist",
+            "available": true,
+            "image": null
+          }
+        ],
+        "last_played": 0,
+        "album": {
+          "item_id": "1362",
+          "provider": "library",
+          "name": "Sister Christian",
+          "version": "",
+          "sort_name": "sister christian",
+          "uri": "library://album/1362",
+          "external_ids": [],
+          "is_playable": true,
+          "translation_key": null,
+          "media_type": "album",
+          "available": true,
+          "image": null
+        },
+        "disc_number": 0,
+        "track_number": 0
+      },
+      "source_index": 209
+    },
+    {
+      "index": 8,
+      "item_id": "3431",
+      "provider": "library",
+      "name": "Du bist schön",
+      "artist": "Alligatoah, Lukas Strobel, Lukas Strobel, Lukas Strobel",
+      "duration": 228,
+      "songinfo": "Alligatoah, Lukas Strobel, Lukas Strobel, Lukas Strobel - Du bist schön",
+      "raw": {
+        "item_id": "3431",
+        "provider": "library",
+        "name": "Du bist schön",
+        "version": "",
+        "sort_name": "du bist schoen",
+        "uri": "library://track/3431",
+        "external_ids": [],
+        "is_playable": true,
+        "translation_key": null,
+        "media_type": "track",
+        "provider_mappings": [
+          {
+            "item_id": "Kein Techno/Du bist schön.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 131
+            },
+            "url": null,
+            "details": "1767737459"
+          }
+        ],
+        "metadata": {
+          "description": "https://www.youtube.com/watch?v=WFEFN4Uhmyg",
+          "review": null,
+          "explicit": null,
+          "images": [
+            {
+              "type": "thumb",
+              "path": "Kein Techno/Musik ist keine Lösung.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Kein Techno/Du bist schön.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            }
+          ],
+          "grouping": null,
+          "genres": [],
+          "mood": null,
+          "style": null,
+          "copyright": null,
+          "lyrics": null,
+          "lrc_lyrics": null,
+          "label": null,
+          "links": null,
+          "performers": null,
+          "preview": null,
+          "popularity": null,
+          "release_date": null,
+          "languages": null,
+          "chapters": null,
+          "last_refresh": null
+        },
+        "favorite": false,
+        "position": 216,
+        "date_added": null,
+        "duration": 228,
+        "artists": [
+          {
+            "item_id": "1050",
+            "provider": "library",
+            "name": "Alligatoah, Lukas Strobel, Lukas Strobel, Lukas Strobel",
+            "version": "",
+            "sort_name": "alligatoah, lukas strobel, lukas strobel, lukas strobel",
+            "uri": "library://artist/1050",
+            "external_ids": [],
+            "is_playable": true,
+            "translation_key": null,
+            "media_type": "artist",
+            "available": true,
+            "image": null
+          }
+        ],
+        "last_played": 0,
+        "album": {
+          "item_id": "1667",
+          "provider": "library",
+          "name": "Musik ist keine Lösung",
+          "version": "",
+          "sort_name": "musik ist keine loesung",
+          "uri": "library://album/1667",
+          "external_ids": [],
+          "is_playable": true,
+          "translation_key": null,
+          "media_type": "album",
+          "available": true,
+          "image": null
+        },
+        "disc_number": 0,
+        "track_number": 0
+      },
+      "source_index": 215
+    },
+    {
+      "index": 9,
+      "item_id": "2039",
+      "provider": "library",
+      "name": "Gotta Be Productive",
+      "artist": "Mattstagraham, Matthew Tad Graham",
+      "duration": 68,
+      "songinfo": "Mattstagraham, Matthew Tad Graham - Gotta Be Productive",
+      "raw": {
+        "item_id": "2039",
+        "provider": "library",
+        "name": "Gotta Be Productive",
+        "version": "",
+        "sort_name": "gotta be productive",
+        "uri": "library://track/2039",
+        "external_ids": [],
+        "is_playable": true,
+        "translation_key": null,
+        "media_type": "track",
+        "provider_mappings": [
+          {
+            "item_id": "Casual Musik/Gotta Be Productive.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 114
+            },
+            "url": null,
+            "details": "1767737415"
+          },
+          {
+            "item_id": "Kein Techno/Gotta Be Productive.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 114
+            },
+            "url": null,
+            "details": "1767737456"
+          }
+        ],
+        "metadata": {
+          "description": "https://www.youtube.com/watch?v=izUdUNUSOrw",
+          "review": null,
+          "explicit": null,
+          "images": [
+            {
+              "type": "thumb",
+              "path": "Casual Musik/Gotta Be Productive.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Casual Musik/Gotta Be Productive.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Kein Techno/Gotta Be Productive.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            }
+          ],
+          "grouping": null,
+          "genres": [],
+          "mood": null,
+          "style": null,
+          "copyright": null,
+          "lyrics": null,
+          "lrc_lyrics": null,
+          "label": null,
+          "links": null,
+          "performers": null,
+          "preview": null,
+          "popularity": null,
+          "release_date": null,
+          "languages": null,
+          "chapters": null,
+          "last_refresh": null
+        },
+        "favorite": false,
+        "position": 316,
+        "date_added": null,
+        "duration": 68,
+        "artists": [
+          {
+            "item_id": "1058",
+            "provider": "library",
+            "name": "Mattstagraham, Matthew Tad Graham",
+            "version": "",
+            "sort_name": "mattstagraham, matthew tad graham",
+            "uri": "library://artist/1058",
+            "external_ids": [],
+            "is_playable": true,
+            "translation_key": null,
+            "media_type": "artist",
+            "available": true,
+            "image": null
+          }
+        ],
+        "last_played": 0,
+        "album": {
+          "item_id": "935",
+          "provider": "library",
+          "name": "Prescribe Whatever",
+          "version": "",
+          "sort_name": "prescribe whatever",
+          "uri": "library://album/935",
+          "external_ids": [],
+          "is_playable": true,
+          "translation_key": null,
+          "media_type": "album",
+          "available": true,
+          "image": null
+        },
+        "disc_number": 0,
+        "track_number": 0
+      },
+      "source_index": 315
+    },
+    {
+      "index": 10,
+      "item_id": "3339",
+      "provider": "library",
+      "name": "Hass",
+      "artist": "Alligatoah",
+      "duration": 204,
+      "songinfo": "Alligatoah - Hass",
+      "raw": {
+        "item_id": "3339",
+        "provider": "library",
+        "name": "Hass",
+        "version": "",
+        "sort_name": "hass",
+        "uri": "library://track/3339",
+        "external_ids": [],
+        "is_playable": true,
+        "translation_key": null,
+        "media_type": "track",
+        "provider_mappings": [
+          {
+            "item_id": "Kein Techno/Hass.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 117
+            },
+            "url": null,
+            "details": "1767737459"
+          }
+        ],
+        "metadata": {
+          "description": "https://www.youtube.com/watch?v=y_tgzWO9kCs",
+          "review": null,
+          "explicit": null,
+          "images": [
+            {
+              "type": "thumb",
+              "path": "Kein Techno/I Need A Face.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Kein Techno/Hass.mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            }
+          ],
+          "grouping": null,
+          "genres": [],
+          "mood": null,
+          "style": null,
+          "copyright": null,
+          "lyrics": null,
+          "lrc_lyrics": null,
+          "label": null,
+          "links": null,
+          "performers": null,
+          "preview": null,
+          "popularity": null,
+          "release_date": null,
+          "languages": null,
+          "chapters": null,
+          "last_refresh": null
+        },
+        "favorite": false,
+        "position": 334,
         "date_added": null,
         "duration": 204,
         "artists": [
           {
-            "item_id": "2",
+            "item_id": "1284",
             "provider": "library",
-            "name": "[unknown]",
+            "name": "Alligatoah",
             "version": "",
-            "sort_name": "unknown]",
-            "uri": "library://artist/2",
+            "sort_name": "alligatoah",
+            "uri": "library://artist/1284",
             "external_ids": [],
             "is_playable": true,
             "translation_key": null,
@@ -262,34 +1469,48 @@
             "image": null
           }
         ],
-        "last_played": 1769970029,
-        "album": null,
+        "last_played": 0,
+        "album": {
+          "item_id": "1625",
+          "provider": "library",
+          "name": "Schlaftabletten, Rotwein V",
+          "version": "",
+          "sort_name": "schlaftabletten, rotwein v",
+          "uri": "library://album/1625",
+          "external_ids": [],
+          "is_playable": true,
+          "translation_key": null,
+          "media_type": "album",
+          "available": true,
+          "image": null
+        },
         "disc_number": 0,
         "track_number": 0
-      }
+      },
+      "source_index": 333
     },
     {
-      "index": 2,
-      "item_id": "3041",
+      "index": 11,
+      "item_id": "2202",
       "provider": "library",
-      "name": "Schreien!",
-      "artist": "Paula Carolina, Marti Fischer, Paula Carolina, Nikolaus Winkelhausen, Paula Carolina, Nikolaus Winkelhausen, Marius Fietz, Johann Seifert",
-      "duration": 165,
-      "songinfo": "Paula Carolina, Marti Fischer, Paula Carolina, Nikolaus Winkelhausen, Paula Carolina, Nikolaus Winkelhausen, Marius Fietz, Johann Seifert - Schreien!",
+      "name": "I Gotta Feeling",
+      "artist": "The Black Eyed Peas",
+      "duration": 289,
+      "songinfo": "The Black Eyed Peas - I Gotta Feeling",
       "raw": {
-        "item_id": "3041",
+        "item_id": "2202",
         "provider": "library",
-        "name": "Schreien!",
-        "version": "Turbo Remix",
-        "sort_name": "schreien!",
-        "uri": "library://track/3041",
+        "name": "I Gotta Feeling",
+        "version": "",
+        "sort_name": "i gotta feeling",
+        "uri": "library://track/2202",
         "external_ids": [],
         "is_playable": true,
         "translation_key": null,
         "media_type": "track",
         "provider_mappings": [
           {
-            "item_id": "Techno & Harder Styles/Schreien! (Turbo Remix).mp3",
+            "item_id": "Kein Techno/I Gotta Feeling.mp3",
             "provider_domain": "filesystem_local",
             "provider_instance": "filesystem_local--MhvbAKbD",
             "available": true,
@@ -302,32 +1523,51 @@
               "bit_depth": 16,
               "channels": 2,
               "output_format_str": "mp3",
-              "bit_rate": 129
+              "bit_rate": 112
             },
             "url": null,
-            "details": "1767737582"
+            "details": "1767737456"
+          },
+          {
+            "item_id": "Casual Musik/I Gotta Feeling.mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 112
+            },
+            "url": null,
+            "details": "1767737416"
           }
         ],
         "metadata": {
-          "description": "https://www.youtube.com/watch?v=EM8my7_ApbA",
+          "description": "https://www.youtube.com/watch?v=OIPmhkzN2ug",
           "review": null,
           "explicit": null,
           "images": [
             {
               "type": "thumb",
-              "path": "Techno and Harder Styles/Schreien! (Turbo Remix).mp3",
+              "path": "Casual Musik/I Gotta Feeling.mp3",
               "provider": "filesystem_local--MhvbAKbD",
               "remotely_accessible": false
             },
             {
               "type": "thumb",
-              "path": "Techno and Harder Styles/Schreien! (Turbo Remix).mp3",
+              "path": "Casual Musik/I Gotta Feeling.mp3",
               "provider": "filesystem_local--MhvbAKbD",
               "remotely_accessible": false
             },
             {
               "type": "thumb",
-              "path": "Techno & Harder Styles/Schreien! (Turbo Remix).mp3",
+              "path": "Kein Techno/I Gotta Feeling.mp3",
               "provider": "filesystem_local--MhvbAKbD",
               "remotely_accessible": false
             }
@@ -347,20 +1587,20 @@
           "release_date": null,
           "languages": null,
           "chapters": null,
-          "last_refresh": 1769968950
+          "last_refresh": null
         },
         "favorite": false,
-        "position": 3,
+        "position": 384,
         "date_added": null,
-        "duration": 165,
+        "duration": 289,
         "artists": [
           {
-            "item_id": "965",
+            "item_id": "1066",
             "provider": "library",
-            "name": "Paula Carolina, Marti Fischer, Paula Carolina, Nikolaus Winkelhausen, Paula Carolina, Nikolaus Winkelhausen, Marius Fietz, Johann Seifert",
+            "name": "The Black Eyed Peas",
             "version": "",
-            "sort_name": "paula carolina, marti fischer, paula carolina, nikolaus winkelhausen, paula carolina, nikolaus winkelhausen, marius fietz, johann seifert",
-            "uri": "library://artist/965",
+            "sort_name": "black eyed peas, the",
+            "uri": "library://artist/1066",
             "external_ids": [],
             "is_playable": true,
             "translation_key": null,
@@ -369,14 +1609,14 @@
             "image": null
           }
         ],
-        "last_played": 1770473593,
+        "last_played": 0,
         "album": {
-          "item_id": "824",
+          "item_id": "1085",
           "provider": "library",
-          "name": "Schreien!",
+          "name": "THE E.N.D. (THE ENERGY NEVER DIES)",
           "version": "",
-          "sort_name": "schreien!",
-          "uri": "library://album/824",
+          "sort_name": "e.n.d. (the energy never dies), the",
+          "uri": "library://album/1085",
           "external_ids": [],
           "is_playable": true,
           "translation_key": null,
@@ -386,49 +1626,31 @@
         },
         "disc_number": 0,
         "track_number": 0
-      }
+      },
+      "source_index": 383
     },
     {
-      "index": 3,
-      "item_id": "1537",
+      "index": 12,
+      "item_id": "2055",
       "provider": "library",
-      "name": "Always",
-      "artist": "Panama, Jarrah Lanes, Jarrah Lanes, Jarrah Lanes",
-      "duration": 91,
-      "songinfo": "Panama, Jarrah Lanes, Jarrah Lanes, Jarrah Lanes - Always",
+      "name": "In deiner kleinen Welt",
+      "artist": "Philipp Dittberner, Philipp Dittberner, Philipp Dittberner",
+      "duration": 214,
+      "songinfo": "Philipp Dittberner, Philipp Dittberner, Philipp Dittberner - In deiner kleinen Welt",
       "raw": {
-        "item_id": "1537",
+        "item_id": "2055",
         "provider": "library",
-        "name": "Always",
+        "name": "In deiner kleinen Welt",
         "version": "",
-        "sort_name": "always",
-        "uri": "library://track/1537",
+        "sort_name": "in deiner kleinen welt",
+        "uri": "library://track/2055",
         "external_ids": [],
         "is_playable": true,
         "translation_key": null,
         "media_type": "track",
         "provider_mappings": [
           {
-            "item_id": "Music/Media.localized/Music/Panama, Jarrah Lanes, Jarrah Lanes, Jarrah Lanes/One Day/Always.m4a",
-            "provider_domain": "filesystem_local",
-            "provider_instance": "filesystem_local--MhvbAKbD",
-            "available": true,
-            "in_library": true,
-            "is_unique": null,
-            "audio_format": {
-              "content_type": "m4a",
-              "codec_type": "?",
-              "sample_rate": 48000,
-              "bit_depth": 16,
-              "channels": 2,
-              "output_format_str": "m4a",
-              "bit_rate": 529
-            },
-            "url": null,
-            "details": "1767737554"
-          },
-          {
-            "item_id": "Techno and Harder Styles/Always.mp3",
+            "item_id": "Casual Musik/In deiner kleinen Welt.mp3",
             "provider_domain": "filesystem_local",
             "provider_instance": "filesystem_local--MhvbAKbD",
             "available": true,
@@ -441,13 +1663,13 @@
               "bit_depth": 16,
               "channels": 2,
               "output_format_str": "mp3",
-              "bit_rate": 177
+              "bit_rate": 107
             },
             "url": null,
-            "details": "1767737584"
+            "details": "1767737416"
           },
           {
-            "item_id": "Techno & Harder Styles/Always.mp3",
+            "item_id": "Kein Techno/In deiner kleinen Welt.mp3",
             "provider_domain": "filesystem_local",
             "provider_instance": "filesystem_local--MhvbAKbD",
             "available": true,
@@ -460,46 +1682,38 @@
               "bit_depth": 16,
               "channels": 2,
               "output_format_str": "mp3",
-              "bit_rate": 177
+              "bit_rate": 107
             },
             "url": null,
-            "details": "1767737580"
+            "details": "1767737456"
           }
         ],
         "metadata": {
-          "description": "https://www.youtube.com/watch?v=CR7UN7sxWoY",
+          "description": "https://www.youtube.com/watch?v=r7MzbIiWQiA",
           "review": null,
           "explicit": null,
           "images": [
             {
               "type": "thumb",
-              "path": "Techno and Harder Styles/Always.mp3",
+              "path": "Casual Musik/In deiner kleinen Welt.mp3",
               "provider": "filesystem_local--MhvbAKbD",
               "remotely_accessible": false
             },
             {
               "type": "thumb",
-              "path": "Techno and Harder Styles/Always.mp3",
+              "path": "Casual Musik/In deiner kleinen Welt.mp3",
               "provider": "filesystem_local--MhvbAKbD",
               "remotely_accessible": false
             },
             {
               "type": "thumb",
-              "path": "Techno & Harder Styles/Always.mp3",
-              "provider": "filesystem_local--MhvbAKbD",
-              "remotely_accessible": false
-            },
-            {
-              "type": "thumb",
-              "path": "Music/Media.localized/Music/Panama, Jarrah Lanes, Jarrah Lanes, Jarrah Lanes/One Day/Always.m4a",
+              "path": "Kein Techno/In deiner kleinen Welt.mp3",
               "provider": "filesystem_local--MhvbAKbD",
               "remotely_accessible": false
             }
           ],
           "grouping": null,
-          "genres": [
-            "Techno"
-          ],
+          "genres": [],
           "mood": null,
           "style": null,
           "copyright": null,
@@ -513,20 +1727,20 @@
           "release_date": null,
           "languages": null,
           "chapters": null,
-          "last_refresh": 1770468454
+          "last_refresh": null
         },
         "favorite": false,
-        "position": 4,
+        "position": 404,
         "date_added": null,
-        "duration": 91,
+        "duration": 214,
         "artists": [
           {
-            "item_id": "718",
+            "item_id": "1072",
             "provider": "library",
-            "name": "Panama, Jarrah Lanes, Jarrah Lanes, Jarrah Lanes",
+            "name": "Philipp Dittberner, Philipp Dittberner, Philipp Dittberner",
             "version": "",
-            "sort_name": "panama, jarrah lanes, jarrah lanes, jarrah lanes",
-            "uri": "library://artist/718",
+            "sort_name": "philipp dittberner, philipp dittberner, philipp dittberner",
+            "uri": "library://artist/1072",
             "external_ids": [],
             "is_playable": true,
             "translation_key": null,
@@ -535,14 +1749,14 @@
             "image": null
           }
         ],
-        "last_played": 1770473733,
+        "last_played": 0,
         "album": {
-          "item_id": "518",
+          "item_id": "949",
           "provider": "library",
-          "name": "One Day",
+          "name": "2:33",
           "version": "",
-          "sort_name": "one day",
-          "uri": "library://album/518",
+          "sort_name": "2:33",
+          "uri": "library://album/949",
           "external_ids": [],
           "is_playable": true,
           "translation_key": null,
@@ -552,7 +1766,123 @@
         },
         "disc_number": 0,
         "track_number": 0
-      }
+      },
+      "source_index": 403
+    },
+    {
+      "index": 13,
+      "item_id": "3233",
+      "provider": "library",
+      "name": "It's Time I See You",
+      "artist": "Jadakiss, Sheek, Styles, Eve, Drag-On, Infa-Red & Cross",
+      "duration": 254,
+      "songinfo": "Jadakiss, Sheek, Styles, Eve, Drag-On, Infa-Red & Cross - It's Time I See You",
+      "raw": {
+        "item_id": "3233",
+        "provider": "library",
+        "name": "It's Time I See You",
+        "version": "Edit",
+        "sort_name": "it's time i see you",
+        "uri": "library://track/3233",
+        "external_ids": [],
+        "is_playable": true,
+        "translation_key": null,
+        "media_type": "track",
+        "provider_mappings": [
+          {
+            "item_id": "Kein Techno/It's Time I See You (Edit).mp3",
+            "provider_domain": "filesystem_local",
+            "provider_instance": "filesystem_local--MhvbAKbD",
+            "available": true,
+            "in_library": true,
+            "is_unique": null,
+            "audio_format": {
+              "content_type": "mp3",
+              "codec_type": "?",
+              "sample_rate": 48000,
+              "bit_depth": 16,
+              "channels": 2,
+              "output_format_str": "mp3",
+              "bit_rate": 133
+            },
+            "url": null,
+            "details": "1767737461"
+          }
+        ],
+        "metadata": {
+          "description": "https://www.youtube.com/watch?v=LgNti-oRUSg",
+          "review": null,
+          "explicit": null,
+          "images": [
+            {
+              "type": "thumb",
+              "path": "Kein Techno/It's Time I See You (Edit).mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            },
+            {
+              "type": "thumb",
+              "path": "Kein Techno/It's Time I See You (Edit).mp3",
+              "provider": "filesystem_local--MhvbAKbD",
+              "remotely_accessible": false
+            }
+          ],
+          "grouping": null,
+          "genres": [],
+          "mood": null,
+          "style": null,
+          "copyright": null,
+          "lyrics": null,
+          "lrc_lyrics": null,
+          "label": null,
+          "links": null,
+          "performers": null,
+          "preview": null,
+          "popularity": null,
+          "release_date": null,
+          "languages": null,
+          "chapters": null,
+          "last_refresh": null
+        },
+        "favorite": false,
+        "position": 416,
+        "date_added": null,
+        "duration": 254,
+        "artists": [
+          {
+            "item_id": "1764",
+            "provider": "library",
+            "name": "Jadakiss, Sheek, Styles, Eve, Drag-On, Infa-Red & Cross",
+            "version": "",
+            "sort_name": "jadakiss, sheek, styles, eve, drag-on, infa-red & cross",
+            "uri": "library://artist/1764",
+            "external_ids": [],
+            "is_playable": true,
+            "translation_key": null,
+            "media_type": "artist",
+            "available": true,
+            "image": null
+          }
+        ],
+        "last_played": 0,
+        "album": {
+          "item_id": "1727",
+          "provider": "library",
+          "name": "Kiss Tha Game Goodbye",
+          "version": "",
+          "sort_name": "kiss tha game goodbye",
+          "uri": "library://album/1727",
+          "external_ids": [],
+          "is_playable": true,
+          "translation_key": null,
+          "media_type": "album",
+          "available": true,
+          "image": null
+        },
+        "disc_number": 0,
+        "track_number": 0
+      },
+      "source_index": 415
     }
   ]
 }

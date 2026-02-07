@@ -14,7 +14,14 @@ from radio_playlist_generator.common import (
     load_config,
     read_json,
     resolve_workdir,
+    slugify,
     write_json,
+)
+from radio_playlist_generator.context_providers import (
+    ContextProviderError,
+    Location,
+    OpenAINewsProvider,
+    OpenMeteoProvider,
 )
 from radio_playlist_generator.openai_provider import OpenAIProvider
 
@@ -124,6 +131,7 @@ def resolve_placeholder_values(
     config: dict[str, Any],
     tracks: list[dict[str, Any]],
     slot: Slot,
+    runtime_values: dict[str, str],
 ) -> dict[str, str]:
     tz_name = str(config.get("general", {}).get("timezone", "UTC"))
     try:
@@ -147,6 +155,7 @@ def resolve_placeholder_values(
     values["<next_songinfo>"] = track_songinfo(next_track)
     values["<very_next_songinfo>"] = track_songinfo(very_next_track)
     values["<timestamp>"] = now.strftime("%Y-%m-%d %H:%M %Z")
+    values.update(runtime_values)
     return values
 
 
@@ -217,6 +226,36 @@ def validate_config_references(config: dict[str, Any], section_ids: set[str]) ->
             raise ValueError(f"Unsupported flow key: {list(item.keys())}")
 
 
+def _multi_label(section_id: str) -> str:
+    s = section_id.strip().lower()
+    if "news_headlines_local" in s:
+        return "local_news"
+    if "news_headlines_national" in s:
+        return "national_news"
+    if "news_headlines_international" in s:
+        return "international_news"
+    if "weather" in s:
+        return "weather"
+    if "song_transition" in s:
+        return "transition"
+    if "song_introduction_middle" in s:
+        return "intro"
+    if "song_funfacts_context" in s:
+        return "funfacts"
+    if "song_random_funny_life_bit" in s:
+        return "lifebit"
+    return slugify(section_id)
+
+
+def build_multi_section_id(section_ids: list[str]) -> str:
+    labels: list[str] = []
+    for sid in section_ids:
+        label = _multi_label(sid)
+        if label not in labels:
+            labels.append(label)
+    return f"multi_{'_'.join(labels)}"
+
+
 def main() -> None:
     args = parse_args()
     config = load_config(args.config)
@@ -255,6 +294,87 @@ def main() -> None:
     rules = config.get("section_order", [])
     history: dict[str, list[tuple[int, float]]] = {}
     selected_sections: list[dict[str, Any]] = []
+    runtime_values: dict[str, str] = {}
+    weather_loaded = False
+    news_loaded = False
+    location_cfg = general.get("location", {}) or {}
+    city = str(location_cfg.get("city", "")).strip()
+    country = str(location_cfg.get("country", "")).strip()
+    location = Location(city=city, country=country) if city and country else None
+
+    def register_section_event(section_id: str, slot: Slot) -> None:
+        history.setdefault(section_id, []).append(
+            (
+                slot.next_index if slot.next_index is not None else len(tracks),
+                slot.minute_mark,
+            )
+        )
+
+    def ensure_runtime_tokens(tokens: list[str]) -> None:
+        nonlocal weather_loaded, news_loaded
+        need_weather = any(token in {"<weather_hourly>", "<weather_daily>"} for token in tokens)
+        need_news = any(
+            token
+            in {
+                "<news_headlines_local>",
+                "<news_headlines_national>",
+                "<news_headlines_international>",
+            }
+            for token in tokens
+        )
+
+        if need_weather and not weather_loaded and location:
+            weather_loaded = True
+            weather_provider_config = get_provider_config(config, "WEATHER")
+            weather_provider_name = str(weather_provider_config.get("provider_name", "")).lower()
+            if weather_provider_name == "open-meteo":
+                weather_provider = OpenMeteoProvider(
+                    timeout_seconds=int(weather_provider_config.get("timeout_seconds", 20))
+                )
+                try:
+                    weather_hourly, weather_daily = weather_provider.get_weather_strings(location)
+                    runtime_values["<weather_hourly>"] = weather_hourly
+                    runtime_values["<weather_daily>"] = weather_daily
+                    print(f"[step3] loaded weather for {city}, {country}")
+                except ContextProviderError as exc:
+                    print(f"[step3] weather lookup failed: {exc}")
+            else:
+                print(f"[step3] unsupported WEATHER provider '{weather_provider_name}', skipping weather.")
+
+        if need_news and not news_loaded and location:
+            news_loaded = True
+            try:
+                news_provider_config = get_provider_config(config, "NEWS")
+            except ValueError:
+                news_provider_config = llm_config
+            news_provider_name = str(news_provider_config.get("provider_name", "")).lower()
+            if news_provider_name == "openai":
+                news_api_key = str(news_provider_config.get("api_key") or llm_config.get("api_key") or "").strip()
+                raw_news_model = news_provider_config.get("model", "gpt-4.1")
+                if isinstance(raw_news_model, list):
+                    news_model: str | list[str] = [str(item).strip() for item in raw_news_model if str(item).strip()]
+                else:
+                    news_model = str(raw_news_model).strip() or "gpt-4.1"
+                if news_api_key:
+                    try:
+                        news_provider = OpenAINewsProvider(OpenAIProvider(api_key=news_api_key))
+                        local_news, national_news, international_news = news_provider.get_news_headlines(
+                            location=location,
+                            model=news_model,
+                        )
+                        runtime_values["<news_headlines_local>"] = local_news
+                        runtime_values["<news_headlines_national>"] = national_news
+                        runtime_values["<news_headlines_international>"] = international_news
+                        print(f"[step3] loaded news headlines for {city}, {country}")
+                        print(f"[step3-news] local={local_news}")
+                        print(f"[step3-news] national={national_news}")
+                        print(f"[step3-news] international={international_news}")
+                    except ContextProviderError as exc:
+                        print(f"[step3] news lookup failed: {exc}")
+                else:
+                    print("[step3] NEWS api_key missing, skipping news.")
+            else:
+                print(f"[step3] unsupported NEWS provider '{news_provider_name}', skipping news.")
 
     for slot in slots:
         matching_rules = [rule for rule in rules if str(rule.get("when")) == slot.when]
@@ -263,17 +383,19 @@ def main() -> None:
 
         for rule in matching_rules:
             flow = rule.get("flow", [])
-            placeholder_values = resolve_placeholder_values(config, tracks, slot)
+            placeholder_values = resolve_placeholder_values(config, tracks, slot, runtime_values)
 
             for item in flow:
                 if "MUST" in item:
+                    section_id = str(item["MUST"])
                     selected_sections.append(
                         {
-                            "section_id": str(item["MUST"]),
+                            "section_id": section_id,
                             "slot": slot,
                             "placeholders": placeholder_values,
                         }
                     )
+                    register_section_event(section_id, slot)
                 elif "ALTERNATIVE" in item:
                     alt = item["ALTERNATIVE"] or {}
                     picked = pick_weighted_choice(alt.get("choices", []), rng)
@@ -284,13 +406,20 @@ def main() -> None:
                             "placeholders": placeholder_values,
                         }
                     )
+                    register_section_event(picked, slot)
                 elif "OPTIONAL" in item:
                     optional = item["OPTIONAL"] or {}
                     section_id = str(optional.get("section", ""))
                     if not section_id:
                         continue
-                    chance = float(optional.get("chance", 0))
-                    if rng.random() > chance:
+                    raw_chance = float(optional.get("chance", 0))
+                    chance = raw_chance / 100.0 if raw_chance > 1 else raw_chance
+                    roll = rng.random()
+                    if roll > chance:
+                        print(
+                            f"[step3] optional skip section={section_id} reason=chance "
+                            f"roll={roll:.3f} chance={chance:.3f}"
+                        )
                         continue
 
                     guards = optional.get("guards", {}) or {}
@@ -303,15 +432,34 @@ def main() -> None:
                     if min_gap_songs > 0 and events:
                         last_song_idx = events[-1][0]
                         if (current_song_idx - last_song_idx) < min_gap_songs:
+                            print(
+                                f"[step3] optional skip section={section_id} reason=min_gap_songs "
+                                f"gap={current_song_idx - last_song_idx} required={min_gap_songs}"
+                            )
                             continue
                     if max_per_60min > 0:
                         in_window = [
                             event for event in events if (slot.minute_mark - event[1]) <= 60.0
                         ]
                         if len(in_window) >= max_per_60min:
+                            print(
+                                f"[step3] optional skip section={section_id} reason=max_per_60min "
+                                f"in_window={len(in_window)} limit={max_per_60min}"
+                            )
                             continue
                     if required_placeholders:
-                        if any(not placeholder_values.get(token, "").strip() for token in required_placeholders):
+                        ensure_runtime_tokens([str(token) for token in required_placeholders])
+                        placeholder_values = resolve_placeholder_values(config, tracks, slot, runtime_values)
+                        missing = [
+                            str(token)
+                            for token in required_placeholders
+                            if not placeholder_values.get(str(token), "").strip()
+                        ]
+                        if missing:
+                            print(
+                                f"[step3] optional skip section={section_id} reason=missing_placeholders "
+                                f"missing={missing}"
+                            )
                             continue
 
                     selected_sections.append(
@@ -321,9 +469,21 @@ def main() -> None:
                             "placeholders": placeholder_values,
                         }
                     )
+                    register_section_event(section_id, slot)
 
     llm = OpenAIProvider(api_key=api_key)
     output_items: list[dict[str, Any]] = []
+    slot_to_selected: dict[str, list[dict[str, Any]]] = {}
+    for selected in selected_sections:
+        slot: Slot = selected["slot"]
+        slot_key = f"{slot.when}:{slot.at_index}"
+        slot_to_selected.setdefault(slot_key, []).append(selected)
+    multi_slot_keys = {
+        slot_key
+        for slot_key, items in slot_to_selected.items()
+        if slot_key.startswith("between_songs:") and len(items) > 1
+    }
+    multi_slot_entries: dict[str, list[dict[str, Any]]] = {}
     print(f"[step3] Planned {len(selected_sections)} sections from rule evaluation.")
 
     print("[step3] Section -> song order:")
@@ -345,10 +505,31 @@ def main() -> None:
             continue
 
         slot: Slot = selected["slot"]
+        slot_key = f"{slot.when}:{slot.at_index}"
         placeholder_values = selected["placeholders"]
         prompt_template = str(section.get("prompt", "")).strip()
-        prompt = apply_placeholders(prompt_template, placeholder_values)
+        prompt_base = apply_placeholders(prompt_template, placeholder_values)
         max_chars = int((section.get("constraints") or {}).get("max_chars", 0))
+
+        if slot_key in multi_slot_keys:
+            multi_slot_entries.setdefault(slot_key, []).append(
+                {
+                    "order": index,
+                    "section_id": section_id,
+                    "when": slot.when,
+                    "insert_at_index": slot.at_index,
+                    "prompt_base": prompt_base,
+                    "max_chars": max_chars,
+                    "placeholders": placeholder_values,
+                }
+            )
+            print(
+                f"[step3] deferring #{index:03d} section={section_id} "
+                f"for multi meta slot={slot_key}"
+            )
+            continue
+
+        prompt = prompt_base
         if max_chars > 0:
             prompt = (
                 f"{prompt}\n\nTarget length: around {max_chars} characters. "
@@ -376,13 +557,6 @@ def main() -> None:
             f"chars_after={len(text)}"
         )
 
-        history.setdefault(section_id, []).append(
-            (
-                slot.next_index if slot.next_index is not None else len(tracks),
-                slot.minute_mark,
-            )
-        )
-
         output_items.append(
             {
                 "order": index,
@@ -393,6 +567,83 @@ def main() -> None:
                 "text": text,
             }
         )
+
+    meta_section = next(
+        (section for section in sections if str(section.get("type", "")).strip().lower() == "ai_meta"),
+        None,
+    )
+    if multi_slot_entries and not meta_section:
+        raise ValueError("Multi-section between-song slots require a section with type 'ai_meta'.")
+    if meta_section:
+        meta_prompt_template = str(meta_section.get("prompt", "")).strip()
+        slot_keys = sorted(
+            multi_slot_entries.keys(),
+            key=lambda key: min(entry["order"] for entry in multi_slot_entries[key]),
+        )
+        for slot_key in slot_keys:
+            entries = multi_slot_entries[slot_key]
+            section_names = [str(entry["section_id"]) for entry in entries]
+            placeholders = entries[0].get("placeholders", {}) if entries else {}
+            prompt_block_parts = []
+            for idx, entry in enumerate(entries):
+                line = f"{idx + 1}. [{entry['section_id']}] {entry['prompt_base']}"
+                section_chars = int(entry.get("max_chars", 0))
+                if section_chars > 0:
+                    line += f" (target around {section_chars} chars)"
+                prompt_block_parts.append(line)
+            prompt_block = "\n".join(prompt_block_parts)
+            meta_prompt = apply_placeholders(meta_prompt_template, placeholders)
+            if "<section_drafts>" in meta_prompt:
+                meta_prompt = meta_prompt.replace("<section_drafts>", prompt_block)
+            elif "<section_prompts>" in meta_prompt:
+                meta_prompt = meta_prompt.replace("<section_prompts>", prompt_block)
+            else:
+                meta_prompt = f"{meta_prompt}\n\nSection prompts:\n{prompt_block}\n"
+            combined_max_chars = sum(int(entry.get("max_chars", 0)) for entry in entries)
+            meta_prompt += (
+                "\n\nCreate ONE single moderator script that naturally combines ALL requested parts. "
+                "Return plain text only."
+            )
+            if combined_max_chars > 0:
+                meta_prompt += (
+                    f"\n\nTarget length: around {combined_max_chars} characters total. "
+                    "It may exceed by up to 15% if needed to finish naturally. "
+                    "Never stop mid-sentence."
+                )
+            print(f"[step3-meta] merging slot={slot_key} sections={section_names}")
+            merged_text = llm.generate_text(
+                model=model,
+                system_instructions=instructions,
+                user_prompt=meta_prompt,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            ).strip()
+            if not merged_text:
+                merged_text = " ".join(str(entry.get("prompt_base", "")).strip() for entry in entries).strip()
+            if combined_max_chars > 0:
+                merged_text = soft_limit_text(
+                    merged_text,
+                    max_chars=combined_max_chars,
+                    tolerance_ratio=0.15,
+                )
+            output_items.append(
+                {
+                "order": min(int(entry["order"]) for entry in entries),
+                "section_id": build_multi_section_id(section_names),
+                "when": str(entries[0]["when"]),
+                "insert_at_index": int(entries[0]["insert_at_index"]),
+                "prompt": meta_prompt,
+                "text": merged_text,
+                }
+            )
+            print(
+                f"[step3-meta] created merged section_id={build_multi_section_id(section_names)} "
+                f"insert_at={entries[0]['insert_at_index']}"
+            )
+
+    output_items.sort(key=lambda item: int(item.get("order", 0)))
+    for new_order, item in enumerate(output_items):
+        item["order"] = new_order
 
     output = {
         "generated_sections_count": len(output_items),

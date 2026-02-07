@@ -159,6 +159,28 @@ class MusicAssistantClient:
 
         return self._run(op)
 
+    def get_library_playlists(
+        self,
+        search: str | None = None,
+        limit: int | None = None,
+        provider: str | list[str] | None = None,
+    ) -> list[dict[str, Any]]:
+        async def op(client: SDKClient) -> list[dict[str, Any]]:
+            playlists = await client.music.get_library_playlists(
+                search=search,
+                limit=limit,
+                provider=provider,
+            )
+            return [self._model_to_dict(x) for x in playlists]
+
+        return self._run(op)
+
+    def remove_playlist(self, item_id: str | int, recursive: bool | None = None) -> None:
+        async def op(client: SDKClient) -> None:
+            await client.music.remove_playlist(item_id=item_id, recursive=recursive)
+
+        self._run(op)
+
     def start_sync(self, providers: list[str] | None = None) -> None:
         async def op(client: SDKClient) -> None:
             await client.music.start_sync(media_types=[MediaType.TRACK], providers=providers)

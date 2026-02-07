@@ -1,0 +1,226 @@
+version: 1
+
+placeholder_values: {}
+
+general:
+  name: Neben der Spur
+  timezone: Europe/Berlin
+  location:
+    city: Bochum
+    country: Germany
+  instructions: >
+    Du bist der On-Air-Host von Swift Radio mit der Sektion "Neben der Spur" bei denen alle möglichen songs aus allen genres gespielt werden.last
+    Du hast eine lebhafte, witzige und leicht chaotische Persönlichkeit.
+    Klinge enthusiastisch, verspielt und menschlich. Nutze gelegentlich kurze Gags, knackige Formulierungen
+    und leichte Ironie. Alles muss gut vorlesbar, energiegeladen und radiotauglich sein.
+    Wichtige Datenbereinigungsregel: Ignoriere kaputte Metadaten. Wenn Künstler-, Album- oder Tracknamen
+    Werte wie "unknown", "[unknown]", "n/a" oder ähnliche Platzhalter enthalten, erwähne sie nicht.
+    Wenn ein Titel mit Tracknummern wie "01", "02", "1.", "07 -" usw. beginnt, ignoriere diese vollständig
+    und sprich nur den eigentlichen Songtitel.
+  model: gpt-4o-mini
+  temperature: 0.7
+  max_tokens: 900
+  seed: 42
+  voice_style: excited
+  sections_path_local: "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/"
+  placeholder_values: {}
+
+providers:
+  - type: LLM
+    config:
+      provider_name: OpenAI
+      api_key: ${OPENAI_API_KEY}
+      admin_api_key: ${OPENAI_ADMIN_KEY}
+
+  - type: TTS
+    config:
+      provider_name: OpenAI
+      api_key: ${OPENAI_API_KEY}
+      model: gpt-4o-mini-tts
+      voice: cedar
+      instructions: >
+        Sprich wie ein enthusiastischer, humorvoller deutscher Radio-Host.
+        Natürlich, warm, klar artikuliert, leicht dynamisch mit guter Energie.
+        Nicht hetzen, kurze natürliche Pausen, Headlines etwas pointierter betonen.
+
+  - type: NEWS
+    config:
+      provider_name: OpenAI
+      api_key: ${OPENAI_API_KEY}
+      model:
+        - gpt-4o-mini
+        - gpt-4.1-mini
+
+  - type: WEATHER
+    config:
+      provider_name: open-meteo
+      timeout_seconds: 20
+
+  - type: MUSIC
+    config:
+      provider_name: MusicAssistant
+      base_url: https://ma.nas.home/
+      verify_ssl: false
+      api_key: ${MUSIC_ASSISTANT_API_KEY}
+      playlist_id: 34
+      max_duration: 60
+      provider_instance_id_or_domain: library
+      sections_provider_instance: filesystem_local--MhvbAKbD
+      sections_provider_domain: filesystem_local
+      pre_tts_sync_wait_seconds: 5
+      post_tts_sync_wait_seconds: 5
+      sections_rescan_timeout_seconds: 180
+      sections_rescan_poll_seconds: 5
+
+sections:
+  - id: Song_Introduction_Start
+    type: ai_text
+    prompt: >
+      Das ist der erste Song der Playlist, <next_songinfo>.
+      Stell den Song und den Künstler so vor, dass sofort Aufmerksamkeit entsteht
+      und der Vibe der Playlist gesetzt wird.
+    constraints:
+      max_chars: 650
+
+  - id: Song_Introduction_Middle
+    type: ai_text
+    prompt: >
+      Stell den nächsten Song, <next_songinfo>, kurz und unterhaltsam vor.
+      Nenne Künstler und Titel und halte es spannend.
+    constraints:
+      max_chars: 650
+
+  - id: Song_Introduction_End
+    type: ai_text
+    prompt: >
+      Das ist der letzte Song der Playlist, <next_songinfo>.
+      Stell ihn so vor, dass er im Kopf bleibt und Lust macht, wieder einzuschalten.
+    constraints:
+      max_chars: 650
+
+  - id: Song_Transition
+    type: ai_text
+    prompt: >
+      Erzeuge einen fließenden Übergang zwischen <prev_songinfo> und <next_songinfo>.
+      Erwähne beide Songs und Künstler auf eine verbundene, natürliche Weise.
+    constraints:
+      max_chars: 600
+
+  - id: Song_FunFacts_Context
+    type: ai_text
+    prompt: >
+      Mach eine kurze, clevere Zwischenmoderation rund um <prev_songinfo> und <next_songinfo>.
+      Teile Trivia, Kontext oder einen interessanten Fakt zu einem oder beiden Songs oder Künstlern
+      (Stil, Hintergrund, Zeitgeist, Release, Reaktionen des Publikums etc.).
+      Halte es lebendig, kompakt und unterhaltsam.
+    constraints:
+      max_chars: 650
+
+  - id: Song_Random_Funny_Life_Bit
+    type: ai_text
+    prompt: >
+      Übergang von <prev_songinfo> zu <next_songinfo>, aber halte Songdetails minimal:
+      Erwähne beide Namen jeweils nur einmal und wechsle dann zu einem kurzen,
+      lustigen, persönlich wirkenden Monolog des Moderators.
+      Schwarzer Humor ist erlaubt, aber vermeide Hass, Belästigung oder explizite Gewalt.
+      Verspielt, schräg, leicht weird.
+    constraints:
+      max_chars: 650
+
+  - id: Weather_Short
+    type: ai_text
+    prompt: >
+      Gib ein kurzes, hörerfreundliches Wetter-Update für die nächsten Stunden
+      basierend auf <weather_hourly>.
+      Nenne die aktuelle lokale Uhrzeit <timestamp>.
+      Denk an Radio: keine Dezimalzahlen, sondern Formulierungen wie
+      "um die 15 Grad", "ein paar Regentropfen", "sonnig mit ein paar Wolken".
+    constraints:
+      max_chars: 500
+
+  - id: News_Headlines_Local
+    type: ai_text
+    prompt: >
+      Teile die wichtigsten lokalen Schlagzeilen basierend auf <news_headlines_local>.
+    constraints:
+      max_chars: 1000
+
+  - id: News_Headlines_National
+    type: ai_text
+    prompt: >
+      Teile die wichtigsten nationalen Schlagzeilen basierend auf <news_headlines_national>.
+    constraints:
+      max_chars: 1500
+
+  - id: News_Headlines_International
+    type: ai_text
+    prompt: >
+      Teile die wichtigsten internationalen Schlagzeilen basierend auf <news_headlines_international>.
+    constraints:
+      max_chars: 1500
+
+  - id: Between_Songs_Smoother
+    type: ai_meta
+    prompt: >
+      Du bearbeitest mehrere Moderations-Snippets, die alle zwischen
+      <prev_songinfo> und <next_songinfo> liegen.
+      Lass sie wie einen zusammenhängenden Flow wirken.
+      Jeder Teil soll eigenständig bleiben, aber die Übergänge sollen natürlich sein
+      und Wiederholungen vermeiden.
+      Ton: lebendig und witzig.
+      Entwurfsinput:
+      <section_drafts>
+
+section_order:
+  - when: start_of_playlist
+    flow:
+      - MUST: Song_Introduction_Start
+
+  - when: between_songs
+    flow:
+      - ALTERNATIVE:
+          pick: one
+          choices:
+            - section: Song_Transition
+              weight: 30
+            - section: Song_Introduction_Middle
+              weight: 20
+            - section: Song_FunFacts_Context
+              weight: 35
+            - section: Song_Random_Funny_Life_Bit
+              weight: 15
+      - OPTIONAL:
+          section: Weather_Short
+          chance: 0.2
+          guards:
+            min_gap_songs: 3
+            max_per_60min: 1
+            require_placeholders_present: ["<weather_hourly>", "<timestamp>"]
+      - OPTIONAL:
+          section: News_Headlines_Local
+          chance: 0.1
+          guards:
+            min_gap_songs: 4
+            max_per_60min: 1
+            require_placeholders_present: ["<news_headlines_local>"]
+      - OPTIONAL:
+          section: News_Headlines_National
+          chance: 0.1
+          guards:
+            min_gap_songs: 5
+            max_per_60min: 1
+            require_placeholders_present: ["<news_headlines_national>"]
+      - OPTIONAL:
+          section: News_Headlines_International
+          chance: 0.1
+          guards:
+            min_gap_songs: 6
+            max_per_60min: 1
+            require_placeholders_present: ["<news_headlines_international>"]
+
+  - when: end_of_playlist
+    flow:
+      - MUST: Song_Introduction_End
+
+validation:
+  strict: true

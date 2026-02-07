@@ -134,12 +134,71 @@ class OpenAIProvider:
             raise OpenAIProviderError("Empty text returned from chat completion.")
         return str(content).strip()
 
+    def generate_text_with_web_search(
+        self,
+        model: str,
+        user_prompt: str,
+        city: str | None = None,
+        country: str | None = None,
+        force_web_search: bool = True,
+    ) -> str:
+        location_hint = ""
+        if city and country:
+            location_hint = f"\nLocation context: {city}, {country}."
+        web_tool: dict[str, Any] = {
+            "type": "web_search",
+            "search_context_size": "medium",
+            "external_web_access": True,
+        }
+        country_code = country.strip().upper() if country else ""
+        user_location: dict[str, Any] = {"type": "approximate"}
+        if city:
+            user_location["city"] = city
+        if len(country_code) == 2 and country_code.isalpha():
+            user_location["country"] = country_code
+        if len(user_location) > 1:
+            web_tool["user_location"] = user_location
+        payload: dict[str, Any] = {
+            "model": model,
+            "input": f"{user_prompt}{location_hint}",
+            "tools": [web_tool],
+            "include": ["web_search_call.action.sources"],
+        }
+        if force_web_search:
+            payload["tool_choice"] = "required"
+        raw = self._post_json("/responses", payload)
+        data = json.loads(raw.decode("utf-8"))
+        output_text = data.get("output_text")
+        if isinstance(output_text, str) and output_text.strip():
+            return output_text.strip()
+
+        output = data.get("output") or []
+        text_chunks: list[str] = []
+        if isinstance(output, list):
+            for item in output:
+                if not isinstance(item, dict):
+                    continue
+                content = item.get("content") or []
+                if not isinstance(content, list):
+                    continue
+                for block in content:
+                    if not isinstance(block, dict):
+                        continue
+                    if block.get("type") == "output_text":
+                        text = block.get("text")
+                        if isinstance(text, str) and text.strip():
+                            text_chunks.append(text.strip())
+        if text_chunks:
+            return "\n".join(text_chunks).strip()
+        raise OpenAIProviderError("No text returned from web search response.")
+
     def text_to_speech(
         self,
         text: str,
         model: str = "gpt-4o-mini-tts",
         voice: str = "alloy",
         response_format: str = "mp3",
+        instructions: str | None = None,
     ) -> bytes:
         payload = {
             "model": model,
@@ -147,6 +206,8 @@ class OpenAIProvider:
             "input": text,
             "format": response_format,
         }
+        if instructions and instructions.strip():
+            payload["instructions"] = instructions.strip()
         audio = self._post_json("/audio/speech", payload, accept="audio/mpeg")
         if not audio:
             raise OpenAIProviderError("No audio bytes returned from TTS.")

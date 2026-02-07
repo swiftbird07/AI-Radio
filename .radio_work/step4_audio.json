@@ -1,8 +1,9 @@
 {
   "sections_dir": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno",
-  "audio_items_count": 5,
+  "audio_items_count": 15,
   "tts_model": "gpt-4o-mini-tts",
-  "tts_voice": "alloy",
+  "tts_voice": "cedar",
+  "tts_instructions": "Sprich wie ein enthusiastischer, humorvoller deutscher Radio-Host. Natürlich, warm, klar artikuliert, leicht dynamisch mit guter Energie. Nicht hetzen, kurze natürliche Pausen, Headlines etwas pointierter betonen.",
   "audio_items": [
     {
       "order": 0,
@@ -13,31 +14,101 @@
     },
     {
       "order": 1,
-      "section_id": "Song_Introduction_Middle",
+      "section_id": "multi_funfacts_weather",
       "insert_at_index": 1,
-      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/001_song_introduction_middle.txt",
-      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/001_song_introduction_middle.mp3"
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/001_multi_funfacts_weather.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/001_multi_funfacts_weather.mp3"
     },
     {
       "order": 2,
-      "section_id": "Song_Transition",
+      "section_id": "multi_funfacts_local_news_international_news",
       "insert_at_index": 2,
-      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/002_song_transition.txt",
-      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/002_song_transition.mp3"
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/002_multi_funfacts_local_news_international_news.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/002_multi_funfacts_local_news_international_news.mp3"
     },
     {
       "order": 3,
-      "section_id": "Song_Introduction_Middle",
+      "section_id": "multi_transition_local_news",
       "insert_at_index": 3,
-      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/003_song_introduction_middle.txt",
-      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/003_song_introduction_middle.mp3"
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/003_multi_transition_local_news.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/003_multi_transition_local_news.mp3"
     },
     {
       "order": 4,
-      "section_id": "Song_Introduction_End",
+      "section_id": "multi_funfacts_international_news",
       "insert_at_index": 4,
-      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/004_song_introduction_end.txt",
-      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/004_song_introduction_end.mp3"
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/004_multi_funfacts_international_news.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/004_multi_funfacts_international_news.mp3"
+    },
+    {
+      "order": 5,
+      "section_id": "Song_FunFacts_Context",
+      "insert_at_index": 5,
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/005_song_funfacts_context.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/005_song_funfacts_context.mp3"
+    },
+    {
+      "order": 6,
+      "section_id": "multi_intro_weather_local_news",
+      "insert_at_index": 6,
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/006_multi_intro_weather_local_news.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/006_multi_intro_weather_local_news.mp3"
+    },
+    {
+      "order": 7,
+      "section_id": "Song_FunFacts_Context",
+      "insert_at_index": 7,
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/007_song_funfacts_context.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/007_song_funfacts_context.mp3"
+    },
+    {
+      "order": 8,
+      "section_id": "Song_FunFacts_Context",
+      "insert_at_index": 8,
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/008_song_funfacts_context.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/008_song_funfacts_context.mp3"
+    },
+    {
+      "order": 9,
+      "section_id": "multi_funfacts_weather_international_news",
+      "insert_at_index": 9,
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/009_multi_funfacts_weather_international_news.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/009_multi_funfacts_weather_international_news.mp3"
+    },
+    {
+      "order": 10,
+      "section_id": "multi_transition_weather",
+      "insert_at_index": 10,
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/010_multi_transition_weather.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/010_multi_transition_weather.mp3"
+    },
+    {
+      "order": 11,
+      "section_id": "Song_Introduction_Middle",
+      "insert_at_index": 11,
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/011_song_introduction_middle.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/011_song_introduction_middle.mp3"
+    },
+    {
+      "order": 12,
+      "section_id": "multi_funfacts_weather",
+      "insert_at_index": 12,
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/012_multi_funfacts_weather.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/012_multi_funfacts_weather.mp3"
+    },
+    {
+      "order": 13,
+      "section_id": "Song_Random_Funny_Life_Bit",
+      "insert_at_index": 13,
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/013_song_random_funny_life_bit.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/013_song_random_funny_life_bit.mp3"
+    },
+    {
+      "order": 14,
+      "section_id": "Song_Introduction_End",
+      "insert_at_index": 14,
+      "text_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/014_song_introduction_end.txt",
+      "audio_file": "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/014_song_introduction_end.mp3"
     }
   ]
 }

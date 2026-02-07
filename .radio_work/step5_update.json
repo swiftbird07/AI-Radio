@@ -1,62 +1,183 @@
 {
-  "source_playlist_id": "7",
-  "target_playlist_id": "15",
-  "target_playlist_name": "Swift Radio: Non Techno Playlist",
-  "items_added": 9,
+  "source_playlist_id": "34",
+  "target_playlist_id": "36",
+  "target_playlist_name": "Swift Radio: Neben der Spur (Sat. 07.02.)",
+  "deleted_existing_playlist_ids": [],
+  "items_added": 29,
   "results": [
     {
       "kind": "section",
       "name": "Song_Introduction_Start",
-      "uri": "library://track/3566",
+      "uri": "library://track/3641",
       "position": 0
     },
     {
       "kind": "track",
-      "name": "Illenium - Afterlife",
-      "uri": "library://track/3167",
+      "name": "Train - Angel in Blue Jeans",
+      "uri": "library://track/2225",
       "position": 1
     },
     {
       "kind": "section",
-      "name": "Song_Introduction_Middle",
-      "uri": "library://track/3564",
+      "name": "multi_funfacts_weather",
+      "uri": "library://track/3640",
       "position": 2
     },
     {
       "kind": "track",
-      "name": "[unknown] - 02 The Power is mine",
-      "uri": "library://track/1101",
+      "name": "K.I.Z - Applaus",
+      "uri": "library://track/3262",
       "position": 3
     },
     {
       "kind": "section",
-      "name": "Song_Transition",
-      "uri": "library://track/3565",
+      "name": "multi_funfacts_local_news_international_news",
+      "uri": "library://track/3633",
       "position": 4
     },
     {
       "kind": "track",
-      "name": "Paula Carolina, Marti Fischer, Paula Carolina, Nikolaus Winkelhausen, Paula Carolina, Nikolaus Winkelhausen, Marius Fietz, Johann Seifert - Schreien!",
-      "uri": "library://track/3041",
+      "name": "Creedence Clearwater Revival - Bad Moon Rising",
+      "uri": "library://track/2569",
       "position": 5
     },
     {
       "kind": "section",
-      "name": "Song_Introduction_Middle",
-      "uri": "library://track/3571",
+      "name": "multi_transition_local_news",
+      "uri": "library://track/3647",
       "position": 6
     },
     {
       "kind": "track",
-      "name": "Panama, Jarrah Lanes, Jarrah Lanes, Jarrah Lanes - Always",
-      "uri": "library://track/1537",
+      "name": "Mero, Josh Petruccio, Timur Turkay, Enes Meral, Gökhan Güler, Josh Petruccio - Baller los",
+      "uri": "library://track/3273",
       "position": 7
     },
     {
       "kind": "section",
-      "name": "Song_Introduction_End",
-      "uri": "library://track/3563",
+      "name": "multi_funfacts_international_news",
+      "uri": "library://track/3642",
       "position": 8
+    },
+    {
+      "kind": "track",
+      "name": "Rudolf Buchbinder, Berliner Philharmoniker, Christian Thielemann - Beethoven: Piano Concerto No. 1 in C Major, Op. 15 - I. Allegro con brio",
+      "uri": "library://track/2334",
+      "position": 9
+    },
+    {
+      "kind": "section",
+      "name": "Song_FunFacts_Context",
+      "uri": "library://track/3646",
+      "position": 10
+    },
+    {
+      "kind": "track",
+      "name": "DragonForce - Cry of the Brave",
+      "uri": "library://track/2485",
+      "position": 11
+    },
+    {
+      "kind": "section",
+      "name": "multi_intro_weather_local_news",
+      "uri": "library://track/3643",
+      "position": 12
+    },
+    {
+      "kind": "track",
+      "name": "Cherlene, Kenny Loggins - Danger Zone",
+      "uri": "library://track/3133",
+      "position": 13
+    },
+    {
+      "kind": "section",
+      "name": "Song_FunFacts_Context",
+      "uri": "library://track/3639",
+      "position": 14
+    },
+    {
+      "kind": "track",
+      "name": "Night Ranger - Don’t Tell Me You Love Me",
+      "uri": "library://track/2532",
+      "position": 15
+    },
+    {
+      "kind": "section",
+      "name": "Song_FunFacts_Context",
+      "uri": "library://track/3635",
+      "position": 16
+    },
+    {
+      "kind": "track",
+      "name": "Alligatoah, Lukas Strobel, Lukas Strobel, Lukas Strobel - Du bist schön",
+      "uri": "library://track/3431",
+      "position": 17
+    },
+    {
+      "kind": "section",
+      "name": "multi_funfacts_weather_international_news",
+      "uri": "library://track/3644",
+      "position": 18
+    },
+    {
+      "kind": "track",
+      "name": "Mattstagraham, Matthew Tad Graham - Gotta Be Productive",
+      "uri": "library://track/2039",
+      "position": 19
+    },
+    {
+      "kind": "section",
+      "name": "multi_transition_weather",
+      "uri": "library://track/3637",
+      "position": 20
+    },
+    {
+      "kind": "track",
+      "name": "Alligatoah - Hass",
+      "uri": "library://track/3339",
+      "position": 21
+    },
+    {
+      "kind": "section",
+      "name": "Song_Introduction_Middle",
+      "uri": "library://track/3645",
+      "position": 22
+    },
+    {
+      "kind": "track",
+      "name": "The Black Eyed Peas - I Gotta Feeling",
+      "uri": "library://track/2202",
+      "position": 23
+    },
+    {
+      "kind": "section",
+      "name": "multi_funfacts_weather",
+      "uri": "library://track/3634",
+      "position": 24
+    },
+    {
+      "kind": "track",
+      "name": "Philipp Dittberner, Philipp Dittberner, Philipp Dittberner - In deiner kleinen Welt",
+      "uri": "library://track/2055",
+      "position": 25
+    },
+    {
+      "kind": "section",
+      "name": "Song_Random_Funny_Life_Bit",
+      "uri": "library://track/3638",
+      "position": 26
+    },
+    {
+      "kind": "track",
+      "name": "Jadakiss, Sheek, Styles, Eve, Drag-On, Infa-Red & Cross - It's Time I See You",
+      "uri": "library://track/3233",
+      "position": 27
+    },
+    {
+      "kind": "section",
+      "name": "Song_Introduction_End",
+      "uri": "library://track/3636",
+      "position": 28
     }
   ],
   "openai_costs": {
