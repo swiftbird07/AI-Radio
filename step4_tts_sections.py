@@ -82,6 +82,21 @@ def main() -> None:
         sections_dir = ensure_dir(output_base / sections_path)
     print(f"[step4] output dir={sections_dir}")
 
+    previous_output_path = workdir / "step4_audio.json"
+    if previous_output_path.exists():
+        try:
+            previous = read_json(previous_output_path)
+            for item in previous.get("audio_items", []):
+                text_file = item.get("text_file")
+                audio_file = item.get("audio_file")
+                for file_path in (text_file, audio_file):
+                    if isinstance(file_path, str):
+                        path_obj = Path(file_path)
+                        if path_obj.exists():
+                            path_obj.unlink()
+        except Exception:
+            pass
+
     tts = OpenAIProvider(api_key=api_key)
     output_items = []
     for index, section in enumerate(sections):
@@ -126,6 +141,11 @@ def main() -> None:
         "audio_items": output_items,
     }
     output_path = workdir / "step4_audio.json"
+    if output_path.exists():
+        output_path.unlink()
+    stale_step5 = workdir / "step5_update.json"
+    if stale_step5.exists():
+        stale_step5.unlink()
     write_json(output_path, output)
     print(f"step4 ok -> {output_path}")
 

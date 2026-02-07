@@ -401,6 +401,15 @@ def main() -> None:
         "sections": output_items,
     }
     output_path = workdir / "step3_sections.json"
+    if output_path.exists():
+        output_path.unlink()
+    # downstream artifacts become stale when step3 is re-run
+    stale_step4 = workdir / "step4_audio.json"
+    stale_step5 = workdir / "step5_update.json"
+    if stale_step4.exists():
+        stale_step4.unlink()
+    if stale_step5.exists():
+        stale_step5.unlink()
     write_json(output_path, output)
     print(f"step3 ok -> {output_path}")
 

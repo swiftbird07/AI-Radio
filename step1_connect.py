@@ -25,27 +25,6 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def discover_commands(client: MusicAssistantClient) -> list[str]:
-    candidates = [
-        "commands/list",
-        "server/commands",
-        "api/commands",
-    ]
-    for command in candidates:
-        try:
-            result = client.call_command(command, {})
-        except Exception:
-            continue
-        if isinstance(result, list):
-            return [str(item) for item in result if isinstance(item, str)]
-        if isinstance(result, dict):
-            for key in ("commands", "items", "result"):
-                value = result.get(key)
-                if isinstance(value, list):
-                    return [str(item) for item in value if isinstance(item, str)]
-    return []
-
-
 def main() -> None:
     args = parse_args()
     config = load_config(args.config)
@@ -66,10 +45,8 @@ def main() -> None:
 
     client = MusicAssistantClient(base_url, api_key, verify_ssl=verify_ssl)
     print(f"[step1] connecting base_url={base_url} verify_ssl={verify_ssl}")
-    players = client.call_command("players/all", {})
+    players = client.get_players()
     print(f"[step1] players found={len(players) if isinstance(players, list) else 0}")
-    command_catalog = discover_commands(client)
-    print(f"[step1] discovered commands={len(command_catalog)}")
 
     output = {
         "connected_at": datetime.now(timezone.utc).isoformat(),
@@ -77,8 +54,6 @@ def main() -> None:
         "verify_ssl": verify_ssl,
         "playlist_id": playlist_id,
         "players_count": len(players) if isinstance(players, list) else 0,
-        "discovered_commands_count": len(command_catalog),
-        "discovered_commands": command_catalog,
     }
     output_path = workdir / "step1_connection.json"
     write_json(output_path, output)

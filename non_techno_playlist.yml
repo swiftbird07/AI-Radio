@@ -1,36 +1,35 @@
 version: 1
 
+placeholder_values: {}
+
 general:
   name: Non Techno Playlist
-  description: Non-techno music playlist with AI voice host segments for Swift Radio
-  language: en-US
   timezone: Europe/Berlin
-  voice_style: natural
-  # Prepended to EVERY generated segment prompt
   instructions: >
     You are a radio host for Swift Radio, a radio station that plays non techno music.
-    Your task is to generate engaging and informative content for the listeners based
-    on the prompts provided. Next you will see the prompt for the specific section
-    you need to generate content for. Respond in a way that it can be read aloud by
-    an AI voice. Make sure to keep the content engaging and informative for the listeners.
-  # AI tuning
+    Generate engaging content that sounds natural when read aloud by AI voice.
   model: gpt-4
   temperature: 0.7
   max_tokens: 900
-  # Where the generated sections should be stored (relative to the output directory)
-  sections_path_local: '/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/'
-  sections_path_remote: '/copyparty-music/Swift Radio/Non-Techno/' # optional: if different from local path, e.g. from Music Assistant's perspective
+  seed: 42
+  voice_style: natural
+  sections_path_local: "/Volumes/share.nas.home/martin/MP3s/Swift Radio/Non-Techno/"
+  placeholder_values: {}
 
 providers:
   - type: LLM
     config:
       provider_name: OpenAI
       api_key: ${OPENAI_API_KEY}
-      admin_api_key: ${OPENAI_ADMIN_KEY} # optional: if you want to know how much the run has cost you. Needs Usage:Read permissions.
+      admin_api_key: ${OPENAI_ADMIN_KEY}
+
   - type: TTS
     config:
       provider_name: OpenAI
       api_key: ${OPENAI_API_KEY}
+      model: gpt-4o-mini-tts
+      voice: alloy
+
   - type: MUSIC
     config:
       provider_name: MusicAssistant
@@ -39,89 +38,66 @@ providers:
       api_key: ${MUSIC_ASSISTANT_API_KEY}
       playlist_id: 7
       provider_instance_id_or_domain: library
+      sections_provider_instance: filesystem_local--MhvbAKbD
       sections_provider_domain: filesystem_local
-      commands:
-        playlist_tracks: music/playlists/playlist_tracks
-        playlist_add: music/playlists/add_playlist_tracks
-
-available_placeholders:
-    - <prev_songinfo>
-    - <next_songinfo>
-    - <very_next_songinfo>
-    - <weather_hourly>
-    - <weather_daily>
-    - <news_headlines_local>
-    - <news_headlines_national>
-    - <news_headlines_international>
-    - <timestamp>
+      sections_rescan_timeout_seconds: 180
+      sections_rescan_poll_seconds: 5
 
 sections:
-  # Song segments
   - id: Song_Introduction_Start
     type: ai_text
-    description: Intro for the first track of the playlist
     prompt: >
       This is the first song of the playlist, <next_songinfo>. Introduce the song and the artist
-      in a way that captures the listeners' attention and sets the tone for the rest of the playlist.
+      in a way that captures attention and sets the tone for the playlist.
     constraints:
       max_chars: 650
 
   - id: Song_Introduction_Middle
     type: ai_text
-    description: Intro for a track somewhere in the middle of the playlist
     prompt: >
-      Introduce the next song, <next_songinfo>, in a short and engaging way. Include information
-      about the artist and the song, and make it sound interesting for the listeners.
+      Introduce the next song, <next_songinfo>, in a short and engaging way.
+      Include artist and song details and keep it interesting.
     constraints:
       max_chars: 650
 
   - id: Song_Introduction_End
     type: ai_text
-    description: Intro for the last track of the playlist
     prompt: >
-      This is the last song of the playlist, <next_songinfo>. Introduce the song and the artist
-      in a way that leaves a lasting impression on the listeners and encourages them to listen to more music on Swift Radio.
+      This is the last song of the playlist, <next_songinfo>. Introduce it in a way
+      that leaves a lasting impression and invites listeners back.
     constraints:
       max_chars: 650
 
   - id: Song_Transition
     type: ai_text
-    description: Transition between previous and next track
     prompt: >
-      Create a smooth transition between the previous song, <prev_songinfo>, and the next song, <next_songinfo>.
-      Mention the artists and the songs in a way that connects them and keeps the listeners engaged.
+      Create a smooth transition between <prev_songinfo> and <next_songinfo>.
+      Mention both songs and artists in a connected way.
     constraints:
       max_chars: 600
 
-  # Utility segments (optional inserts)
   - id: Weather_Short
     type: ai_text
-    description: Short weather update (avoid sounding like a forecast app)
     prompt: >
-      Give a short, listener-friendly weather update for the next few hours based on <weather_hourly>.
-      Keep it brief, practical, and read-aloud friendly. Mention the current local time <timestamp>.
+      Give a short listener-friendly weather update for the next few hours based on <weather_hourly>.
+      Mention current local time <timestamp>.
     constraints:
       max_chars: 500
 
   - id: News_Headlines_Short
     type: ai_text
-    description: Short neutral headline roundup
     prompt: >
-      Read a short roundup of headlines. Prefer local first, then national, then international.
-      Use: <news_headlines_local>, <news_headlines_national>, <news_headlines_international>.
-      Keep it neutral, no opinions, no sensationalism, read-aloud friendly, and brief.
+      Read a short neutral headline roundup with local, national, and international focus.
+      Use <news_headlines_local>, <news_headlines_national>, and <news_headlines_international>.
     constraints:
       max_chars: 700
 
 section_order:
-  # The generator should evaluate these rules at specific insertion points.
-  # Supported insertion points are intentionally generic so your future script can map them easily.
   - when: start_of_playlist
     flow:
       - MUST: Song_Introduction_Start
 
   - when: between_songs
-    # This is the core "middle" rule: ALWAYS exactly one of the alternatives
     flow:
       - ALTERNATIVE:
           pick: one
@@ -130,8 +106,6 @@ section_order:
               weight: 55
             - section: Song_Introduction_Middle
               weight: 45
-
-      # Optional inserts that can happen after the chosen song talk
       - OPTIONAL:
           section: Weather_Short
           chance: 0.22
@@ -139,7 +113,6 @@ section_order:
             min_gap_songs: 3
             max_per_60min: 2
             require_placeholders_present: ["<weather_hourly>", "<timestamp>"]
-
       - OPTIONAL:
           section: News_Headlines_Short
           chance: 0.10
@@ -153,6 +126,4 @@ section_order:
       - MUST: Song_Introduction_End
 
 validation:
-  # Fail fast if the config references unknown sections or unsupported keywords.
   strict: true
-  allow_unused_sections: true

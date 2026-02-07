@@ -1,6 +1,7 @@
 {
-  "generated_at": "2026-02-07T13:22:12.768154+00:00",
+  "generated_at": "2026-02-07T14:27:42.763319+00:00",
   "playlist_id": "7",
+  "playlist_provider": "library",
   "playlist": {
     "item_id": "7",
     "provider": "library",
@@ -57,6 +58,7 @@
     },
     "favorite": false,
     "position": null,
+    "date_added": null,
     "owner": "Music Assistant",
     "is_editable": true
   },
@@ -139,6 +141,7 @@
         },
         "favorite": false,
         "position": 1,
+        "date_added": null,
         "duration": 364,
         "artists": [
           {
@@ -156,7 +159,7 @@
             "image": null
           }
         ],
-        "last_played": 1769969200,
+        "last_played": 1770473492,
         "album": {
           "item_id": "1680",
           "provider": "library",
@@ -241,6 +244,7 @@
         },
         "favorite": false,
         "position": 2,
+        "date_added": null,
         "duration": 204,
         "artists": [
           {
@@ -347,6 +351,7 @@
         },
         "favorite": false,
         "position": 3,
+        "date_added": null,
         "duration": 165,
         "artists": [
           {
@@ -364,7 +369,7 @@
             "image": null
           }
         ],
-        "last_played": 0,
+        "last_played": 1770473593,
         "album": {
           "item_id": "824",
           "provider": "library",
@@ -512,6 +517,7 @@
         },
         "favorite": false,
         "position": 4,
+        "date_added": null,
         "duration": 91,
         "artists": [
           {
@@ -529,7 +535,7 @@
             "image": null
           }
         ],
-        "last_played": 0,
+        "last_played": 1770473733,
         "album": {
           "item_id": "518",
           "provider": "library",
@@ -548,17 +554,5 @@
         "track_number": 0
       }
     }
-  ],
-  "commands_used": {
-    "playlist_info_command": "music/playlists/get",
-    "playlist_info_args": {
-      "item_id": "7",
-      "provider_instance_id_or_domain": "library"
-    },
-    "playlist_tracks_command": "music/playlists/playlist_tracks",
-    "playlist_tracks_args": {
-      "item_id": "7",
-      "provider_instance_id_or_domain": "library"
-    }
-  }
+  ]
 }

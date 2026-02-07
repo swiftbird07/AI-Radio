@@ -1,9 +1,7 @@
 {
-  "connected_at": "2026-02-07T13:22:11.438402+00:00",
+  "connected_at": "2026-02-07T14:27:41.556210+00:00",
   "base_url": "https://ma.nas.home",
   "verify_ssl": false,
   "playlist_id": "7",
-  "players_count": 3,
-  "discovered_commands_count": 0,
-  "discovered_commands": []
+  "players_count": 3
 }

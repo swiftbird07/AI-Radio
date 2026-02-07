@@ -1,25 +1,29 @@
 from __future__ import annotations
 
-import json
+import asyncio
 import ssl
-import urllib.error
-import urllib.request
-from dataclasses import dataclass
-from typing import Any
+import threading
+from typing import Any, Callable, Coroutine, TypeVar
+
+from music_assistant_client import MusicAssistantClient as SDKClient
+from music_assistant_models.enums import MediaType
+from music_assistant_models.errors import MusicAssistantError as SDKError
+from music_assistant_models.errors import ProviderUnavailableError as SDKProviderUnavailableError
+
+T = TypeVar("T")
 
 
 class MusicAssistantError(RuntimeError):
     pass
 
 
-@dataclass
-class CommandAttempt:
-    command: str
-    args: dict[str, Any]
-    error: str
+class MusicAssistantProviderUnavailableError(MusicAssistantError):
+    pass
 
 
 class MusicAssistantClient:
+    """SDK-only wrapper around music-assistant-client."""
+
     def __init__(
         self,
         base_url: str,
@@ -37,83 +41,126 @@ class MusicAssistantClient:
             return None
         return ssl._create_unverified_context()
 
-    def _request_json(
+    async def _run_with_client(
         self,
-        path: str,
-        payload: dict[str, Any],
-    ) -> Any:
-        url = f"{self.base_url}{path}"
-        body = json.dumps(payload).encode("utf-8")
-        request = urllib.request.Request(
-            url=url,
-            data=body,
-            method="POST",
-            headers={
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-            },
-        )
+        operation: Callable[[SDKClient], Coroutine[Any, Any, T]],
+    ) -> T:
+        op_name = getattr(operation, "__name__", "operation")
         try:
-            with urllib.request.urlopen(
-                request,
-                timeout=self.timeout_seconds,
-                context=self._ssl_context(),
-            ) as response:
-                raw = response.read().decode("utf-8")
-        except urllib.error.HTTPError as exc:
-            details = exc.read().decode("utf-8", errors="replace")
-            raise MusicAssistantError(
-                f"HTTP {exc.code} for {url}: {details or exc.reason}"
+            async with SDKClient(
+                self.base_url,
+                None,
+                token=self.api_key,
+                ssl_context=self._ssl_context(),
+            ) as client:
+                return await operation(client)
+        except SDKProviderUnavailableError as exc:
+            raise MusicAssistantProviderUnavailableError(
+                f"{op_name} failed: {exc}"
             ) from exc
-        except urllib.error.URLError as exc:
-            raise MusicAssistantError(f"Network error for {url}: {exc.reason}") from exc
+        except SDKError as exc:
+            raise MusicAssistantError(f"{op_name} failed: {exc}") from exc
+        except Exception as exc:
+            raise MusicAssistantError(f"{op_name} failed: {exc}") from exc
+
+    def _run(self, operation: Callable[[SDKClient], Coroutine[Any, Any, T]]) -> T:
+        async def runner() -> T:
+            return await self._run_with_client(operation)
 
         try:
-            return json.loads(raw) if raw else None
-        except json.JSONDecodeError:
-            return raw
+            asyncio.get_running_loop()
+        except RuntimeError:
+            return asyncio.run(runner())
 
-    def call_command(self, command: str, args: dict[str, Any] | None = None) -> Any:
-        payload: dict[str, Any] = {"command": command, "args": args or {}}
-        data = self._request_json("/api", payload)
-        if isinstance(data, dict) and data.get("error"):
-            raise MusicAssistantError(
-                f"Command '{command}' failed: {data.get('error')}"
-            )
-        return data
+        result: dict[str, Any] = {}
+        error: dict[str, Exception] = {}
 
-    def try_commands(
+        def _thread_runner() -> None:
+            try:
+                result["value"] = asyncio.run(runner())
+            except Exception as exc:  # pragma: no cover
+                error["value"] = exc
+
+        thread = threading.Thread(target=_thread_runner, daemon=True)
+        thread.start()
+        thread.join()
+        if "value" in error:
+            raise error["value"]
+        return result["value"]
+
+    @staticmethod
+    def _model_to_dict(item: Any) -> dict[str, Any]:
+        if hasattr(item, "to_dict"):
+            return item.to_dict()
+        if isinstance(item, dict):
+            return item
+        return {"value": item}
+
+    def get_players(self) -> list[dict[str, Any]]:
+        async def op(client: SDKClient) -> list[dict[str, Any]]:
+            result = await client.send_command("players/all")
+            return [self._model_to_dict(x) for x in result] if isinstance(result, list) else []
+
+        return self._run(op)
+
+    def get_playlist(
         self,
-        commands: list[str],
-        args_variants: list[dict[str, Any]],
-        verbose: bool = False,
-        label: str = "",
-    ) -> tuple[str, dict[str, Any], Any]:
-        attempts: list[CommandAttempt] = []
-        filtered_commands = [c for c in commands if c]
-        if verbose:
-            prefix = f"[{label}] " if label else ""
-            print(
-                f"{prefix}Trying {len(filtered_commands)} commands with {len(args_variants)} arg variants..."
+        item_id: str,
+        provider_instance_id_or_domain: str,
+    ) -> dict[str, Any]:
+        async def op(client: SDKClient) -> dict[str, Any]:
+            playlist = await client.music.get_playlist(item_id, provider_instance_id_or_domain)
+            return self._model_to_dict(playlist)
+
+        return self._run(op)
+
+    def get_playlist_tracks(
+        self,
+        item_id: str,
+        provider_instance_id_or_domain: str,
+        page: int = 0,
+    ) -> list[dict[str, Any]]:
+        async def op(client: SDKClient) -> list[dict[str, Any]]:
+            tracks = await client.music.get_playlist_tracks(item_id, provider_instance_id_or_domain, page=page)
+            return [self._model_to_dict(x) for x in tracks]
+
+        return self._run(op)
+
+    def create_playlist(
+        self,
+        name: str,
+        provider_instance_or_domain: str | None = None,
+    ) -> dict[str, Any]:
+        async def op(client: SDKClient) -> dict[str, Any]:
+            playlist = await client.music.create_playlist(name, provider_instance_or_domain)
+            return self._model_to_dict(playlist)
+
+        return self._run(op)
+
+    def add_playlist_tracks(self, db_playlist_id: str | int, uris: list[str]) -> None:
+        async def op(client: SDKClient) -> None:
+            await client.music.add_playlist_tracks(db_playlist_id, uris)
+
+        self._run(op)
+
+    def get_library_tracks(
+        self,
+        search: str | None = None,
+        limit: int | None = None,
+        provider: str | list[str] | None = None,
+    ) -> list[dict[str, Any]]:
+        async def op(client: SDKClient) -> list[dict[str, Any]]:
+            tracks = await client.music.get_library_tracks(
+                search=search,
+                limit=limit,
+                provider=provider,
             )
-        for command in filtered_commands:
-            for args in args_variants:
-                try:
-                    if verbose:
-                        prefix = f"[{label}] " if label else ""
-                        print(f"{prefix}-> command={command} args={args}")
-                    result = self.call_command(command, args)
-                    if verbose:
-                        prefix = f"[{label}] " if label else ""
-                        print(f"{prefix}OK command={command}")
-                    return command, args, result
-                except MusicAssistantError as exc:
-                    if verbose:
-                        prefix = f"[{label}] " if label else ""
-                        print(f"{prefix}FAILED command={command}: {exc}")
-                    attempts.append(
-                        CommandAttempt(command=command, args=args, error=str(exc))
-                    )
-        errors = "\n".join(f"- {a.command} args={a.args}: {a.error}" for a in attempts)
-        raise MusicAssistantError(f"No command variant succeeded.\n{errors}")
+            return [self._model_to_dict(x) for x in tracks]
+
+        return self._run(op)
+
+    def start_sync(self, providers: list[str] | None = None) -> None:
+        async def op(client: SDKClient) -> None:
+            await client.music.start_sync(media_types=[MediaType.TRACK], providers=providers)
+
+        self._run(op)

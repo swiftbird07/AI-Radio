@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
-from typing import Any
 
 from radio_playlist_generator.common import (
     get_provider_config,
@@ -29,21 +28,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def extract_tracks(payload: Any) -> list[Any]:
-    if isinstance(payload, list):
-        return payload
-    if isinstance(payload, dict):
-        for key in ("tracks", "items", "media_items", "result"):
-            if isinstance(payload.get(key), list):
-                return payload[key]
-            if isinstance(payload.get(key), dict):
-                nested = extract_tracks(payload[key])
-                if nested:
-                    return nested
-    return []
-
-
-def normalize_track(item: Any, index: int) -> dict[str, Any]:
+def normalize_track(item: dict, index: int) -> dict:
     if isinstance(item, str):
         return {
             "index": index,
@@ -96,7 +81,6 @@ def main() -> None:
     step1 = read_json(workdir / "step1_connection.json")
 
     music_config = get_provider_config(config, "MUSIC")
-    commands = music_config.get("commands", {})
     base_url = str(step1["base_url"])
     api_key = str(music_config["api_key"])
     verify_ssl = bool(music_config.get("verify_ssl", True))
@@ -108,77 +92,25 @@ def main() -> None:
     )
 
     client = MusicAssistantClient(base_url, api_key, verify_ssl=verify_ssl)
-    print(f"[step2] Fetching playlist data for playlist_id={playlist_id}")
-
-    info_candidates = [
-        commands.get("playlist_info"),
-        "music/playlists/get",
-        "music/playlists/playlist",
-        "music/playlists/get_item",
-        "music/playlists/get_playlist",
-        "playlists/get",
-        "playlist/get",
-    ]
-    tracks_candidates = [
-        commands.get("playlist_tracks"),
-        "music/playlists/tracks",
-        "music/playlists/playlist_tracks",
-        "music/playlists/get_playlist_items",
-        "music/playlists/items",
-        "music/playlists/get_tracks",
-        "music/playlists/get_playlist_tracks",
-        "playlists/tracks",
-        "playlist/tracks",
-    ]
-    id_args = [
-        {"playlist_id": playlist_id},
-        {"item_id": playlist_id},
-        {"id": playlist_id},
-        {"playlist_id": playlist_id, "provider_instance_id_or_domain": playlist_provider},
-        {"item_id": playlist_id, "provider_instance_id_or_domain": playlist_provider},
-        {"id": playlist_id, "provider_instance_id_or_domain": playlist_provider},
-        {"playlist_id": playlist_id, "provider_instance": playlist_provider},
-        {"item_id": playlist_id, "provider_instance": playlist_provider},
-    ]
-
-    info_command = ""
-    info_args: dict[str, Any] = {}
-    playlist_info: Any = {"item_id": playlist_id}
-    try:
-        info_command, info_args, playlist_info = client.try_commands(
-            info_candidates,
-            id_args,
-            verbose=True,
-            label="step2-info",
-        )
-    except Exception:
-        pass
-
-    tracks_command, tracks_args, raw_tracks = client.try_commands(
-        tracks_candidates,
-        id_args,
-        verbose=True,
-        label="step2-tracks",
+    print(
+        f"[step2] Fetching playlist data for playlist_id={playlist_id} "
+        f"provider={playlist_provider}"
     )
-    tracks_list = extract_tracks(raw_tracks)
+    playlist_info = client.get_playlist(playlist_id, playlist_provider)
+    tracks_list = client.get_playlist_tracks(playlist_id, playlist_provider, page=0)
     tracks = [normalize_track(item, idx) for idx, item in enumerate(tracks_list)]
     print(
-        f"[step2] tracks command={tracks_command} args={tracks_args} "
-        f"tracks_count={len(tracks)}"
+        f"[step2] tracks_count={len(tracks)} "
+        f"playlist_name={playlist_info.get('name', 'unknown')}"
     )
 
     output = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "playlist_id": playlist_id,
+        "playlist_provider": playlist_provider,
         "playlist": playlist_info,
         "tracks_count": len(tracks),
         "tracks": tracks,
-        "commands_used": {
-            "playlist_info_command": info_command,
-            "playlist_info_args": info_args,
-            "playlist_tracks_command": tracks_command,
-            "playlist_tracks_args": tracks_args,
-        },
     }
     output_path = workdir / "step2_playlist.json"
     write_json(output_path, output)
