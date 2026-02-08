@@ -65,8 +65,7 @@
       "program": "${workspaceFolder}/step5_update_playlist.py",
       "args": [
         "-c",
-        "${workspaceFolder}/config/non_techno_playlist_de.yaml",
-        "--only-oai-check"
+        "${workspaceFolder}/config/non_techno_playlist_de.yaml"
       ],
       "cwd": "${workspaceFolder}",
       "console": "integratedTerminal",

@@ -6,9 +6,10 @@ import threading
 from typing import Any, Callable, Coroutine, TypeVar
 
 from music_assistant_client import MusicAssistantClient as SDKClient
-from music_assistant_models.enums import MediaType
+from music_assistant_models.enums import ImageType, MediaType
 from music_assistant_models.errors import MusicAssistantError as SDKError
 from music_assistant_models.errors import ProviderUnavailableError as SDKProviderUnavailableError
+from music_assistant_models.media_items import MediaItemImage
 
 T = TypeVar("T")
 
@@ -132,6 +133,37 @@ class MusicAssistantClient:
         async def op(client: SDKClient) -> dict[str, Any]:
             playlist = await client.music.create_playlist(name, provider_instance_or_domain)
             return self._model_to_dict(playlist)
+
+        return self._run(op)
+
+    def set_playlist_cover(
+        self,
+        item_id: str | int,
+        provider_instance_id_or_domain: str,
+        cover_path: str,
+        cover_provider: str | None = None,
+    ) -> dict[str, Any]:
+        async def op(client: SDKClient) -> dict[str, Any]:
+            playlist = await client.music.get_playlist(
+                str(item_id),
+                provider_instance_id_or_domain,
+            )
+            metadata = playlist.metadata
+            metadata.images = [
+                MediaItemImage(
+                    type=ImageType.THUMB,
+                    path=cover_path,
+                    provider=cover_provider or provider_instance_id_or_domain,
+                    remotely_accessible=cover_path.startswith("http://")
+                    or cover_path.startswith("https://"),
+                )
+            ]
+            updated = await client.music.update_playlist(
+                item_id=item_id,
+                update=playlist,
+                overwrite=True,
+            )
+            return self._model_to_dict(updated)
 
         return self._run(op)
 

@@ -70,7 +70,7 @@ def main() -> None:
         cover_path = covers_dir / cover_file_name
         image_prompt = (
             "Based on this prompt generate a cover image for a radio show section. "
-            "'SR' in the top left corner, otherwise no text!! no logos, square artwork, high contrast, clean composition.\n\n"
+            "'AIR' in the top left corner, otherwise no text!! no logos, square artwork, high contrast, clean composition.\n\n"
             f"Section id: {section_id}\n"
             f"Section prompt: {prompt}"
         )

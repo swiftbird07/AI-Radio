@@ -4,10 +4,12 @@ from __future__ import annotations
 import argparse
 from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
+import re
 import time as sleep_time
 from zoneinfo import ZoneInfo
 
 from lib.common import (
+    PROJECT_ROOT,
     get_or_create_run_id,
     get_provider_config,
     load_config,
@@ -63,18 +65,68 @@ def source_track_uri(track: dict) -> str:
     return ""
 
 
+def _normalize_token(value: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", value.lower())
+
+
+def resolve_cover_path_value(config: dict, value: str) -> str | None:
+    text = str(value or "").strip()
+    if not text:
+        return None
+    if text.startswith("http://") or text.startswith("https://"):
+        return text
+
+    general = config.get("general", {})
+    covers_path = str(general.get("covers_path", "./covers"))
+    candidate = Path(text)
+    probe_paths: list[Path] = []
+    if candidate.is_absolute():
+        probe_paths.append(candidate)
+    else:
+        configured = Path(covers_path)
+        if configured.is_absolute():
+            probe_paths.append(configured / candidate)
+        else:
+            probe_paths.append((Path.cwd() / configured / candidate).resolve())
+        probe_paths.append(PROJECT_ROOT / "covers" / candidate)
+        probe_paths.append(Path.cwd() / "covers" / candidate)
+
+    for path in probe_paths:
+        if path.exists():
+            return str(path)
+    return None
+
+
 def find_section_track_uri(
     client: MusicAssistantClient,
     audio_file: str,
+    metadata_title: str | None,
+    section_name: str | None,
     provider_filter: str | None,
 ) -> str:
     filename = Path(audio_file).name
     stem = Path(audio_file).stem
-    query_variants = [stem, stem.replace("_", " ")]
+    query_variants = [
+        stem,
+        stem.replace("_", " "),
+        str(metadata_title or "").strip(),
+        str(section_name or "").strip(),
+    ]
+    # bracket-free variant often matches better in MA search
+    title_no_brackets = re.sub(r"\s*\[[^\]]+\]\s*$", "", str(metadata_title or "").strip())
+    if title_no_brackets:
+        query_variants.append(title_no_brackets)
+    # de-dup while preserving order
+    seen_queries: set[str] = set()
+    query_variants = [
+        q for q in query_variants if q and not (q in seen_queries or seen_queries.add(q))
+    ]
+
     tracks: list[dict] = []
+    tracks_by_uri: dict[str, dict] = {}
     for query in query_variants:
         try:
-            tracks = client.get_library_tracks(
+            query_tracks = client.get_library_tracks(
                 search=query,
                 limit=500,
                 provider=provider_filter,
@@ -86,26 +138,43 @@ def find_section_track_uri(
                     "retrying without provider filter"
                 )
                 provider_filter = None
-                tracks = client.get_library_tracks(
+                query_tracks = client.get_library_tracks(
                     search=query,
                     limit=500,
                     provider=None,
                 )
             else:
                 raise
-        if tracks:
-            break
-    if not tracks and provider_filter:
+        for track in query_tracks:
+            uri = str(track.get("uri", "")).strip()
+            if uri:
+                tracks_by_uri[uri] = track
+
+    if not tracks_by_uri and provider_filter:
         for query in query_variants:
-            tracks = client.get_library_tracks(
+            query_tracks = client.get_library_tracks(
                 search=query,
                 limit=500,
                 provider=None,
             )
-            if tracks:
-                break
+            for track in query_tracks:
+                uri = str(track.get("uri", "")).strip()
+                if uri:
+                    tracks_by_uri[uri] = track
+    tracks = list(tracks_by_uri.values())
+
     filename_lower = filename.lower()
     stem_lower = stem.lower()
+    normalized_candidates = [
+        token
+        for token in [
+            _normalize_token(stem),
+            _normalize_token(str(metadata_title or "")),
+            _normalize_token(str(section_name or "")),
+            _normalize_token(title_no_brackets),
+        ]
+        if token
+    ]
 
     # exact mapping match first
     for track in tracks:
@@ -124,7 +193,12 @@ def find_section_track_uri(
     # fallback: name match
     for track in tracks:
         track_name = str(track.get("name", "")).lower()
+        normalized_track_name = _normalize_token(track_name)
         if stem_lower in track_name:
+            uri = str(track.get("uri", "")).strip()
+            if uri:
+                return uri
+        if any(token and token in normalized_track_name for token in normalized_candidates):
             uri = str(track.get("uri", "")).strip()
             if uri:
                 return uri
@@ -133,19 +207,29 @@ def find_section_track_uri(
 
 def wait_for_section_indexed(
     client: MusicAssistantClient,
-    sample_audio_file: str,
+    audio_items: list[dict],
     provider_filter: str | None,
     timeout_seconds: int,
     poll_seconds: int,
 ) -> bool:
     deadline = datetime.now(timezone.utc) + timedelta(seconds=timeout_seconds)
-    filename = Path(sample_audio_file).name
     while datetime.now(timezone.utc) < deadline:
-        uri = find_section_track_uri(client, sample_audio_file, provider_filter)
-        if uri:
-            print(f"[step5] section indexed: {filename} -> {uri}")
-            return True
-        print(f"[step5] waiting for section index: {filename}")
+        for item in audio_items:
+            audio_file = str(item.get("audio_file", ""))
+            if not audio_file:
+                continue
+            uri = find_section_track_uri(
+                client=client,
+                audio_file=audio_file,
+                metadata_title=str(item.get("metadata_title", "")),
+                section_name=str(item.get("section_name", "")),
+                provider_filter=provider_filter,
+            )
+            if uri:
+                print(f"[step5] section indexed: {Path(audio_file).name} -> {uri}")
+                return True
+        first_name = Path(str(audio_items[0].get("audio_file", ""))).name if audio_items else "-"
+        print(f"[step5] waiting for section index: {first_name}")
         import time as _time
 
         _time.sleep(poll_seconds)
@@ -272,7 +356,7 @@ def main() -> None:
         sleep_time.sleep(post_tts_sync_wait_seconds)
         indexed = wait_for_section_indexed(
             client=client,
-            sample_audio_file=str(audio_items[0]["audio_file"]),
+            audio_items=audio_items,
             provider_filter=sections_provider_filter if sections_provider_filter else None,
             timeout_seconds=int(music_config.get("sections_rescan_timeout_seconds", 180)),
             poll_seconds=int(music_config.get("sections_rescan_poll_seconds", 5)),
@@ -363,6 +447,27 @@ def main() -> None:
         raise RuntimeError(f"Create playlist returned no id: {created}")
     print(f"[step5] created playlist {target_playlist_name} id={target_playlist_id}")
 
+    playlist_cover_cfg = (
+        opt_str(config.get("general", {}).get("playlist_cover_image"))
+        or opt_str(music_config.get("playlist_cover_image"))
+    )
+    playlist_cover_ref = resolve_cover_path_value(config, playlist_cover_cfg or "")
+    if playlist_cover_cfg and not playlist_cover_ref:
+        print(
+            f"[step5] warning: playlist_cover_image configured but not found: {playlist_cover_cfg}"
+        )
+    elif playlist_cover_ref:
+        try:
+            client.set_playlist_cover(
+                item_id=target_playlist_id,
+                provider_instance_id_or_domain=playlist_provider,
+                cover_path=playlist_cover_ref,
+                cover_provider=sections_provider_filter or playlist_provider,
+            )
+            print(f"[step5] set playlist cover: {playlist_cover_ref}")
+        except MusicAssistantError as exc:
+            print(f"[step5] warning: failed to set playlist cover: {exc}")
+
     sections_by_index: dict[int, list[dict]] = {}
     for item in audio_items:
         idx = int(item.get("insert_at_index", 0))
@@ -386,6 +491,8 @@ def main() -> None:
             uri = find_section_track_uri(
                 client=client,
                 audio_file=str(section["audio_file"]),
+                metadata_title=str(section.get("metadata_title", "")),
+                section_name=str(section.get("section_name", "")),
                 provider_filter=sections_provider_filter if sections_provider_filter else None,
             )
             label = str(section.get("section_id"))

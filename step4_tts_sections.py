@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 import argparse
+import shutil
 import time
 from pathlib import Path
 
-from mutagen.id3 import APIC, ID3, ID3NoHeaderError, TIT2, TPE1
+from mutagen.id3 import APIC, ID3, ID3NoHeaderError, TALB, TIT2, TPE1, TPE2
 
 from lib.common import (
+    PROJECT_ROOT,
     ensure_dir,
     get_or_create_run_id,
     get_provider_config,
@@ -91,11 +93,68 @@ def write_id3_tags(
         tags.delall("APIC")
         tags.add(APIC(encoding=3, mime=mime, type=3, desc="Cover", data=image_data))
 
+    # Use ID3v2.3 for broad parser compatibility (including stricter scanners).
+    text_encoding = 1  # UTF-16 (ID3v2.3-safe)
     tags.delall("TIT2")
-    tags.add(TIT2(encoding=3, text=title))
+    tags.add(TIT2(encoding=text_encoding, text=title))
     tags.delall("TPE1")
-    tags.add(TPE1(encoding=3, text=artist))
-    tags.save(mp3_path)
+    tags.add(TPE1(encoding=text_encoding, text=artist))
+    tags.delall("TPE2")
+    tags.add(TPE2(encoding=text_encoding, text=artist))
+    tags.delall("TALB")
+    tags.add(TALB(encoding=text_encoding, text="AI Radio Sections"))
+    tags.save(mp3_path, v2_version=3)
+
+
+def _readback_id3_summary(mp3_path: Path) -> tuple[str, str]:
+    try:
+        tags = ID3(mp3_path)
+    except Exception:
+        return "", ""
+    title_frame = tags.get("TIT2")
+    artist_frame = tags.get("TPE1")
+    title = str(title_frame.text[0]).strip() if title_frame and title_frame.text else ""
+    artist = str(artist_frame.text[0]).strip() if artist_frame and artist_frame.text else ""
+    return title, artist
+
+
+def cleanup_tagging_temp_files(mp3_path: Path) -> int:
+    cleaned = 0
+    parent = mp3_path.parent
+    prefix = mp3_path.name + "-"
+    # Mutagen/atomic-write leftovers can appear as:
+    # <name>.mp3-<random>.mp3 (seen on some SMB mounts)
+    for candidate in parent.glob(f"{mp3_path.name}-*"):
+        if candidate.name == mp3_path.name:
+            continue
+        if not candidate.is_file():
+            continue
+        if not candidate.name.startswith(prefix):
+            continue
+        try:
+            candidate.unlink()
+            cleaned += 1
+        except OSError:
+            pass
+    return cleaned
+
+
+def resolve_cover_path(
+    cover_file: str,
+    configured_covers_dir: Path,
+) -> Path | None:
+    candidate = Path(cover_file)
+    probe_paths: list[Path] = []
+    if candidate.is_absolute():
+        probe_paths.append(candidate)
+    else:
+        probe_paths.append(configured_covers_dir / candidate)
+        probe_paths.append(PROJECT_ROOT / "covers" / candidate)
+        probe_paths.append(Path.cwd() / "covers" / candidate)
+    for path in probe_paths:
+        if path.exists():
+            return path
+    return None
 
 
 def main() -> None:
@@ -139,8 +198,12 @@ def main() -> None:
         covers_dir = ensure_dir(Path(covers_path))
     else:
         covers_dir = ensure_dir(output_base / covers_path)
+    stage_dir = ensure_dir(workdir / "step4_stage")
+    stage_text_dir = ensure_dir(stage_dir / "texts")
+    stage_audio_dir = ensure_dir(stage_dir / "audio")
     print(f"[step4] output dir={sections_dir}")
     print(f"[step4] covers dir={covers_dir}")
+    print(f"[step4] local stage dir={stage_dir}")
 
     sections_cfg = config.get("sections", [])
     section_cover_map: dict[str, str] = {}
@@ -233,7 +296,8 @@ def main() -> None:
             continue
 
         file_stem = f"{index:03d}_{slugify(section_id)}"
-        text_file = sections_dir / f"{file_stem}.txt"
+        text_file = stage_text_dir / f"{file_stem}.txt"
+        stage_audio_file = stage_audio_dir / f"{file_stem}.mp3"
         audio_file = sections_dir / f"{file_stem}.mp3"
         print(
             f"[step4] tts #{index:03d} section={section_id} "
@@ -248,29 +312,42 @@ def main() -> None:
             response_format="mp3",
             instructions=tts_instructions or None,
         )
-        audio_file.write_bytes(audio_bytes)
+        stage_audio_file.write_bytes(audio_bytes)
 
         cover_file = section_cover_map.get(section_id_base)
         if not cover_file and section_id_base.startswith("multi_"):
             cover_file = ai_meta_cover
         cover_path: Path | None = None
         if cover_file:
-            candidate = Path(cover_file)
-            cover_path = candidate if candidate.is_absolute() else covers_dir / candidate
-            if not cover_path.exists():
-                print(f"[step4] warning: cover file not found for {section_id}: {cover_path}")
-                cover_path = None
+            cover_path = resolve_cover_path(cover_file, covers_dir)
+            if not cover_path:
+                print(
+                    f"[step4] warning: cover file not found for {section_id}: "
+                    f"tried configured covers dir and repo ./covers ({cover_file})"
+                )
 
         write_id3_tags(
-            audio_file,
+            stage_audio_file,
             title=metadata_title,
             artist=metadata_artist,
             cover_path=cover_path,
         )
+        cleaned = cleanup_tagging_temp_files(stage_audio_file)
+        if cleaned:
+            print(f"[step4] cleaned temp tag files for {stage_audio_file.name}: {cleaned}")
+        rb_title, rb_artist = _readback_id3_summary(stage_audio_file)
+        print(
+            f"[step4] id3 readback file={stage_audio_file.name} "
+            f"title='{rb_title or '-'}' artist='{rb_artist or '-'}'"
+        )
         if cover_path:
-            print(f"[step4] embedded cover={cover_path.name} into {audio_file.name}")
+            print(f"[step4] embedded cover={cover_path.name} into {stage_audio_file.name}")
         else:
             print(f"[step4] no cover configured/found for {section_id}, metadata only")
+
+        if audio_file.exists():
+            audio_file.unlink()
+        shutil.copy2(stage_audio_file, audio_file)
 
         print(f"[step4] wrote {audio_file}")
 

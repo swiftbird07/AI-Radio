@@ -142,6 +142,10 @@ Per section, you can define:
 - `name`: human-readable metadata title base
 - `cover_image`: image filename located in `general.covers_path`
 
+For the target playlist, you can define:
+
+- `general.playlist_cover_image`: playlist cover image (filename, absolute path, or URL)
+
 For merged multi-section outputs (`multi_*`), the system falls back to the `ai_meta` section cover/name when available.
 
 ## Output Naming

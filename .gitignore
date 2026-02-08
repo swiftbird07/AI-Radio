@@ -193,4 +193,5 @@ config/*
 !config/sample_config.yaml
 
 # Covers
-covers/
+covers/*
+!covers/air.png

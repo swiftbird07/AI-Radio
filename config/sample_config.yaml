@@ -66,6 +66,10 @@ general:
   # Used by step_generate_covers.py and step4_tts_sections.py.
   covers_path: "./covers/"
 
+  # Optional cover image for the generated target playlist in Music Assistant.
+  # Can be a filename under covers_path, absolute file path, or http(s) URL.
+  playlist_cover_image: air.png
+
 providers:
   # ---------------------------------------------------------------------------
   # LLM provider (required)
@@ -201,7 +205,7 @@ sections:
   - id: Song_Introduction_Start
     name: Song Introduction Start
     type: ai_text
-    cover_image: song_introduction_start.png
+    cover_image: air.png
     prompt: >
       First track: <next_songinfo>.
       Open the show, set station vibe, and introduce the segment.
@@ -212,7 +216,7 @@ sections:
   - id: Song_Introduction_Middle
     name: Song Introduction Middle
     type: ai_text
-    cover_image: song_introduction_middle.png
+    cover_image: air.png
     prompt: >
       Brief, engaging intro for <next_songinfo>.
       Keep it conversational and compact.
@@ -222,7 +226,7 @@ sections:
   - id: Song_Introduction_End
     name: Song Introduction End
     type: ai_text
-    cover_image: song_introduction_end.png
+    cover_image: air.png
     prompt: >
       Last track: <next_songinfo>.
       Leave a memorable close.
@@ -232,7 +236,7 @@ sections:
   - id: Song_Transition
     name: Song Transition
     type: ai_text
-    cover_image: song_transition.png
+    cover_image: air.png
     prompt: >
       Transition from <prev_songinfo> to <next_songinfo>.
       Keep flow natural and connected.
@@ -242,7 +246,7 @@ sections:
   - id: Song_FunFacts_Context
     name: Song Fun Facts
     type: ai_text
-    cover_image: song_funfacts_context.png
+    cover_image: air.png
     prompt: >
       Add a short context or fun fact around <prev_songinfo> or <next_songinfo>.
       Keep it smart and listener-friendly.
@@ -252,7 +256,7 @@ sections:
   - id: Song_Random_Funny_Life_Bit
     name: Random Funny Life Bit
     type: ai_text
-    cover_image: song_random_funny_life_bit.png
+    cover_image: air.png
     prompt: >
       Mention <prev_songinfo> and <next_songinfo> once each, then switch into a short
       humorous personal-style monologue. No hate speech. No explicit violence.
@@ -262,7 +266,7 @@ sections:
   - id: Weather_Short
     name: Weather Short
     type: ai_text
-    cover_image: weather_short.png
+    cover_image: air.png
     prompt: >
       Short weather update from <weather_hourly> with time <timestamp>.
       Spoken style, natural wording.
@@ -272,7 +276,7 @@ sections:
   - id: News_Headlines_Local
     name: Local News
     type: ai_text
-    cover_image: news_headlines_local.png
+    cover_image: air.png
     prompt: >
       Local headlines from <news_headlines_local>.
     constraints:
@@ -281,7 +285,7 @@ sections:
   - id: News_Headlines_National
     name: National News
     type: ai_text
-    cover_image: news_headlines_national.png
+    cover_image: air.png
     prompt: >
       National headlines from <news_headlines_national>.
     constraints:
@@ -290,7 +294,7 @@ sections:
   - id: News_Headlines_International
     name: International News
     type: ai_text
-    cover_image: news_headlines_international.png
+    cover_image: air.png
     prompt: >
       International headlines from <news_headlines_international>.
     constraints:
@@ -299,7 +303,7 @@ sections:
   - id: Between_Songs_Smoother
     name: Between Songs Mix
     type: ai_meta
-    cover_image: between_songs_smoother.png
+    cover_image: air.png
     prompt: >
       Merge multiple snippets between <prev_songinfo> and <next_songinfo> into one coherent
       spoken segment. Keep transitions smooth and avoid repetition.
