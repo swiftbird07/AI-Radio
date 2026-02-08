@@ -1,7 +1,5 @@
 # AI Radio
 
-![AI Radio Overview](.github/assets/overview.svg)
-
 AI Radio is a tool that uses AI to convert your Music Assistant playlists to a radio station.
 
 This project takes a source playlist, injects AI-generated moderator sections (intros, transitions, weather, news, fun bits), converts them to speech, and publishes a fresh target playlist in Music Assistant.
