@@ -14,6 +14,7 @@ from lib.common import (
     get_provider_config,
     load_config,
     read_json,
+    require_music_assistant_provider,
     resolve_workdir,
     write_json,
 )
@@ -308,6 +309,7 @@ def main() -> None:
     step4 = read_json(workdir / "step4_audio.json")
 
     music_config = get_provider_config(config, "MUSIC")
+    require_music_assistant_provider(music_config)
     base_url = str(step1["base_url"])
     api_key = str(music_config["api_key"])
     verify_ssl = bool(music_config.get("verify_ssl", True))

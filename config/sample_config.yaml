@@ -11,8 +11,6 @@
 # - Generated section files are written to `general.sections_path_local`.
 # =============================================================================
 
-version: 1
-
 # Global replacement map for custom placeholders.
 # Example:
 # placeholder_values:
@@ -53,10 +51,6 @@ general:
   # Optional deterministic seed for section planning/generation flow.
   # Remove this key to use non-deterministic PRNG behavior.
   seed: 42
-
-  # Fallback voice selector if TTS.config.voice is not set.
-  # Valid values depend on OpenAI TTS voice support.
-  voice_style: ballad
 
   # Local folder where step 4 writes generated TXT + MP3 section files.
   # Absolute or relative path.
@@ -135,15 +129,15 @@ providers:
       # Supported variables: {city}, {country}
       local_prompt: >
         Give exactly 5 short current local news headlines for {city}, {country}.
-        No intro, no numbering, one headline per line. NO SPORT NEWS.
+        No intro, no numbering, one headline per line.
         Include at least one positive news item if available.
       national_prompt: >
         Give exactly 5 short current national news headlines for {country}.
-        No intro, no numbering, one headline per line. NO SPORT NEWS.
+        No intro, no numbering, one headline per line.
         Include at least one positive news item if available.
       international_prompt: >
         Give exactly 5 short current international world news headlines.
-        No intro, no numbering, one headline per line. NO SPORT NEWS.
+        No intro, no numbering, one headline per line.
         Include at least one positive news item if available.
 
   # ---------------------------------------------------------------------------
@@ -331,7 +325,6 @@ section_order:
     flow:
       # Exactly one alternative is selected.
       - ALTERNATIVE:
-          pick: one
           choices:
             - section: Song_Transition
               weight: 30

@@ -79,6 +79,15 @@ def get_provider_config(config: dict[str, Any], provider_type: str) -> dict[str,
     raise ValueError(f"Provider not found for type '{provider_type}'")
 
 
+def require_music_assistant_provider(music_config: dict[str, Any]) -> None:
+    provider_name = str(music_config.get("provider_name", "")).strip()
+    if provider_name.lower() != "musicassistant":
+        raise ValueError(
+            "Unsupported MUSIC provider_name "
+            f"'{provider_name or '<missing>'}'. Expected 'MusicAssistant'."
+        )
+
+
 def resolve_workdir(path: str | None) -> Path:
     return ensure_dir(path or ".tmp")
 

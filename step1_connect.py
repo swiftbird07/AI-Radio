@@ -8,6 +8,7 @@ from lib.common import (
     get_or_create_run_id,
     get_provider_config,
     load_config,
+    require_music_assistant_provider,
     resolve_workdir,
     write_json,
 )
@@ -33,6 +34,7 @@ def main() -> None:
     run_id = get_or_create_run_id(workdir, force_new=True)
 
     music_config = get_provider_config(config, "MUSIC")
+    require_music_assistant_provider(music_config)
     base_url = str(music_config.get("base_url", "")).rstrip("/")
     api_key = str(music_config.get("api_key", "")).strip()
     playlist_id = str(music_config.get("playlist_id", "")).strip()

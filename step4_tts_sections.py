@@ -16,6 +16,7 @@ from lib.common import (
     get_provider_config,
     load_config,
     read_json,
+    require_music_assistant_provider,
     resolve_workdir,
     slugify,
     write_json,
@@ -49,11 +50,11 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def resolve_openai_voice(general: dict, tts_config: dict) -> str:
+def resolve_openai_voice(tts_config: dict) -> str:
     explicit_voice = str(tts_config.get("voice", "")).strip()
     if explicit_voice:
         return explicit_voice
-    style = str(general.get("voice_style", "")).strip().lower()
+    style = str(tts_config.get("voice_style", "")).strip().lower()
     if style in {
         "alloy",
         "ash",
@@ -74,7 +75,6 @@ def resolve_openai_voice(general: dict, tts_config: dict) -> str:
 
 
 def build_tts_renderer(
-    general: dict,
     tts_config: dict,
 ) -> tuple[Callable[[str], bytes], dict[str, str]]:
     provider_name = str(tts_config.get("provider_name", "")).strip().lower()
@@ -84,7 +84,7 @@ def build_tts_renderer(
 
     if provider_name == "openai":
         tts_model = str(tts_config.get("model", "gpt-4o-mini-tts")).strip() or "gpt-4o-mini-tts"
-        tts_voice = resolve_openai_voice(general, tts_config)
+        tts_voice = resolve_openai_voice(tts_config)
         tts_instructions = str(tts_config.get("instructions", "")).strip()
         tts = OpenAIProvider(api_key=api_key)
 
@@ -245,7 +245,7 @@ def main() -> None:
 
     tts_config = get_provider_config(config, "TTS")
     general = config.get("general", {})
-    tts_render, tts_metadata = build_tts_renderer(general=general, tts_config=tts_config)
+    tts_render, tts_metadata = build_tts_renderer(tts_config=tts_config)
     print(
         f"[step4] using tts provider={tts_metadata['tts_provider']} "
         f"model={tts_metadata['tts_model']} voice={tts_metadata['tts_voice']}"
@@ -296,6 +296,7 @@ def main() -> None:
     sync_wait_seconds = 5
     try:
         music_config = get_provider_config(config, "MUSIC")
+        require_music_assistant_provider(music_config)
         base_url = str(music_config.get("base_url", "")).rstrip("/")
         api_key_music = str(music_config.get("api_key", "")).strip()
         verify_ssl_music = bool(music_config.get("verify_ssl", True))
@@ -323,8 +324,11 @@ def main() -> None:
                 client.start_sync(providers=None)
         else:
             print("[step4] MUSIC config incomplete for pre-tts sync, skipping sync trigger.")
-    except ValueError:
-        print("[step4] MUSIC provider missing, skipping pre-tts sync.")
+    except ValueError as exc:
+        if "Provider not found for type 'MUSIC'" in str(exc):
+            print("[step4] MUSIC provider missing, skipping pre-tts sync.")
+        else:
+            raise
     except MusicAssistantError as exc:
         print(f"[step4] pre-tts sync trigger failed: {exc}")
 
