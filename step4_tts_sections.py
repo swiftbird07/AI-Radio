@@ -145,6 +145,35 @@ def build_tts_renderer(
     )
 
 
+def is_tts_quota_or_rate_limit_error(exc: Exception) -> bool:
+    messages = [str(exc)]
+    current = getattr(exc, "__cause__", None)
+    depth = 0
+    while current is not None and depth < 5:
+        messages.append(str(current))
+        current = getattr(current, "__cause__", None)
+        depth += 1
+    details = " | ".join(messages).lower()
+
+    quota_markers = (
+        "quota_exceeded",
+        "quota exceeded",
+        "exceeds your quota",
+        "insufficient credit",
+        "insufficient credits",
+        "credits remaining",
+    )
+    rate_limit_markers = (
+        "rate_limit",
+        "rate limit",
+        "too many requests",
+        "http 429",
+        "status_code: 429",
+        "status code: 429",
+    )
+    return any(marker in details for marker in (*quota_markers, *rate_limit_markers))
+
+
 def write_id3_tags(
     mp3_path: Path,
     title: str,
@@ -353,6 +382,8 @@ def main() -> None:
 
     output_items = []
     metadata_artist = "AI Radio"
+    quota_or_rate_limit_reached = False
+    quota_or_rate_limit_error = ""
     for index, section in enumerate(sections):
         section_id_base = str(section.get("section_id", "section"))
         section_id = f"{section_id_base} [{run_id}]"
@@ -375,9 +406,20 @@ def main() -> None:
             f"[step4] tts #{index:03d} section={section_id} "
             f"insert_at={section.get('insert_at_index')} text_len={len(section_text)}"
         )
-        text_file.write_text(section_text + "\n", encoding="utf-8")
+        try:
+            audio_bytes = tts_render(section_text)
+        except Exception as exc:
+            if is_tts_quota_or_rate_limit_error(exc):
+                quota_or_rate_limit_reached = True
+                quota_or_rate_limit_error = str(exc)
+                print(
+                    f"[step4] warning: quota/rate limit reached while generating "
+                    f"{section_id}; stopping further TTS generation."
+                )
+                break
+            raise
 
-        audio_bytes = tts_render(section_text)
+        text_file.write_text(section_text + "\n", encoding="utf-8")
         stage_audio_file.write_bytes(audio_bytes)
 
         cover_file = section_cover_map.get(section_id_base)
@@ -431,6 +473,18 @@ def main() -> None:
             }
         )
 
+    if quota_or_rate_limit_reached:
+        print(
+            f"[step4] quota/rate limit handling active: kept {len(output_items)} "
+            "generated section(s), skipped remaining sections."
+        )
+    if not output_items:
+        if quota_or_rate_limit_reached:
+            raise RuntimeError(
+                "TTS quota/rate limit reached before any section audio could be generated."
+            )
+        raise RuntimeError("Step 4 produced no section audio files.")
+
     output = {
         "sections_dir": str(sections_dir),
         "audio_items_count": len(output_items),
@@ -439,6 +493,8 @@ def main() -> None:
         "tts_voice": tts_metadata["tts_voice"],
         "tts_output_format": tts_metadata["tts_output_format"],
         "tts_instructions": tts_metadata["tts_instructions"],
+        "quota_or_rate_limit_reached": quota_or_rate_limit_reached,
+        "quota_or_rate_limit_error": quota_or_rate_limit_error,
         "audio_items": output_items,
     }
     output_path = workdir / "step4_audio.json"

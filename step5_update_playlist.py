@@ -6,6 +6,7 @@ from datetime import datetime, time, timedelta, timezone
 from pathlib import Path
 import re
 import time as sleep_time
+from typing import Any
 from zoneinfo import ZoneInfo
 
 from lib.common import (
@@ -18,11 +19,23 @@ from lib.common import (
     resolve_workdir,
     write_json,
 )
-from lib.ma_client import (
-    MusicAssistantClient,
-    MusicAssistantError,
-    MusicAssistantProviderUnavailableError,
-)
+try:
+    from lib.ma_client import (
+        MusicAssistantClient,
+        MusicAssistantError,
+        MusicAssistantProviderUnavailableError,
+    )
+    MA_IMPORT_ERROR: Exception | None = None
+except Exception as exc:
+    MA_IMPORT_ERROR = exc
+    MusicAssistantClient = Any  # type: ignore[assignment]
+
+    class MusicAssistantError(RuntimeError):
+        pass
+
+    class MusicAssistantProviderUnavailableError(MusicAssistantError):
+        pass
+from lib.elevenlabs_provider import ElevenLabsProvider, ElevenLabsProviderError
 from lib.openai_provider import OpenAIProvider, OpenAIProviderError
 
 
@@ -41,6 +54,11 @@ def parse_args() -> argparse.Namespace:
         "--only-oai-check",
         action="store_true",
         help="Run only OpenAI cost lookup and skip playlist update logic.",
+    )
+    parser.add_argument(
+        "--only-elevenlabs-check",
+        action="store_true",
+        help="Run only ElevenLabs quota lookup and skip playlist update logic.",
     )
     return parser.parse_args()
 
@@ -68,6 +86,22 @@ def source_track_uri(track: dict) -> str:
 
 def _normalize_token(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", value.lower())
+
+
+def _as_int(value: object) -> int | None:
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value)
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            return None
+        try:
+            return int(text)
+        except ValueError:
+            return None
+    return None
 
 
 def resolve_cover_path_value(config: dict, value: str) -> str | None:
@@ -255,14 +289,16 @@ def add_openai_costs_to_output(
         or tts_config.get("api_key")
         or ""
     ).strip()
-    started_at_iso = str(step1.get("connected_at", ""))
-    if not openai_key or not started_at_iso:
+    started_at_iso = str(step1.get("connected_at", "")).strip()
+    if not openai_key:
         return
 
-    try:
-        started_at = datetime.fromisoformat(started_at_iso.replace("Z", "+00:00"))
-    except ValueError:
-        started_at = datetime.now(timezone.utc)
+    started_at = datetime.now(timezone.utc)
+    if started_at_iso:
+        try:
+            started_at = datetime.fromisoformat(started_at_iso.replace("Z", "+00:00"))
+        except ValueError:
+            started_at = datetime.now(timezone.utc)
     now_utc = datetime.now(timezone.utc)
     start_day = datetime.combine(started_at.date(), time.min, tzinfo=timezone.utc)
     end_day = datetime.combine((now_utc + timedelta(days=1)).date(), time.min, tzinfo=timezone.utc)
@@ -285,25 +321,84 @@ def add_openai_costs_to_output(
         print(f"[step5] OpenAI costs lookup failed: {exc}")
 
 
+def add_elevenlabs_quota_to_output(
+    output: dict,
+    config: dict,
+) -> None:
+    tts_config = get_provider_config(config, "TTS")
+    tts_provider = str(tts_config.get("provider_name", "")).lower()
+    if tts_provider not in {"elevenlabs", "11labs"}:
+        return
+
+    api_key = str(tts_config.get("api_key") or "").strip()
+    if not api_key:
+        return
+
+    try:
+        elevenlabs = ElevenLabsProvider(api_key=api_key)
+        subscription = elevenlabs.get_subscription()
+        character_limit = _as_int(subscription.get("character_limit"))
+        character_count = _as_int(subscription.get("character_count"))
+        remaining_characters: int | None = None
+        if character_limit is not None and character_count is not None:
+            remaining_characters = max(character_limit - character_count, 0)
+
+        output["elevenlabs_quota"] = {
+            "character_limit": character_limit,
+            "character_count": character_count,
+            "remaining_characters": remaining_characters,
+            "next_character_count_reset_unix": _as_int(
+                subscription.get("next_character_count_reset_unix")
+            ),
+            "subscription": subscription,
+        }
+        remaining_text = str(remaining_characters) if remaining_characters is not None else "unknown"
+        print(f"[step5] ElevenLabs remaining characters: {remaining_text}")
+    except ElevenLabsProviderError as exc:
+        output["elevenlabs_quota"] = {"error": str(exc)}
+        print(f"[step5] ElevenLabs quota lookup failed: {exc}")
+
+
 def main() -> None:
     args = parse_args()
     config = load_config(args.config)
     workdir = resolve_workdir(args.workdir)
     run_id = get_or_create_run_id(workdir)
-    step1 = read_json(workdir / "step1_connection.json")
+    run_only_checks = args.only_oai_check or args.only_elevenlabs_check
+    step1: dict = {}
+    if not run_only_checks:
+        step1 = read_json(workdir / "step1_connection.json")
+    elif args.only_oai_check:
+        step1_path = workdir / "step1_connection.json"
+        if step1_path.exists():
+            step1 = read_json(step1_path)
+        else:
+            print(
+                f"[step5] warning: {step1_path} not found; "
+                "using current UTC day window for OpenAI cost lookup."
+            )
 
-    if args.only_oai_check:
+    if run_only_checks:
         output = {
-            "mode": "only_oai_check",
+            "mode": "quota_check",
             "run_id": run_id,
         }
-        add_openai_costs_to_output(output=output, config=config, step1=step1)
+        if args.only_oai_check:
+            add_openai_costs_to_output(output=output, config=config, step1=step1)
+        if args.only_elevenlabs_check:
+            add_elevenlabs_quota_to_output(output=output, config=config)
         output_path = workdir / "step5_update.json"
         if output_path.exists():
             output_path.unlink()
         write_json(output_path, output)
         print(f"step5 ok -> {output_path}")
         return
+
+    if MA_IMPORT_ERROR is not None:
+        raise RuntimeError(
+            "Music Assistant client dependencies are missing. "
+            "Install requirements before running full Step 5 playlist update."
+        ) from MA_IMPORT_ERROR
 
     step2 = read_json(workdir / "step2_playlist.json")
     step4 = read_json(workdir / "step4_audio.json")
@@ -526,6 +621,7 @@ def main() -> None:
     }
 
     add_openai_costs_to_output(output=output, config=config, step1=step1)
+    add_elevenlabs_quota_to_output(output=output, config=config)
 
     output_path = workdir / "step5_update.json"
     if output_path.exists():
