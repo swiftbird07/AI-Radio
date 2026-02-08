@@ -5,6 +5,7 @@ import argparse
 import shutil
 import time
 from pathlib import Path
+from typing import Callable
 
 from mutagen.id3 import APIC, ID3, ID3NoHeaderError, TALB, TIT2, TPE1, TPE2
 
@@ -24,6 +25,7 @@ from lib.ma_client import (
     MusicAssistantError,
     MusicAssistantProviderUnavailableError,
 )
+from lib.elevenlabs_provider import ElevenLabsProvider
 from lib.openai_provider import OpenAIProvider
 
 
@@ -47,7 +49,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def resolve_voice(general: dict, tts_config: dict) -> str:
+def resolve_openai_voice(general: dict, tts_config: dict) -> str:
     explicit_voice = str(tts_config.get("voice", "")).strip()
     if explicit_voice:
         return explicit_voice
@@ -69,6 +71,78 @@ def resolve_voice(general: dict, tts_config: dict) -> str:
     }:
         return style
     return "alloy"
+
+
+def build_tts_renderer(
+    general: dict,
+    tts_config: dict,
+) -> tuple[Callable[[str], bytes], dict[str, str]]:
+    provider_name = str(tts_config.get("provider_name", "")).strip().lower()
+    api_key = str(tts_config.get("api_key", "")).strip()
+    if not api_key:
+        raise ValueError("TTS provider config is missing api_key.")
+
+    if provider_name == "openai":
+        tts_model = str(tts_config.get("model", "gpt-4o-mini-tts")).strip() or "gpt-4o-mini-tts"
+        tts_voice = resolve_openai_voice(general, tts_config)
+        tts_instructions = str(tts_config.get("instructions", "")).strip()
+        tts = OpenAIProvider(api_key=api_key)
+
+        def _render(text: str) -> bytes:
+            return tts.text_to_speech(
+                text=text,
+                model=tts_model,
+                voice=tts_voice,
+                response_format="mp3",
+                instructions=tts_instructions or None,
+            )
+
+        return _render, {
+            "tts_provider": "openai",
+            "tts_model": tts_model,
+            "tts_voice": tts_voice,
+            "tts_instructions": tts_instructions,
+            "tts_output_format": "mp3",
+        }
+
+    if provider_name in {"elevenlabs", "11labs"}:
+        tts_model = (
+            str(tts_config.get("model", "eleven_multilingual_v2")).strip()
+            or "eleven_multilingual_v2"
+        )
+        tts_voice = (
+            str(tts_config.get("voice_id") or tts_config.get("voice") or "").strip()
+            or "pNInz6obpgDQGcFmaJgB"
+        )
+        tts_output_format = (
+            str(tts_config.get("output_format", "mp3_44100_128")).strip()
+            or "mp3_44100_128"
+        )
+        tts_instructions = str(tts_config.get("instructions", "")).strip()
+        if tts_instructions:
+            print("[step4] warning: TTS.instructions is ignored for ElevenLabs provider.")
+
+        tts = ElevenLabsProvider(api_key=api_key)
+
+        def _render(text: str) -> bytes:
+            return tts.text_to_speech(
+                text=text,
+                voice_id=tts_voice,
+                model_id=tts_model,
+                output_format=tts_output_format,
+            )
+
+        return _render, {
+            "tts_provider": "elevenlabs",
+            "tts_model": tts_model,
+            "tts_voice": tts_voice,
+            "tts_instructions": "",
+            "tts_output_format": tts_output_format,
+        }
+
+    raise ValueError(
+        f"Unsupported TTS provider '{provider_name}'. Supported providers: OpenAI, ElevenLabs."
+    )
 
 
 def write_id3_tags(
@@ -170,18 +244,12 @@ def main() -> None:
     print(f"[step4] sections to convert={len(sections)}")
 
     tts_config = get_provider_config(config, "TTS")
-    provider_name = str(tts_config.get("provider_name", "")).lower()
-    if provider_name != "openai":
-        raise ValueError(f"Unsupported TTS provider '{provider_name}'. Only OpenAI is supported.")
-
-    api_key = str(tts_config.get("api_key", "")).strip()
-    if not api_key:
-        raise ValueError("TTS provider config is missing api_key.")
-
     general = config.get("general", {})
-    tts_model = str(tts_config.get("model", "gpt-4o-mini-tts"))
-    tts_voice = resolve_voice(general, tts_config)
-    tts_instructions = str(tts_config.get("instructions", "")).strip()
+    tts_render, tts_metadata = build_tts_renderer(general=general, tts_config=tts_config)
+    print(
+        f"[step4] using tts provider={tts_metadata['tts_provider']} "
+        f"model={tts_metadata['tts_model']} voice={tts_metadata['tts_voice']}"
+    )
 
     sections_path = str(
         general.get("sections_path_local")
@@ -278,7 +346,6 @@ def main() -> None:
         except Exception:
             pass
 
-    tts = OpenAIProvider(api_key=api_key)
     output_items = []
     metadata_artist = "AI Radio"
     for index, section in enumerate(sections):
@@ -305,13 +372,7 @@ def main() -> None:
         )
         text_file.write_text(section_text + "\n", encoding="utf-8")
 
-        audio_bytes = tts.text_to_speech(
-            text=section_text,
-            model=tts_model,
-            voice=tts_voice,
-            response_format="mp3",
-            instructions=tts_instructions or None,
-        )
+        audio_bytes = tts_render(section_text)
         stage_audio_file.write_bytes(audio_bytes)
 
         cover_file = section_cover_map.get(section_id_base)
@@ -368,9 +429,11 @@ def main() -> None:
     output = {
         "sections_dir": str(sections_dir),
         "audio_items_count": len(output_items),
-        "tts_model": tts_model,
-        "tts_voice": tts_voice,
-        "tts_instructions": tts_instructions,
+        "tts_provider": tts_metadata["tts_provider"],
+        "tts_model": tts_metadata["tts_model"],
+        "tts_voice": tts_metadata["tts_voice"],
+        "tts_output_format": tts_metadata["tts_output_format"],
+        "tts_instructions": tts_metadata["tts_instructions"],
         "audio_items": output_items,
     }
     output_path = workdir / "step4_audio.json"

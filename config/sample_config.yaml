@@ -88,9 +88,12 @@ providers:
 
   # ---------------------------------------------------------------------------
   # TTS provider (required)
+  # Supported provider_name values: OpenAI, ElevenLabs
+  # OpenAI TTS is fully supported and remains a valid choice.
   # ---------------------------------------------------------------------------
   - type: TTS
     config:
+      # OpenAI example:
       provider_name: OpenAI
       api_key: ${OPENAI_API_KEY}
       model: gpt-4o-mini-tts
@@ -103,6 +106,13 @@ providers:
       # Optional prosody/style instruction string for speech synthesis.
       instructions: >
         Radio-host delivery, warm tone, clean articulation, short natural pauses.
+
+      # ElevenLabs alternative:
+      # provider_name: ElevenLabs
+      # api_key: ${ELEVENLABS_API_KEY}
+      # model: eleven_multilingual_v2
+      # voice_id: xj61lbryotizgwAuHImw
+      # output_format: mp3_44100_128
 
   # ---------------------------------------------------------------------------
   # NEWS provider (optional)

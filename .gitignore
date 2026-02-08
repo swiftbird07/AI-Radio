@@ -182,6 +182,9 @@ cython_debug/
 # Macos Artifacts
 .DS_Store
 
+# Editor files
+.vscode/
+
 # Runtime artifacts
 .tmp/
 .radio_work/

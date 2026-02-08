@@ -13,7 +13,7 @@ This project takes a source playlist, injects AI-generated moderator sections (i
 - Rule-based section scheduling (`MUST`, `ALTERNATIVE`, `OPTIONAL` + guards)
 - Optional weather context (Open-Meteo)
 - Optional news context with OpenAI web search
-- OpenAI TTS generation for all sections
+- OpenAI or ElevenLabs TTS generation for all sections
 - Optional cover image generation per section (OpenAI Images)
 - ID3 metadata writing for generated MP3 files
   - human-readable title from `sections[*].name`
@@ -65,7 +65,8 @@ flowchart LR
 
 - Python 3.12+
 - A Music Assistant instance with API access
-- OpenAI API key for LLM/TTS (and optional images/news search)
+- OpenAI API key for LLM (and optional images/news search)
+- TTS API key for selected provider (`OPENAI_API_KEY` or `ELEVENLABS_API_KEY`)
 
 ## Setup
 
@@ -82,6 +83,7 @@ pip install -r requirements.txt
 ```bash
 OPENAI_API_KEY=...
 OPENAI_ADMIN_KEY=...            # optional (cost endpoint)
+ELEVENLABS_API_KEY=...          # optional (only if TTS provider is ElevenLabs)
 MUSIC_ASSISTANT_API_KEY=...
 ```
 
