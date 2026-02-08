@@ -1,8 +1,8 @@
-# Swift Radio Playlist Generator
+# AI Radio
 
-![Swift Radio Overview](.github/assets/overview.svg)
+![AI Radio Overview](.github/assets/overview.svg)
 
-Build a fully automated AI radio playlist for Music Assistant.
+AI Radio is a tool that uses AI to convert your Music Assistant playlists to a radio station.
 
 This project takes a source playlist, injects AI-generated moderator sections (intros, transitions, weather, news, fun bits), converts them to speech, and publishes a fresh target playlist in Music Assistant.
 
@@ -17,7 +17,7 @@ This project takes a source playlist, injects AI-generated moderator sections (i
 - Optional cover image generation per section (OpenAI Images)
 - ID3 metadata writing for generated MP3 files
   - human-readable title from `sections[*].name`
-  - artist set to `Swift Radio`
+  - artist set to `AI Radio`
   - cover artwork embedding when configured
 - Auto-create target playlist with date + run id
 - OpenAI cost check mode in step 5 (`--only-oai-check`)
@@ -148,12 +148,12 @@ For merged multi-section outputs (`multi_*`), the system falls back to the `ai_m
 
 Target playlist:
 
-- `Swift Radio: <general.name> (<weekday>. <dd.mm.>) [<run_id>]`
+- `AI Radio: <general.name> (<weekday>. <dd.mm.>) [<run_id>]`
 
 Generated section track metadata:
 
 - title: `<sections[*].name> [<run_id>]`
-- artist: `Swift Radio`
+- artist: `AI Radio`
 
 ## Notes
 

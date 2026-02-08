@@ -9,7 +9,7 @@ from pathlib import Path
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Run Music Assistant AI Radio Playlist generator pipeline."
+        description="Run AI Radio pipeline for Music Assistant playlists."
     )
     parser.add_argument("-c", "--config", required=True, help="Path to config yaml file.")
     parser.add_argument(

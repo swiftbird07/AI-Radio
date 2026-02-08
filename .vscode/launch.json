@@ -30,6 +30,20 @@
       "justMyCode": true
     },
     {
+      "name": "Pipeline: Local Config 2",
+      "type": "python",
+      "request": "launch",
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "program": "${workspaceFolder}/main.py",
+      "args": [
+        "-c",
+        "${workspaceFolder}/config/techno_playlist_jebroer.yml"
+      ],
+      "cwd": "${workspaceFolder}",
+      "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
       "name": "Step 5: Local Config",
       "type": "python",
       "request": "launch",

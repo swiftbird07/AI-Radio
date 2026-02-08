@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import re
 import time
 from pathlib import Path
 
@@ -163,18 +162,6 @@ def main() -> None:
             if section_cfg_name and not ai_meta_name:
                 ai_meta_name = section_cfg_name
 
-    deleted_mp3 = 0
-    section_mp3_pattern = re.compile(r"^\d{3}_.+\.mp3$")
-    for mp3_file in sections_dir.glob("*.mp3"):
-        if not section_mp3_pattern.match(mp3_file.name):
-            continue
-        try:
-            mp3_file.unlink()
-            deleted_mp3 += 1
-        except OSError as exc:
-            print(f"[step4] warning: failed to delete {mp3_file}: {exc}")
-    print(f"[step4] deleted old mp3 files={deleted_mp3}")
-
     sync_wait_seconds = 5
     try:
         music_config = get_provider_config(config, "MUSIC")
@@ -230,7 +217,7 @@ def main() -> None:
 
     tts = OpenAIProvider(api_key=api_key)
     output_items = []
-    metadata_artist = "Swift Radio"
+    metadata_artist = "AI Radio"
     for index, section in enumerate(sections):
         section_id_base = str(section.get("section_id", "section"))
         section_id = f"{section_id_base} [{run_id}]"

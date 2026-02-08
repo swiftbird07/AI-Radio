@@ -294,7 +294,7 @@ def main() -> None:
     except Exception:
         now_local = datetime.now()
     date_suffix = f"{now_local.strftime('%a')}. {now_local.strftime('%d.%m.')}"
-    target_playlist_name = f"Swift Radio: {playlist_label} ({date_suffix}) [{run_id}]"
+    target_playlist_name = f"AI Radio: {playlist_label} ({date_suffix}) [{run_id}]"
 
     deleted_existing_playlists: list[str] = []
     try:
