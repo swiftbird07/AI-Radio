@@ -252,7 +252,8 @@ def main() -> None:
     )
 
     sections_path = str(
-        general.get("sections_path_local")
+        general.get("section_store_path")
+        or general.get("sections_path_local")
         or general.get("sections_path")
         or "./sections"
     )

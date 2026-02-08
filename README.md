@@ -95,8 +95,14 @@ cp config/sample_config.yaml config/local_config.yaml
 
 - set Music Assistant `base_url`
 - set source `playlist_id`
-- set local `sections_path_local`
+- set local `section_store_path`
 - set provider ids/domains for your MA setup
+
+5. Ensure Music Assistant can read generated section files
+
+- MA must have filesystem access to `general.section_store_path` (or the same share/path exposed by your MA filesystem provider).
+- Recommended: run this pipeline on the same host as MA, or use a shared SMB/NFS path mounted on both systems.
+- Why: step 5 triggers MA sync, then searches MA library for indexed section tracks and adds them by URI (not by your local host file path).
 
 ## Usage
 

@@ -8,7 +8,7 @@
 # Runtime behavior:
 # - `${ENV_VAR}` placeholders are resolved from `.env` in repository root.
 # - Pipeline artifacts are written to `.tmp/`.
-# - Generated section files are written to `general.sections_path_local`.
+# - Generated section files are written to `general.section_store_path`.
 # =============================================================================
 
 # Global replacement map for custom placeholders.
@@ -54,7 +54,7 @@ general:
 
   # Local folder where step 4 writes generated TXT + MP3 section files.
   # Absolute or relative path.
-  sections_path_local: "./output/sections/"
+  section_store_path: "./output/sections/"
 
   # Local folder where section cover image files are read from/written to.
   # Used by step_generate_covers.py and step4_tts_sections.py.
