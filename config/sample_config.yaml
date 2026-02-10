@@ -57,7 +57,7 @@ general:
   covers_path: "./covers/"
 
   # Optional cover image for the generated target playlist in Music Assistant.
-  # Can be a filename under covers_path, absolute file path, or http(s) URL.
+  # Can be a filename under covers_path or absolute file path, or http(s) URL.
   playlist_cover_image: air.png
 
 providers:
@@ -79,7 +79,6 @@ providers:
   # ---------------------------------------------------------------------------
   # TTS provider (required)
   # Supported provider_name values: OpenAI, ElevenLabs
-  # OpenAI TTS is fully supported and remains a valid choice.
   # ---------------------------------------------------------------------------
   - type: TTS
     config:
@@ -125,7 +124,6 @@ providers:
       # Example: 3 means "today and previous 3 days".
       max_age_days: 3
 
-      # Prompt templates are required in config (no hardcoded defaults).
       # Supported variables: {city}, {country}
       local_prompt: >
         Give exactly 5 short current local news headlines for {city}, {country}.
@@ -161,7 +159,9 @@ providers:
       verify_ssl: true
       api_key: ${MUSIC_ASSISTANT_API_KEY}
 
-      # Source playlist in Music Assistant (input playlist).
+      # Source playlist in Music Assistant (input playlist)
+      # You can get the playlist ID from the URL when viewing the playlist in Music Assistant web UI.
+      # Example URL: https://music-assistant.local/#/playlists/library/48 -> playlist_id: 48
       playlist_id: 1
 
       # Optional source limiter in step 2:
@@ -173,9 +173,10 @@ providers:
       provider_instance_id_or_domain: library
 
       # Provider where generated section MP3s are indexed.
-      # `sections_provider_instance` is preferred if both are set.
-      sections_provider_instance: filesystem_local--instance-id
-      sections_provider_domain: filesystem_local
+      # You can get the instance ID from the URL when viewing the provider in Music Assistant web UI.
+      # For this go to Settings -> Providers, click on the provider, and look at the URL for the provider name.
+      # Example URL: https://music-assistant.local/#/settings/editprovider/filesystem_local--MhvbAKbD -> sections_provider_instance: filesystem_local--MhvbAKbD
+      sections_provider_instance: filesystem_local--MhvbAKbD
 
       # Wait after pre-TTS sync trigger (step 4).
       pre_tts_sync_wait_seconds: 5
@@ -344,8 +345,8 @@ section_order:
       # Exactly one alternative is selected.
       - ALTERNATIVE:
           choices:
-            - section: Song_Transition
-              weight: 30
+            - section: Song_Transition # The section id defined above in sections.
+              weight: 30 # Relative weight for random selection when multiple choices are available.
             - section: Song_Introduction_Middle
               weight: 25
             - section: Song_FunFacts_Context
@@ -356,12 +357,12 @@ section_order:
       # OPTIONAL blocks are evaluated independently.
       # They can stack and may trigger ai_meta merging for same slot.
       - OPTIONAL:
-          section: Weather_Short
-          chance: 0.2
+          section: Weather_Short # The section id defined above in sections.
+          chance: 0.2 # 20% per between-song slot
           guards:
-            min_gap_songs: 3
-            max_per_60min: 1
-            require_placeholders_present:
+            min_gap_songs: 3 # at least 3 songs since last Weather_Short
+            max_per_60min: 1 # at most 1 Weather_Short per 60 minutes
+            require_placeholders_present: # only offer if these placeholders have non-empty values
               - "<weather_hourly>"
               - "<timestamp>"
 
@@ -396,7 +397,3 @@ section_order:
   - when: end_of_playlist
     flow:
       - MUST: Song_Introduction_End
-
-validation:
-  # true: fail early on invalid/unknown section references
-  strict: true

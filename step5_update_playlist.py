@@ -424,7 +424,6 @@ def main() -> None:
     )
     sections_provider_filter = (
         opt_str(music_config.get("sections_provider_instance"))
-        or opt_str(music_config.get("sections_provider_domain"))
         or playlist_provider
     )
 

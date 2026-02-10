@@ -367,7 +367,6 @@ def run_dynamic_generation(args: argparse.Namespace) -> None:
 
     sections_provider_filter = (
         opt_str(music_config.get("sections_provider_instance"))
-        or opt_str(music_config.get("sections_provider_domain"))
         or opt_str(music_config.get("provider_instance_id_or_domain"))
     )
     post_tts_sync_wait_seconds = max(1, int(music_config.get("post_tts_sync_wait_seconds", 5)))

@@ -242,11 +242,6 @@ def soft_limit_text(text: str, max_chars: int, tolerance_ratio: float = 0.15) ->
 
 
 def validate_config_references(config: dict[str, Any], section_ids: set[str]) -> None:
-    validation = config.get("validation", {})
-    strict = bool(validation.get("strict", False))
-    if not strict:
-        return
-
     for rule in config.get("section_order", []):
         flow = rule.get("flow", [])
         for item in flow:

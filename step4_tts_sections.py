@@ -329,7 +329,6 @@ def main() -> None:
         verify_ssl_music = bool(music_config.get("verify_ssl", True))
         sections_provider_filter = (
             str(music_config.get("sections_provider_instance", "")).strip()
-            or str(music_config.get("sections_provider_domain", "")).strip()
             or str(music_config.get("provider_instance_id_or_domain", "")).strip()
             or None
         )
