@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import json
+import re
 import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from lib.openai_provider import OpenAIProvider, OpenAIProviderError
@@ -147,13 +148,53 @@ class OpenAINewsProvider:
         self.openai = openai
 
     @staticmethod
-    def _split_lines(text: str) -> list[str]:
-        lines = []
-        for line in text.splitlines():
-            cleaned = line.strip().lstrip("-*0123456789. ").strip()
-            if cleaned:
-                lines.append(cleaned)
-        return lines[:8]
+    def _extract_recent_dated_lines(
+        text: str,
+        today: datetime.date,
+        max_age_days: int,
+        max_items: int = 5,
+    ) -> list[str]:
+        earliest = today - timedelta(days=max_age_days)
+        # Accept:
+        # YYYY-MM-DD | Headline
+        # Headline (YYYY-MM-DD)
+        prefix_pattern = re.compile(r"^\s*(\d{4}-\d{2}-\d{2})\s*[|:-]\s*(.+?)\s*$")
+        suffix_pattern = re.compile(r"^\s*(.+?)\s*\((\d{4}-\d{2}-\d{2})\)\s*$")
+        selected: list[str] = []
+        seen: set[str] = set()
+        for raw_line in text.splitlines():
+            line = raw_line.strip()
+            line = re.sub(r"^[\-\*\u2022]\s+", "", line)
+            line = re.sub(r"^\d+\.\s+", "", line)
+            if not line:
+                continue
+            date_text = ""
+            headline = ""
+            prefix_match = prefix_pattern.match(line)
+            if prefix_match:
+                date_text = prefix_match.group(1).strip()
+                headline = prefix_match.group(2).strip()
+            else:
+                suffix_match = suffix_pattern.match(line)
+                if suffix_match:
+                    headline = suffix_match.group(1).strip()
+                    date_text = suffix_match.group(2).strip()
+            if not date_text or not headline:
+                continue
+            try:
+                event_date = datetime.strptime(date_text, "%Y-%m-%d").date()
+            except ValueError:
+                continue
+            if event_date < earliest or event_date > today:
+                continue
+            normalized = headline.lower()
+            if normalized in seen:
+                continue
+            seen.add(normalized)
+            selected.append(headline)
+            if len(selected) >= max_items:
+                break
+        return selected
 
     def get_news_headlines(
         self,
@@ -162,19 +203,33 @@ class OpenAINewsProvider:
         local_prompt_template: str,
         national_prompt_template: str,
         international_prompt_template: str,
+        max_age_days: int = 3,
     ) -> tuple[str, str, str]:
         model_candidates = [model] if isinstance(model, str) else [m for m in model if isinstance(m, str)]
         if not model_candidates:
             raise ContextProviderError("NEWS model list is empty.")
+        age_days = max(0, int(max_age_days))
+        today = datetime.now(timezone.utc).date()
+        earliest = today - timedelta(days=age_days)
 
         def render_prompt(template: str) -> str:
             raw = template.strip()
             if not raw:
                 raise ContextProviderError("NEWS prompt template is empty.")
             try:
-                return raw.format(city=location.city, country=location.country)
+                rendered = raw.format(city=location.city, country=location.country)
             except Exception:
-                return raw
+                rendered = raw
+            freshness_guard = (
+                "\n\nWICHTIG ZUR AKTUALITAET:\n"
+                f"- Heute (UTC) ist {today.isoformat()}.\n"
+                f"- Verwende nur Meldungen mit Datum zwischen {earliest.isoformat()} "
+                f"und {today.isoformat()} (inklusive).\n"
+                "- Wenn das Datum einer Meldung nicht verifizierbar ist, verwirf sie.\n"
+                "- Ausgabeformat strikt: YYYY-MM-DD | Schlagzeile\n"
+                "- Genau 5 Zeilen, keine Einleitung, kein Sport."
+            )
+            return f"{rendered}{freshness_guard}"
 
         local_prompt = render_prompt(local_prompt_template)
         national_prompt = render_prompt(national_prompt_template)
@@ -187,23 +242,44 @@ class OpenAINewsProvider:
                     user_prompt=local_prompt,
                     city=location.city,
                     country=location.country,
+                    search_context_size="high",
                 )
                 national = self.openai.generate_text_with_web_search(
                     model=candidate,
                     user_prompt=national_prompt,
                     city=location.city,
                     country=location.country,
+                    search_context_size="high",
                 )
                 international = self.openai.generate_text_with_web_search(
                     model=candidate,
                     user_prompt=international_prompt,
                     city=location.city,
                     country=location.country,
+                    search_context_size="high",
+                )
+                local_items = self._extract_recent_dated_lines(
+                    text=local,
+                    today=today,
+                    max_age_days=age_days,
+                    max_items=5,
+                )
+                national_items = self._extract_recent_dated_lines(
+                    text=national,
+                    today=today,
+                    max_age_days=age_days,
+                    max_items=5,
+                )
+                international_items = self._extract_recent_dated_lines(
+                    text=international,
+                    today=today,
+                    max_age_days=age_days,
+                    max_items=5,
                 )
                 return (
-                    " | ".join(self._split_lines(local)),
-                    " | ".join(self._split_lines(national)),
-                    " | ".join(self._split_lines(international)),
+                    " | ".join(local_items[:5]),
+                    " | ".join(national_items[:5]),
+                    " | ".join(international_items[:5]),
                 )
             except OpenAIProviderError as exc:
                 last_error = exc

@@ -121,6 +121,10 @@ providers:
         - gpt-4o-mini
         - gpt-4.1-mini
 
+      # Strict freshness window for accepted headlines (days, inclusive).
+      # Example: 3 means "today and previous 3 days".
+      max_age_days: 3
+
       # Prompt templates are required in config (no hardcoded defaults).
       # Supported variables: {city}, {country}
       local_prompt: >

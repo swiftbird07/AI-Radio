@@ -133,7 +133,7 @@ def is_empty_section(section_id: str) -> bool:
     return section_id.strip().upper() == EMPTY_SECTION_ID
 
 
-def parse_history_seed(raw: Any) -> dict[str, list[tuple[int, float]]]:
+def parse_history_state(raw: Any) -> dict[str, list[tuple[int, float]]]:
     parsed: dict[str, list[tuple[int, float]]] = {}
     if not isinstance(raw, dict):
         return parsed
@@ -333,15 +333,18 @@ def main() -> None:
         if isinstance(allowed_slot_when_raw, list)
         else None
     )
-    history_seed = parse_history_seed(step2.get("history_seed", {}))
+    raw_history_state = step2.get("history_state")
+    if raw_history_state is None:
+        raw_history_state = step2.get("history_seed", {})
+    history_state = parse_history_state(raw_history_state)
 
     if not tracks:
         raise ValueError("Step 2 produced no tracks; cannot build sections.")
     print(f"[step3] Loaded {len(tracks)} tracks from step2.")
-    if track_index_offset or minute_offset or history_seed:
+    if track_index_offset or minute_offset or history_state:
         print(
             f"[step3] dynamic context: track_index_offset={track_index_offset} "
-            f"minute_offset={minute_offset:.2f} history_sections={len(history_seed)}"
+            f"minute_offset={minute_offset:.2f} history_sections={len(history_state)}"
         )
 
     llm_config = get_provider_config(config, "LLM")
@@ -369,7 +372,7 @@ def main() -> None:
     print(f"[step3] Built {len(slots)} insertion slots.")
     rules = config.get("section_order", [])
     history: dict[str, list[tuple[int, float]]] = {
-        section_id: list(events) for section_id, events in history_seed.items()
+        section_id: list(events) for section_id, events in history_state.items()
     }
     selected_sections: list[dict[str, Any]] = []
     runtime_values: dict[str, str] = {}
@@ -447,6 +450,7 @@ def main() -> None:
                 international_prompt_template = str(
                     news_provider_config.get("international_prompt", "")
                 ).strip()
+                news_max_age_days = int(news_provider_config.get("max_age_days", 3) or 3)
                 if not local_prompt_template:
                     raise ValueError("NEWS provider config is missing 'local_prompt'.")
                 if not national_prompt_template:
@@ -462,6 +466,7 @@ def main() -> None:
                             local_prompt_template=local_prompt_template,
                             national_prompt_template=national_prompt_template,
                             international_prompt_template=international_prompt_template,
+                            max_age_days=news_max_age_days,
                         )
                         runtime_values["<news_headlines_local>"] = local_news
                         runtime_values["<news_headlines_national>"] = national_news

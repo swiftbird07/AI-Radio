@@ -120,7 +120,7 @@ def track_duration_minutes(track: dict[str, Any]) -> float:
     return 210.0 / 60.0
 
 
-def serialize_history_seed(
+def serialize_history_state(
     history: dict[str, list[tuple[int, float]]],
 ) -> dict[str, list[dict[str, float | int]]]:
     return {
@@ -414,7 +414,7 @@ def run_dynamic_generation(args: argparse.Namespace) -> None:
             "track_index_offset": batch_start_index,
             "minute_offset": cumulative_minutes[batch_start_index],
             "allowed_slot_when": allowed_slot_when,
-            "history_seed": serialize_history_seed(history_state),
+            "history_state": serialize_history_state(history_state),
         }
         write_json(batch_workdir / "step2_playlist.json", step2_payload)
 

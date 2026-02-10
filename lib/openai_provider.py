@@ -156,13 +156,17 @@ class OpenAIProvider:
         city: str | None = None,
         country: str | None = None,
         force_web_search: bool = True,
+        search_context_size: str = "medium",
     ) -> str:
         location_hint = ""
         if city and country:
             location_hint = f"\nLocation context: {city}, {country}."
+        context_size = search_context_size.strip().lower()
+        if context_size not in {"low", "medium", "high"}:
+            context_size = "medium"
         web_tool: dict[str, Any] = {
             "type": "web_search",
-            "search_context_size": "medium",
+            "search_context_size": context_size,
             "external_web_access": True,
         }
         country_code = country.strip().upper() if country else ""
