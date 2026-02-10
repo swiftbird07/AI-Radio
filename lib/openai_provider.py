@@ -153,6 +153,7 @@ class OpenAIProvider:
         self,
         model: str,
         user_prompt: str,
+        system_instructions: str | None = None,
         city: str | None = None,
         country: str | None = None,
         force_web_search: bool = True,
@@ -183,6 +184,8 @@ class OpenAIProvider:
             "tools": [web_tool],
             "include": ["web_search_call.action.sources"],
         }
+        if system_instructions is not None and str(system_instructions).strip():
+            payload["instructions"] = str(system_instructions).strip()
         if force_web_search:
             payload["tool_choice"] = "required"
         raw = self._post_json("/responses", payload)

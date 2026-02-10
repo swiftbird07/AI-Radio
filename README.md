@@ -1,8 +1,10 @@
 # AI Radio
 
+![AI Radio](covers/air.png)
+
 AI Radio is a tool that uses AI to convert your Music Assistant playlists to a radio station.
 
-This project takes a source playlist, injects AI-generated moderator sections (intros, transitions, weather, news, fun bits), converts them to speech, and publishes a fresh target playlist in Music Assistant.
+This project takes a source playlist, injects AI-generated moderator sections (intros, transitions, weather, news, fun bits), converts them to speech, and publishes a fresh target playlist in Music Assistant. Alternatively, it can run in dynamic generation mode, where sections are generated on the fly and queued for immediate playback without creating a target playlist.
 
 ## Features
 
@@ -14,12 +16,8 @@ This project takes a source playlist, injects AI-generated moderator sections (i
 - Optional news context with OpenAI web search
 - OpenAI or ElevenLabs TTS generation for all sections
 - Optional cover image generation per section (OpenAI Images)
-- ID3 metadata writing for generated MP3 files
-  - human-readable title from `sections[*].name`
-  - artist set to `AI Radio`
-  - cover artwork embedding when configured
-- Auto-create target playlist with date + run id
-- OpenAI cost check mode in step 5 (`--only-oai-check`)
+- Optional HTTP daemon to trigger runs via API (`dynamic_daemon.py`)
+
 
 ## How It Works
 
@@ -46,7 +44,7 @@ Sync section provider, create target playlist, add tracks + generated sections.
 flowchart LR
   A[Config YAML + .env] --> B[Step 1 Connect]
   B --> C[Step 2 Gather Playlist]
-  C --> D[Step 3 Generate Sections]
+  C --> D[Step 3 Plan and Generate Sections]
   D --> E[Step 4 TTS + ID3 + Covers]
   E --> F[Step 5 Sync + Publish Playlist]
 ```
@@ -68,6 +66,7 @@ flowchart LR
 - A Music Assistant instance with API access
 - OpenAI API key for LLM (and optional images/news search)
 - TTS API key for selected provider (`OPENAI_API_KEY` or `ELEVENLABS_API_KEY`)
+- A way to share generated MP3 files with Music Assistant (e.g. local filesystem, SMB/NFS share, etc.)
 
 ## Setup
 
@@ -212,3 +211,9 @@ Generated section track metadata:
 - `.env` is loaded automatically from repository root.
 - Runtime artifacts are written to `.tmp/`.
 - If a section cover is missing, MP3 generation still succeeds.
+
+## Disclaimer
+
+- This project is an independent community project and is not affiliated with, endorsed by, or officially connected to the Music Assistant project or the Open Home Foundation.
+- "Music Assistant", "Open Home Foundation", and related names, logos, and marks are the property of their respective owners.
+- Any reference to third-party names/logos in documentation or examples is for identification, compatibility, or commentary purposes only (nominative fair use/fair usage context).

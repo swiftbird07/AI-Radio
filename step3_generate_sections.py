@@ -26,6 +26,8 @@ from lib.context_providers import (
 from lib.openai_provider import OpenAIProvider
 
 EMPTY_SECTION_ID = "EMPTY_SECTION"
+VALID_WEB_SEARCH_MODES = {"disabled", "allow", "force"}
+WEB_SEARCH_MODE_RANK = {"disabled": 0, "allow": 1, "force": 2}
 
 
 @dataclass
@@ -319,6 +321,65 @@ def resolve_section_name(section: dict[str, Any], fallback_id: str) -> str:
     return fallback_id.replace("_", " ")
 
 
+def resolve_web_search_mode(section: dict[str, Any], section_id: str) -> str:
+    raw_mode = str(section.get("web_search", "disabled")).strip().lower()
+    if raw_mode == "allowed":
+        raw_mode = "allow"
+    mode = raw_mode or "disabled"
+    if mode not in VALID_WEB_SEARCH_MODES:
+        raise ValueError(
+            f"Invalid web_search mode '{raw_mode}' in section '{section_id}'. "
+            f"Allowed values: {sorted(VALID_WEB_SEARCH_MODES)}"
+        )
+    return mode
+
+
+def derive_meta_web_search_mode(
+    section_ids: list[str],
+    section_by_id: dict[str, dict[str, Any]],
+) -> str:
+    best_rank = WEB_SEARCH_MODE_RANK["disabled"]
+    for section_id in section_ids:
+        section = section_by_id.get(section_id)
+        if not section:
+            continue
+        section_type = str(section.get("type", "ai_text")).strip().lower()
+        if section_type != "ai_text":
+            continue
+        mode = resolve_web_search_mode(section, section_id)
+        best_rank = max(best_rank, WEB_SEARCH_MODE_RANK[mode])
+    for mode, rank in WEB_SEARCH_MODE_RANK.items():
+        if rank == best_rank:
+            return mode
+    return "disabled"
+
+
+def derive_merged_section_name(
+    section_ids: list[str],
+    section_by_id: dict[str, dict[str, Any]],
+) -> str:
+    names: list[str] = []
+    seen: set[str] = set()
+    for section_id in section_ids:
+        section = section_by_id.get(section_id)
+        if section:
+            name = resolve_section_name(section, section_id).strip()
+        else:
+            name = section_id.replace("_", " ").strip()
+        if not name:
+            continue
+        normalized = name.casefold()
+        if normalized in seen:
+            continue
+        seen.add(normalized)
+        names.append(name)
+    if names:
+        return " + ".join(names)
+    if section_ids:
+        return section_ids[0].replace("_", " ")
+    return "Merged Section"
+
+
 def main() -> None:
     args = parse_args()
     config = load_config(args.config)
@@ -365,6 +426,16 @@ def main() -> None:
 
     sections = config.get("sections", [])
     section_by_id = {str(section["id"]): section for section in sections if "id" in section}
+    for section_id, section in section_by_id.items():
+        section_type = str(section.get("type", "ai_text")).strip().lower()
+        if section_type == "ai_meta":
+            if "web_search" in section:
+                raise ValueError(
+                    f"Section '{section_id}' (type=ai_meta) must not define 'web_search'. "
+                    "Meta mode is derived from merged ai_text sections."
+                )
+            continue
+        resolve_web_search_mode(section, section_id)
     validate_config_references(config, set(section_by_id.keys()))
     print(f"[step3] Config has {len(section_by_id)} sections.")
 
@@ -668,18 +739,31 @@ def main() -> None:
                 "Never stop mid-sentence."
             )
 
+        web_search_mode = resolve_web_search_mode(section, section_id)
         print(
             f"[step3] Generating #{index:03d} section={section_id} "
-            f"insert_at={slot.at_index} max_chars={max_chars or 'n/a'}"
+            f"insert_at={slot.at_index} max_chars={max_chars or 'n/a'} "
+            f"web_search={web_search_mode}"
         )
 
-        text = llm.generate_text(
-            model=model,
-            system_instructions=instructions,
-            user_prompt=prompt,
-            temperature=temperature,
-            max_tokens=max_tokens,
-        )
+        if web_search_mode == "disabled":
+            text = llm.generate_text(
+                model=model,
+                system_instructions=instructions,
+                user_prompt=prompt,
+                temperature=temperature,
+                max_tokens=max_tokens,
+            )
+        else:
+            text = llm.generate_text_with_web_search(
+                model=model,
+                user_prompt=prompt,
+                system_instructions=instructions,
+                city=city or None,
+                country=country or None,
+                force_web_search=web_search_mode == "force",
+                search_context_size="medium",
+            )
         original_len = len(text)
         if max_chars > 0:
             text = soft_limit_text(text, max_chars=max_chars, tolerance_ratio=0.15)
@@ -742,14 +826,32 @@ def main() -> None:
                     "It may exceed by up to 15% if needed to finish naturally. "
                     "Never stop mid-sentence."
                 )
-            print(f"[step3-meta] merging slot={slot_key} sections={section_names}")
-            merged_text = llm.generate_text(
-                model=model,
-                system_instructions=instructions,
-                user_prompt=meta_prompt,
-                temperature=temperature,
-                max_tokens=max_tokens,
-            ).strip()
+            meta_web_search_mode = derive_meta_web_search_mode(
+                section_ids=section_names,
+                section_by_id=section_by_id,
+            )
+            print(
+                f"[step3-meta] merging slot={slot_key} sections={section_names} "
+                f"web_search={meta_web_search_mode}"
+            )
+            if meta_web_search_mode == "disabled":
+                merged_text = llm.generate_text(
+                    model=model,
+                    system_instructions=instructions,
+                    user_prompt=meta_prompt,
+                    temperature=temperature,
+                    max_tokens=max_tokens,
+                ).strip()
+            else:
+                merged_text = llm.generate_text_with_web_search(
+                    model=model,
+                    user_prompt=meta_prompt,
+                    system_instructions=instructions,
+                    city=city or None,
+                    country=country or None,
+                    force_web_search=meta_web_search_mode == "force",
+                    search_context_size="medium",
+                ).strip()
             if not merged_text:
                 merged_text = " ".join(str(entry.get("prompt_base", "")).strip() for entry in entries).strip()
             if combined_max_chars > 0:
@@ -758,13 +860,14 @@ def main() -> None:
                     max_chars=combined_max_chars,
                     tolerance_ratio=0.15,
                 )
+            merged_section_id = build_multi_section_id(section_names)
             output_items.append(
                 {
                 "order": min(int(entry["order"]) for entry in entries),
-                "section_id": build_multi_section_id(section_names),
-                "section_name": resolve_section_name(
-                    meta_section,
-                    build_multi_section_id(section_names),
+                "section_id": merged_section_id,
+                "section_name": derive_merged_section_name(
+                    section_ids=section_names,
+                    section_by_id=section_by_id,
                 ),
                 "when": str(entries[0]["when"]),
                 "insert_at_index": int(entries[0]["insert_at_index"]),
@@ -773,7 +876,7 @@ def main() -> None:
                 }
             )
             print(
-                f"[step3-meta] created merged section_id={build_multi_section_id(section_names)} "
+                f"[step3-meta] created merged section_id={merged_section_id} "
                 f"insert_at={entries[0]['insert_at_index']}"
             )
 

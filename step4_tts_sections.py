@@ -307,7 +307,6 @@ def main() -> None:
     section_cover_map: dict[str, str] = {}
     section_name_map: dict[str, str] = {}
     ai_meta_cover: str | None = None
-    ai_meta_name: str | None = None
     for section_cfg in sections_cfg:
         section_cfg_id = str(section_cfg.get("id", "")).strip()
         section_cfg_name = str(section_cfg.get("name", "")).strip()
@@ -320,8 +319,6 @@ def main() -> None:
         if section_type == "ai_meta":
             if cover_file and not ai_meta_cover:
                 ai_meta_cover = cover_file
-            if section_cfg_name and not ai_meta_name:
-                ai_meta_name = section_cfg_name
 
     sync_wait_seconds = 5
     try:
@@ -390,7 +387,6 @@ def main() -> None:
         section_name = (
             str(section.get("section_name", "")).strip()
             or section_name_map.get(section_id_base, "")
-            or (ai_meta_name if section_id_base.startswith("multi_") and ai_meta_name else "")
             or section_id_base.replace("_", " ")
         )
         metadata_title = f"{section_name} [{run_id}]"

@@ -199,16 +199,25 @@ sections:
   # type:
   #   - ai_text: normal generated section
   #   - ai_meta: used to merge multiple sections in same between-song slot
+  #     (its output name is derived from merged ai_text section names)
   # cover_image:
   #   Filename under general.covers_path. Optional.
   # prompt:
   #   Text prompt with placeholders.
+  # web_search:
+  #   Optional per ai_text section web search mode:
+  #   - disabled (default): no web tool
+  #   - allow: web tool available, model may decide to use it
+  #   - force: web tool is required
+  #   Note: ai_meta sections do not support this field; their mode is derived
+  #   from merged ai_text sections with priority: force > allow > disabled.
   # constraints.max_chars:
   #   Soft target length; small overflow is allowed to avoid hard cut-offs.
 
   - id: Song_Introduction_Start
     name: Song Introduction Start
     type: ai_text
+    web_search: disabled
     cover_image: air.png
     prompt: >
       First track: <next_songinfo>.
@@ -220,6 +229,7 @@ sections:
   - id: Song_Introduction_Middle
     name: Song Introduction Middle
     type: ai_text
+    web_search: disabled
     cover_image: air.png
     prompt: >
       Brief, engaging intro for <next_songinfo>.
@@ -230,6 +240,7 @@ sections:
   - id: Song_Introduction_End
     name: Song Introduction End
     type: ai_text
+    web_search: disabled
     cover_image: air.png
     prompt: >
       Last track: <next_songinfo>.
@@ -240,6 +251,7 @@ sections:
   - id: Song_Transition
     name: Song Transition
     type: ai_text
+    web_search: disabled
     cover_image: air.png
     prompt: >
       Transition from <prev_songinfo> to <next_songinfo>.
@@ -250,6 +262,7 @@ sections:
   - id: Song_FunFacts_Context
     name: Song Fun Facts
     type: ai_text
+    web_search: disabled
     cover_image: air.png
     prompt: >
       Add a short context or fun fact around <prev_songinfo> or <next_songinfo>.
@@ -260,6 +273,7 @@ sections:
   - id: Song_Random_Funny_Life_Bit
     name: Random Funny Life Bit
     type: ai_text
+    web_search: disabled
     cover_image: air.png
     prompt: >
       Mention <prev_songinfo> and <next_songinfo> once each, then switch into a short
@@ -270,6 +284,7 @@ sections:
   - id: Weather_Short
     name: Weather Short
     type: ai_text
+    web_search: disabled
     cover_image: air.png
     prompt: >
       Short weather update from <weather_hourly> with time <timestamp>.
@@ -280,6 +295,7 @@ sections:
   - id: News_Headlines_Local
     name: Local News
     type: ai_text
+    web_search: disabled
     cover_image: air.png
     prompt: >
       Local headlines from <news_headlines_local>.
@@ -289,6 +305,7 @@ sections:
   - id: News_Headlines_National
     name: National News
     type: ai_text
+    web_search: disabled
     cover_image: air.png
     prompt: >
       National headlines from <news_headlines_national>.
@@ -298,6 +315,7 @@ sections:
   - id: News_Headlines_International
     name: International News
     type: ai_text
+    web_search: disabled
     cover_image: air.png
     prompt: >
       International headlines from <news_headlines_international>.
