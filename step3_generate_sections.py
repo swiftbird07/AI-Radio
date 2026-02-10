@@ -25,6 +25,8 @@ from lib.context_providers import (
 )
 from lib.openai_provider import OpenAIProvider
 
+EMPTY_SECTION_ID = "EMPTY_SECTION"
+
 
 @dataclass
 class Slot:
@@ -127,6 +129,54 @@ def pick_weighted_choice(choices: list[dict[str, Any]], rng: random.Random) -> s
     return valid[-1][0]
 
 
+def is_empty_section(section_id: str) -> bool:
+    return section_id.strip().upper() == EMPTY_SECTION_ID
+
+
+def parse_history_seed(raw: Any) -> dict[str, list[tuple[int, float]]]:
+    parsed: dict[str, list[tuple[int, float]]] = {}
+    if not isinstance(raw, dict):
+        return parsed
+    for section_id_raw, events_raw in raw.items():
+        section_id = str(section_id_raw).strip()
+        if not section_id:
+            continue
+        if not isinstance(events_raw, list):
+            continue
+        events: list[tuple[int, float]] = []
+        for event in events_raw:
+            song_index: int | None = None
+            minute_mark: float | None = None
+            if isinstance(event, dict):
+                song_index_val = event.get("song_index")
+                minute_mark_val = event.get("minute_mark")
+                if isinstance(song_index_val, (int, float)):
+                    song_index = int(song_index_val)
+                if isinstance(minute_mark_val, (int, float)):
+                    minute_mark = float(minute_mark_val)
+            elif isinstance(event, (list, tuple)) and len(event) >= 2:
+                if isinstance(event[0], (int, float)):
+                    song_index = int(event[0])
+                if isinstance(event[1], (int, float)):
+                    minute_mark = float(event[1])
+            if song_index is None or minute_mark is None:
+                continue
+            events.append((song_index, minute_mark))
+        if events:
+            parsed[section_id] = events
+    return parsed
+
+
+def serialize_history_state(history: dict[str, list[tuple[int, float]]]) -> dict[str, list[dict[str, float | int]]]:
+    return {
+        section_id: [
+            {"song_index": int(song_index), "minute_mark": float(minute_mark)}
+            for song_index, minute_mark in events
+        ]
+        for section_id, events in history.items()
+    }
+
+
 def resolve_placeholder_values(
     config: dict[str, Any],
     tracks: list[dict[str, Any]],
@@ -201,7 +251,9 @@ def validate_config_references(config: dict[str, Any], section_ids: set[str]) ->
             if not isinstance(item, dict):
                 raise ValueError(f"Unsupported flow entry: {item}")
             if "MUST" in item:
-                section_id = str(item["MUST"])
+                section_id = str(item["MUST"]).strip()
+                if is_empty_section(section_id):
+                    continue
                 if section_id not in section_ids:
                     raise ValueError(f"Unknown section id in MUST: {section_id}")
                 continue
@@ -211,7 +263,9 @@ def validate_config_references(config: dict[str, Any], section_ids: set[str]) ->
                     raise ValueError("ALTERNATIVE must be a mapping.")
                 choices = alt.get("choices", [])
                 for choice in choices:
-                    section_id = str(choice.get("section", ""))
+                    section_id = str(choice.get("section", "")).strip()
+                    if is_empty_section(section_id):
+                        continue
                     if section_id not in section_ids:
                         raise ValueError(f"Unknown section id in ALTERNATIVE: {section_id}")
                 continue
@@ -219,7 +273,9 @@ def validate_config_references(config: dict[str, Any], section_ids: set[str]) ->
                 optional = item["OPTIONAL"]
                 if not isinstance(optional, dict):
                     raise ValueError("OPTIONAL must be a mapping.")
-                section_id = str(optional.get("section", ""))
+                section_id = str(optional.get("section", "")).strip()
+                if is_empty_section(section_id):
+                    continue
                 if section_id not in section_ids:
                     raise ValueError(f"Unknown section id in OPTIONAL: {section_id}")
                 continue
@@ -269,10 +325,24 @@ def main() -> None:
     workdir = resolve_workdir(args.workdir)
     step2 = read_json(workdir / "step2_playlist.json")
     tracks = step2.get("tracks", [])
+    track_index_offset = int(step2.get("track_index_offset", 0) or 0)
+    minute_offset = float(step2.get("minute_offset", 0.0) or 0.0)
+    allowed_slot_when_raw = step2.get("allowed_slot_when")
+    allowed_slot_when = (
+        {str(value).strip() for value in allowed_slot_when_raw if str(value).strip()}
+        if isinstance(allowed_slot_when_raw, list)
+        else None
+    )
+    history_seed = parse_history_seed(step2.get("history_seed", {}))
 
     if not tracks:
         raise ValueError("Step 2 produced no tracks; cannot build sections.")
     print(f"[step3] Loaded {len(tracks)} tracks from step2.")
+    if track_index_offset or minute_offset or history_seed:
+        print(
+            f"[step3] dynamic context: track_index_offset={track_index_offset} "
+            f"minute_offset={minute_offset:.2f} history_sections={len(history_seed)}"
+        )
 
     llm_config = get_provider_config(config, "LLM")
     provider_name = str(llm_config.get("provider_name", "")).lower()
@@ -288,8 +358,7 @@ def main() -> None:
     temperature = float(general.get("temperature", 0.7))
     max_tokens = int(general.get("max_tokens", 900))
     instructions = str(general.get("instructions", "")).strip()
-    seed = int(general.get("seed", 42))
-    rng = random.Random(seed)
+    rng = random.Random()
 
     sections = config.get("sections", [])
     section_by_id = {str(section["id"]): section for section in sections if "id" in section}
@@ -299,7 +368,9 @@ def main() -> None:
     slots = build_slots(tracks)
     print(f"[step3] Built {len(slots)} insertion slots.")
     rules = config.get("section_order", [])
-    history: dict[str, list[tuple[int, float]]] = {}
+    history: dict[str, list[tuple[int, float]]] = {
+        section_id: list(events) for section_id, events in history_seed.items()
+    }
     selected_sections: list[dict[str, Any]] = []
     runtime_values: dict[str, str] = {}
     weather_loaded = False
@@ -310,10 +381,15 @@ def main() -> None:
     location = Location(city=city, country=country) if city and country else None
 
     def register_section_event(section_id: str, slot: Slot) -> None:
+        if is_empty_section(section_id):
+            return
+        song_index_local = slot.next_index if slot.next_index is not None else len(tracks)
+        song_index_global = track_index_offset + song_index_local
+        minute_mark_global = minute_offset + slot.minute_mark
         history.setdefault(section_id, []).append(
             (
-                slot.next_index if slot.next_index is not None else len(tracks),
-                slot.minute_mark,
+                song_index_global,
+                minute_mark_global,
             )
         )
 
@@ -402,6 +478,8 @@ def main() -> None:
                 print(f"[step3] unsupported NEWS provider '{news_provider_name}', skipping news.")
 
     for slot in slots:
+        if allowed_slot_when is not None and slot.when not in allowed_slot_when:
+            continue
         matching_rules = [rule for rule in rules if str(rule.get("when")) == slot.when]
         if not matching_rules:
             continue
@@ -412,7 +490,15 @@ def main() -> None:
 
             for item in flow:
                 if "MUST" in item:
-                    section_id = str(item["MUST"])
+                    section_id = str(item["MUST"]).strip()
+                    if not section_id:
+                        continue
+                    if is_empty_section(section_id):
+                        print(
+                            f"[step3] skip section={section_id} reason=empty_section "
+                            f"when={slot.when}"
+                        )
+                        continue
                     selected_sections.append(
                         {
                             "section_id": section_id,
@@ -424,6 +510,12 @@ def main() -> None:
                 elif "ALTERNATIVE" in item:
                     alt = item["ALTERNATIVE"] or {}
                     picked = pick_weighted_choice(alt.get("choices", []), rng)
+                    if is_empty_section(picked):
+                        print(
+                            f"[step3] alternative picked section={picked} -> skip generation "
+                            f"when={slot.when} insert_at={slot.at_index}"
+                        )
+                        continue
                     selected_sections.append(
                         {
                             "section_id": picked,
@@ -434,7 +526,7 @@ def main() -> None:
                     register_section_event(picked, slot)
                 elif "OPTIONAL" in item:
                     optional = item["OPTIONAL"] or {}
-                    section_id = str(optional.get("section", ""))
+                    section_id = str(optional.get("section", "")).strip()
                     if not section_id:
                         continue
                     raw_chance = float(optional.get("chance", 0))
@@ -447,13 +539,22 @@ def main() -> None:
                         )
                         continue
 
+                    if is_empty_section(section_id):
+                        print(
+                            f"[step3] optional hit section={section_id} -> no generation "
+                            f"roll={roll:.3f} chance={chance:.3f}"
+                        )
+                        continue
+
                     guards = optional.get("guards", {}) or {}
                     min_gap_songs = int(guards.get("min_gap_songs", 0))
                     max_per_60min = int(guards.get("max_per_60min", 0))
                     required_placeholders = guards.get("require_placeholders_present", []) or []
 
                     events = history.get(section_id, [])
-                    current_song_idx = slot.next_index if slot.next_index is not None else len(tracks)
+                    current_song_idx_local = slot.next_index if slot.next_index is not None else len(tracks)
+                    current_song_idx = track_index_offset + current_song_idx_local
+                    current_minute_mark = minute_offset + slot.minute_mark
                     if min_gap_songs > 0 and events:
                         last_song_idx = events[-1][0]
                         if (current_song_idx - last_song_idx) < min_gap_songs:
@@ -464,7 +565,7 @@ def main() -> None:
                             continue
                     if max_per_60min > 0:
                         in_window = [
-                            event for event in events if (slot.minute_mark - event[1]) <= 60.0
+                            event for event in events if (current_minute_mark - event[1]) <= 60.0
                         ]
                         if len(in_window) >= max_per_60min:
                             print(
@@ -677,8 +778,10 @@ def main() -> None:
 
     output = {
         "generated_sections_count": len(output_items),
-        "seed": seed,
         "model": model,
+        "track_index_offset": track_index_offset,
+        "minute_offset": minute_offset,
+        "history_state": serialize_history_state(history),
         "sections": output_items,
     }
     output_path = workdir / "step3_sections.json"

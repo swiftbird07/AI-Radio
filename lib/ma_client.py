@@ -6,7 +6,7 @@ import threading
 from typing import Any, Callable, Coroutine, TypeVar
 
 from music_assistant_client import MusicAssistantClient as SDKClient
-from music_assistant_models.enums import ImageType, MediaType
+from music_assistant_models.enums import ImageType, MediaType, QueueOption
 from music_assistant_models.errors import MusicAssistantError as SDKError
 from music_assistant_models.errors import ProviderUnavailableError as SDKProviderUnavailableError
 from music_assistant_models.media_items import MediaItemImage
@@ -214,5 +214,54 @@ class MusicAssistantClient:
     def start_sync(self, providers: list[str] | None = None) -> None:
         async def op(client: SDKClient) -> None:
             await client.music.start_sync(media_types=[MediaType.TRACK], providers=providers)
+
+        self._run(op)
+
+    def get_active_queue(self, player_id: str) -> dict[str, Any] | None:
+        async def op(client: SDKClient) -> dict[str, Any] | None:
+            queue = await client.player_queues.get_active_queue(player_id)
+            if queue is None:
+                return None
+            return self._model_to_dict(queue)
+
+        return self._run(op)
+
+    def get_queue_items(
+        self,
+        queue_id: str,
+        limit: int = 500,
+        offset: int = 0,
+    ) -> list[dict[str, Any]]:
+        async def op(client: SDKClient) -> list[dict[str, Any]]:
+            items = await client.player_queues.get_queue_items(queue_id, limit=limit, offset=offset)
+            return [self._model_to_dict(x) for x in items]
+
+        return self._run(op)
+
+    def clear_queue(self, queue_id: str) -> None:
+        async def op(client: SDKClient) -> None:
+            await client.player_queues.clear(queue_id)
+
+        self._run(op)
+
+    def queue_play_media(
+        self,
+        queue_id: str,
+        media: str | list[str],
+        option: str = "add",
+    ) -> None:
+        async def op(client: SDKClient) -> None:
+            queue_option = QueueOption(option.lower())
+            await client.player_queues.play_media(
+                queue_id=queue_id,
+                media=media,
+                option=queue_option,
+            )
+
+        self._run(op)
+
+    def queue_play(self, queue_id: str) -> None:
+        async def op(client: SDKClient) -> None:
+            await client.player_queues.play(queue_id)
 
         self._run(op)

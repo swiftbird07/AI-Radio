@@ -5,6 +5,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 
 from lib.openai_provider import OpenAIProvider, OpenAIProviderError
@@ -43,15 +44,17 @@ class OpenMeteoProvider:
             raise ContextProviderError(f"Invalid JSON from {url}") from exc
 
     def _geocode(self, location: Location) -> tuple[float, float, str]:
+        country_text = location.country.strip()
+        country_text_lower = country_text.lower()
+        country_code = country_text.upper() if len(country_text) == 2 and country_text.isalpha() else ""
         query: dict[str, Any] = {
             "name": location.city,
-            "count": 1,
+            "count": 10,
             "language": "en",
             "format": "json",
         }
-        country_text = location.country.strip()
-        if len(country_text) == 2 and country_text.isalpha():
-            query["country"] = country_text.upper()
+        if country_code:
+            query["country"] = country_code
         data = self._get_json(
             "https://geocoding-api.open-meteo.com/v1/search",
             query,
@@ -61,10 +64,20 @@ class OpenMeteoProvider:
             raise ContextProviderError(
                 f"No geocoding result for {location.city}, {location.country}"
             )
-        first = results[0]
-        lat = float(first["latitude"])
-        lon = float(first["longitude"])
-        tz = str(first.get("timezone") or "UTC")
+        selected = results[0]
+        if country_text_lower:
+            for candidate in results:
+                candidate_country = str(candidate.get("country", "")).strip().lower()
+                candidate_country_code = str(candidate.get("country_code", "")).strip().upper()
+                if candidate_country and candidate_country == country_text_lower:
+                    selected = candidate
+                    break
+                if country_code and candidate_country_code == country_code:
+                    selected = candidate
+                    break
+        lat = float(selected["latitude"])
+        lon = float(selected["longitude"])
+        tz = str(selected.get("timezone") or "UTC")
         return lat, lon, tz
 
     def get_weather_strings(self, location: Location) -> tuple[str, str]:
@@ -89,8 +102,23 @@ class OpenMeteoProvider:
         hourly_times = hourly.get("time") or []
         hourly_temp = hourly.get("temperature_2m") or []
         hourly_prec = hourly.get("precipitation_probability") or []
+        current_time = str(current.get("time") or "").strip()
+        start_index = 0
+        if current_time and current_time in hourly_times:
+            start_index = int(hourly_times.index(current_time))
+        elif hourly_times:
+            now_local = datetime.now()
+            for idx, ts_raw in enumerate(hourly_times):
+                try:
+                    ts_obj = datetime.fromisoformat(str(ts_raw))
+                except Exception:
+                    continue
+                if ts_obj >= now_local:
+                    start_index = idx
+                    break
         parts = []
-        for i in range(min(6, len(hourly_times), len(hourly_temp), len(hourly_prec))):
+        max_items = min(len(hourly_times), len(hourly_temp), len(hourly_prec))
+        for i in range(start_index, min(start_index + 6, max_items)):
             ts = str(hourly_times[i]).replace("T", " ")
             parts.append(f"{ts}: {hourly_temp[i]}C, rain {hourly_prec[i]}%")
         current_text = ""

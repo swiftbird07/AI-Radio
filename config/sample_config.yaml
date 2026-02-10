@@ -48,10 +48,6 @@ general:
   # Max output tokens per LLM generation call.
   max_tokens: 900
 
-  # Optional deterministic seed for section planning/generation flow.
-  # Remove this key to use non-deterministic PRNG behavior.
-  seed: 42
-
   # Local folder where step 4 writes generated TXT + MP3 section files.
   # Absolute or relative path.
   section_store_path: "./output/sections/"
