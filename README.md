@@ -1,6 +1,6 @@
 # AI Radio
 
-![AI Radio](covers/air.png)
+<img src="covers/air.png" alt="AI Radio" width="180" />
 
 AI Radio is a tool that uses AI to convert your Music Assistant playlists to a radio station.
 
