@@ -9,6 +9,7 @@ This project takes a source playlist, injects AI-generated moderator sections (i
 - 5-step pipeline with clear boundaries and debug output
 - Music Assistant integration via `music-assistant-client` SDK
 - Rule-based section scheduling (`MUST`, `ALTERNATIVE`, `OPTIONAL` + guards)
+- Dynamic generation mode with live queue updates (`--dynamic-generation`)
 - Optional weather context (Open-Meteo)
 - Optional news context with OpenAI web search
 - OpenAI or ElevenLabs TTS generation for all sections
@@ -55,8 +56,10 @@ flowchart LR
 - `main.py`: pipeline orchestrator
 - `step1_connect.py` ... `step5_update_playlist.py`: pipeline steps
 - `step_generate_covers.py`: one-shot section cover generation
+- `dynamic_daemon.py`: HTTP daemon to start/stop dynamic generation runs
 - `lib/`: shared modules (`ma_client`, providers, helpers)
 - `config/sample_config.yaml`: fully documented reference config
+- `deploy/ai-radio-dynamic-daemon.service`: systemd unit for daemon deployment
 - `.tmp/`: runtime artifacts (ignored by git)
 
 ## Requirements
@@ -129,6 +132,45 @@ Step 5 billing check only:
 ```bash
 python3 step5_update_playlist.py -c config/local_config.yaml --only-oai-check
 ```
+
+Dynamic generation mode (no target playlist creation, queue playback directly):
+
+```bash
+python3 main.py -c config/non_techno_playlist.yml --dynamic-generation 1 --playback-device ap8aedae8231f2
+```
+
+Dynamic daemon (HTTP start/stop for dynamic mode):
+
+```bash
+python3 dynamic_daemon.py --port 8787 --auth-token YOUR_TOKEN
+```
+
+Start dynamic generation:
+
+```bash
+curl -H "Authorization: Bearer YOUR_TOKEN" \
+  "http://127.0.0.1:8787/start-dynamic?playback-id=ap8aedae8231f2&generate_count=1&config=config/non_techno_playlist.yml"
+```
+
+Stop current dynamic run:
+
+```bash
+curl -H "Authorization: Bearer YOUR_TOKEN" \
+  "http://127.0.0.1:8787/stop-dynamic"
+```
+
+Systemd service file is included at `deploy/ai-radio-dynamic-daemon.service`.
+
+Install service (Linux/systemd):
+
+```bash
+sudo cp deploy/ai-radio-dynamic-daemon.service /etc/systemd/system/ai-radio-dynamic-daemon.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now ai-radio-dynamic-daemon.service
+sudo systemctl status ai-radio-dynamic-daemon.service
+```
+
+`DYNAMIC_DAEMON_TOKEN` can be provided via `.env` or `.env.dynamic-daemon`.
 
 ## Configuration Guide
 
