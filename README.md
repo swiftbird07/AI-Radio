@@ -1,4 +1,4 @@
-# AI Radio
+# AI Radio for Music Assistant
 
 <img src="covers/air.png" alt="AI Radio" width="180" />
 
