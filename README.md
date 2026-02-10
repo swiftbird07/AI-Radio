@@ -57,7 +57,6 @@ flowchart LR
 - `dynamic_daemon.py`: HTTP daemon to start/stop dynamic generation runs
 - `lib/`: shared modules (`ma_client`, providers, helpers)
 - `config/sample_config.yaml`: fully documented reference config
-- `deploy/ai-radio-dynamic-daemon.service`: systemd unit for daemon deployment
 - `.tmp/`: runtime artifacts (ignored by git)
 
 ## Requirements
@@ -158,18 +157,6 @@ curl -H "Authorization: Bearer YOUR_TOKEN" \
   "http://127.0.0.1:8787/stop-dynamic"
 ```
 
-Systemd service file is included at `deploy/ai-radio-dynamic-daemon.service`.
-
-Install service (Linux/systemd):
-
-```bash
-sudo cp deploy/ai-radio-dynamic-daemon.service /etc/systemd/system/ai-radio-dynamic-daemon.service
-sudo systemctl daemon-reload
-sudo systemctl enable --now ai-radio-dynamic-daemon.service
-sudo systemctl status ai-radio-dynamic-daemon.service
-```
-
-`DYNAMIC_DAEMON_TOKEN` can be provided via `.env` or `.env.dynamic-daemon`.
 
 ## Configuration Guide
 
